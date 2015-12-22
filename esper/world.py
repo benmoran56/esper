@@ -13,6 +13,7 @@ class World:
 
     @property
     def database(self):
+        """View the Entity/Component database."""
         return self._database
 
     def add_processor(self, processor_instance, priority=0):
@@ -44,7 +45,15 @@ class World:
         self._next_entity_id += 1
         return self._next_entity_id
 
+    def delete_entity(self):
+        pass
+
     def add_component(self, entity, component_instance):
+        """Add a new Component instance to an Entity.
+
+        :param entity: The Entity to associate the Component with.
+        :param component_instance: A Component instance.
+        """
         component_type = type(component_instance)
         if entity not in self._database:
             self._database[entity] = {component_type: component_instance}
@@ -53,10 +62,18 @@ class World:
         # TODO: raise an exception if the component type already exists? Or just replace it?
 
     def remove_component(self, entity, component_type):
+        """Remove a Component from an Entity, by type.
+
+        An Component instance can be removed from an Entity by
+        providing it's type.
+        For example: remove_component(player, Velocity) will remove
+        the Velocity instance from the player Entity.
+
+        :param entity: The Entity to remove the Component from.
+        :param component_type: The type of the Component to remove.
+        """
         try:
             del self._database[entity][component_type]
-            if len(self._database[entity]) == 0:
-                del self._database[entity]
         except KeyError:
             pass
 
