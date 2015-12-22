@@ -5,7 +5,7 @@ class Component:
     pass
 
 
-class System:
+class Processor:
     def __init__(self):
         self.world = None
 

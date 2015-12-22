@@ -17,7 +17,7 @@ class Position(esper.Component):
         self.y = y
 
 
-class MovementProcessor(esper.System):
+class MovementProcessor(esper.Processor):
     def process(self):
         for e, v in self.world.get_component(Velocity):
             print(e, v)
@@ -33,7 +33,7 @@ world.add_component(enemy, Velocity())
 world.add_component(enemy, Position())
 
 movement_processor = MovementProcessor()
-world.add_system(movement_processor)
+world.add_processor(movement_processor)
 
 start = time.time()
 try:

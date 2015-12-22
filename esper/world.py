@@ -7,7 +7,7 @@ class World:
         A World keeps track of all entities and their related components. It
         also calls the process method on any Systems assigned to it.
         """
-        self._systems = []
+        self._processors = []
         self._next_entity_id = 0
         self._database = {}
 
@@ -15,25 +15,25 @@ class World:
     def database(self):
         return self._database
 
-    def add_system(self, system_instance, priority=0):
-        """Add a System instance to the world.
+    def add_processor(self, processor_instance, priority=0):
+        """Add a Processor instance to the world.
 
-        :param system_instance: An instance of a System subclassed from the System class
+        :param processor_instance: An instance of a System subclassed from the System class
         :param priority: The processing order for the System, with smaller
         numbers being a higher priority. For example: 2 is processed before 5.
         """
-        system_instance.priority = priority
-        system_instance.world = self
-        self._systems.append(system_instance)
-        self._systems.sort(key=lambda s: s.priority)
+        processor_instance.priority = priority
+        processor_instance.world = self
+        self._processors.append(processor_instance)
+        self._processors.sort(key=lambda processor: processor.priority)
 
-    def delete_system(self, system_instance):
-        """Delete a system from the World.
+    def remove_processor(self, processor_instance):
+        """Remove a Processor instance from the World.
 
-        :param system_instance: The System instance you wish to delete.
+        :param processor_instance: The Processor instance you wish to remove.
         """
-        system_instance.world = None
-        self._systems.remove(system_instance)
+        processor_instance.world = None
+        self._processors.remove(processor_instance)
 
     def create_entity(self):
         """Create a new entity.
@@ -76,6 +76,5 @@ class World:
 
     def process(self):
         """Process all Systems, in order of their priority."""
-        for system in self._systems:
-            system.process()
-
+        for processor in self._processors:
+            processor.process()
