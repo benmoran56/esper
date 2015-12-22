@@ -1,6 +1,6 @@
 
 
-class Component(object):
+class Component:
     """All components should inherrit from this class."""
     pass
 
