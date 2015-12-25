@@ -1,7 +1,7 @@
 from .world import World
-from .models import Component, Processor
+from .templates import Processor
 
-__version__ = "0.2"
+__version__ = "0.3"
 __author__ = None
 __license__ = "MIT"
 __copyright__ = "Benjamin Moran"
