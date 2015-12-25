@@ -2,10 +2,10 @@ import time
 import gc
 import esper
 
-###########################################
-# Instantiate the entity and system managers:
-###########################################
-world = esper.World()
+
+#############################
+# Simple timing decorator
+#############################
 result_times = []
 
 
@@ -17,6 +17,12 @@ def timing(f):
         result_times.append((time2 - time1)*1000.0)
         return ret
     return wrap
+
+
+#############################
+#  Instantiate the game world
+#############################
+world = esper.World()
 
 
 #################################

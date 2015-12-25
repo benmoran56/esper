@@ -21,3 +21,23 @@ Usage
 Esper is a tiny library, and is intended to be dropped directly into your project.
 Simply copy the *esper* directory into the top level of your project folder, and
 *import esper*. See the *examples* folder for more details.
+
+A short code snipped showing the bare basics::
+
+    # Create a World instance to hold everything:
+    world = esper.World()
+
+    # Instantiate a Processor (or more), and add them to the world:
+    movement_processor = MovementProcessor()
+    world.add_processor(movement_processor)
+
+    # Create entities, and assign Component instances to them:
+    player = world.create_entity()
+    world.add_component(player, Velocity(x=0.9, y=1.2))
+    world.add_component(player, Position(x=5, y=5))
+
+    # Processors can query components as such:
+    for ent, (vel, pos) in self.world.get_components(Velocity, Position):
+        pass
+
+
