@@ -2,10 +2,10 @@
 
 class World:
     def __init__(self):
-        """A World object, which holds references to all Systems and Entities.
+        """A World object, which holds references to all Entities and Processors.
 
         A World keeps track of all entities and their related components. It
-        also calls the process method on any Systems assigned to it.
+        also handles calling the process method on any Processors assigned to it.
         """
         self._processors = []
         self._next_entity_id = 0
@@ -14,8 +14,9 @@ class World:
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the world.
 
-        :param processor_instance: An instance of a System subclassed from the System class
-        :param priority: The processing order for the System, with smaller
+        :param processor_instance: An instance of a Processor,
+        subclassed from the Processor class
+        :param priority: The processing order for the Processor, with smaller
         numbers being a higher priority. For example: 2 is processed before 5.
         """
         processor_instance.priority = priority
@@ -28,8 +29,21 @@ class World:
 
         :param processor_instance: The Processor instance you wish to remove.
         """
-        processor_instance.world = None
-        self._processors.remove(processor_instance)
+        try:
+            processor_instance.world = None
+            self._processors.remove(processor_instance)
+        except ValueError:
+            pass
+
+    def remove_processor(self, processor_type):
+        """Remove a Processor from the world, by type.
+
+        :param processor_type: The class type of the Processor to remove.
+        """
+        for processor in self._processors:
+            if type(processor) == processor_type:
+                processor.world = None
+                self._processors.remove(processor)
 
     def create_entity(self):
         """Create a new entity.
@@ -78,13 +92,12 @@ class World:
             del self._database[entity][component_type]
         except KeyError:
             pass
-        # TODO: delete from comp_database also.
 
     def get_component(self, component_type):
-        """Get an iterator for an entity, Component pair.
+        """Get an iterator for entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
-        :return: An iterator that returns (Entity, Component) tuples.
+        :return: An iterator for (Entity, Component) tuples.
         """
         database = self._database
         try:
@@ -94,7 +107,7 @@ class World:
             pass
 
     def get_components(self, *component_types):
-        """Get an iterator for an entity and multiple Components.
+        """Get an iterator for entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
         :return: An iterator for (Entity, Component1, Component2, etc)
