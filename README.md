@@ -26,11 +26,13 @@ Simply copy the *esper* directory into the top level of your project folder, and
 Structure Guidelines
 --------------------
 * Entities 
+
 Entities are simple integer IDs which contain no code or logic whatsover in Esper.
 They are "created" in Esper, but they need to have Components assigned to them to be 
 useful. They function mainly as index IDs in the internal Component database. 
 
 * Components
+
 Components are defined as simple Python classes. In keeping with pure Entity System
 guidelines, they should not contain any logic. They might have a bit of initialization
 code, but no processing logic. A simple Component might look like::
@@ -40,6 +42,7 @@ code, but no processing logic. A simple Component might look like::
         self.y = y
 
 * Processors
+
 Processors, also commenly known as "Systems", are where all processing logic is defined.
 In Esper, all Processors must inherrit from the "esper.Processor" class. They must also
 have a method called "process". Outside of that, there are no restrictions. A simple
