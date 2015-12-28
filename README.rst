@@ -1,19 +1,20 @@
 Esper
 =====
-**Esper is a lightweight Entity System for Python, designed with a focus on performance.**
+**Esper is a lightweight Entity System for Python, with a focus on performance.**
 
 The design is based on the Entity System concepts described by Adam Martin in his blog at
 T-Machines.org, and others.
 
-Esper takes inspiration by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
+Esper is inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
 and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 
 1) Compatibility
 ----------------
-Esper is developed for Python 3, and is also know to work on Pypy3.
-Python 2 is not supported, due to differences in dictionary key iteration. It can be
-made to work with a little effort, but official support is not planned.
+Esper is developed for Python 3, and is also know to work on Pypy3. Being written in pure
+Python, it should work on any compliant interpreter. Python 2, however, is not supported
+due to differences in dictionary key iteration. It could be made to work with a little
+effort, but official support is not planned.
 
 
 2) Installation

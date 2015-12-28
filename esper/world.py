@@ -2,10 +2,10 @@
 
 class World:
     def __init__(self):
-        """A World object, which holds references to all Entities and Processors.
+        """A World object keeps track of all Entities, Components and Processors.
 
-        A World keeps track of all entities and their related components. It
-        also handles calling the process method on any Processors assigned to it.
+        A World contains a database of all Entity/Component assignments. It also
+        handles calling the process method on any Processors assigned to it.
         """
         self._processors = []
         self._next_entity_id = 0
@@ -16,24 +16,14 @@ class World:
 
         :param processor_instance: An instance of a Processor,
         subclassed from the Processor class
-        :param priority: The processing order for the Processor, with smaller
-        numbers being a higher priority. For example: 2 is processed before 5.
+        :param priority: A higher number is processed first.
         """
+        # TODO: raise an exception if the same type Processor already exists.
+        # TODO: check that the processor is a subclass of esper.Processor.
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
-        self._processors.sort(key=lambda processor: processor.priority)
-
-    def remove_processor_instance(self, processor_instance):
-        """Remove a Processor instance from the World.
-
-        :param processor_instance: The Processor instance you wish to remove.
-        """
-        try:
-            processor_instance.world = None
-            self._processors.remove(processor_instance)
-        except ValueError:
-            pass
+        self._processors.sort(key=lambda processor: -processor.priority)
 
     def remove_processor(self, processor_type):
         """Remove a Processor from the world, by type.
@@ -46,29 +36,43 @@ class World:
                 self._processors.remove(processor)
 
     def create_entity(self):
-        """Create a new entity.
+        """Create a new Entity.
 
-        This method return an entity ID, which is just a simple integer.
-        :return: The next entity ID in sequence.
+        This method return an Entity ID, which is just a plain integer.
+        :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
         return self._next_entity_id
 
     def delete_entity(self, entity):
-        """Delete an entity from the World.
+        """Delete an Entity from the World.
 
-        Delete an entity from the World. This will also delete any Components
-        that are assigned to the entity.
-        :param entity: The entity ID you wish to delete.
+        Delete an Entity from the World. This will also delete any Component
+        instances that are assigned to the Entity.
+        :param entity: The Entity ID you wish to delete.
         """
         try:
             del self._database[entity]
         except KeyError:
             pass
 
+    def component_for_entity(self, entity, component_type):
+        """Retrieve a specific Component instance for an Entity.
+
+        :param entity: The Entity to retrieve the Component for.
+        :param component_type: The Component instance you wish to retrieve.
+        :return: A Component instance, *if* it exists for the Entity.
+        """
+        try:
+            return self._database[entity][component_type]
+        except KeyError:
+            pass
+
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity.
 
+        If a Component of the same type is already assigned to the Entity,
+        it will be replaced with the new one.
         :param entity: The Entity to associate the Component with.
         :param component_instance: A Component instance.
         """
@@ -77,15 +81,14 @@ class World:
             self._database[entity] = {}
         self._database[entity][component_type] = component_instance
 
-    def remove_component(self, entity, component_type):
-        """Remove a Component from an Entity, by type.
+    def delete_component(self, entity, component_type):
+        """Delete a Component instance from an Entity, by type.
 
-        An Component instance can be removed from an Entity by
-        providing it's type.
-        For example: remove_component(player, Velocity) will remove
-        the Velocity instance from the player Entity.
+        An Component instance can be Deleted by providing it's type.
+        For example: world.delete_component(enemy_a, Velocity) will remove
+        the Velocity instance from the Entity enemy_a.
 
-        :param entity: The Entity to remove the Component from.
+        :param entity: The Entity to delete the Component from.
         :param component_type: The type of the Component to remove.
         """
         try:
