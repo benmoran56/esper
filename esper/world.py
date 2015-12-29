@@ -103,11 +103,11 @@ class World:
         :return: An iterator for (Entity, Component) tuples.
         """
         database = self._database
-        try:
-            for entity in database:
+        for entity in database:
+            try:
                 yield entity, database[entity][component_type]
-        except KeyError:
-            pass
+            except KeyError:
+                pass
 
     def get_components(self, *component_types):
         """Get an iterator for entity and multiple Component sets.
@@ -117,11 +117,11 @@ class World:
         tuples.
         """
         database = self._database
-        try:
-            for entity in database:
+        for entity in database:
+            try:
                 yield entity, [database[entity][ct] for ct in component_types]
-        except KeyError:
-            pass
+            except KeyError:
+                pass
 
     def process(self):
         """Process all Systems, in order of their priority."""
