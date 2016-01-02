@@ -19,9 +19,8 @@ effort, but official support is not planned.
 
 2) Installation
 ---------------
-Esper is a tiny library, and is intended to be dropped directly into your project.
-Simply copy the *esper* directory into the top level of your project folder, and
-*import esper*.
+No installation is necessary. This is tiny library with no dependencies. Simply copy
+the *esper* directory into the top level of your project folder, and *import esper*.
 
 
 3) Structure Guidelines
