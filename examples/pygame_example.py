@@ -27,8 +27,9 @@ class Renderable:
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor:
+class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
+        super().__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -48,8 +49,9 @@ class MovementProcessor:
             rend.y = min(self.maxy - rend.h, rend.y)
 
 
-class RenderProcessor:
+class RenderProcessor(esper.Processor):
     def __init__(self, window, clear_color=(0, 0, 0)):
+        super().__init__()
         self.window = window
         self.clear_color = clear_color
 

@@ -20,9 +20,9 @@ class Position:
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor:
+class MovementProcessor(esper.Processor):
     def __init__(self):
-        pass
+        super().__init__()
 
     def process(self):
         for ent, (vel, pos) in self.world.get_components(Velocity, Position):
