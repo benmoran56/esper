@@ -3,12 +3,9 @@ import gc
 import esper
 
 
-#############################
-# Simple timing decorator
-#############################
-result_times = []
-
-
+##########################
+# Simple timing decorator:
+##########################
 def timing(f):
     def wrap(*args):
         time1 = time.time()
@@ -19,9 +16,9 @@ def timing(f):
     return wrap
 
 
-#############################
-#  Instantiate the game world
-#############################
+##############################
+#  Instantiate the game world:
+##############################
 world = esper.World()
 
 
@@ -67,10 +64,9 @@ class Brain:
         self.smarts = 9000
 
 
-############################
-# Set up some dummy entities
-############################
-
+#############################
+# Set up some dummy entities:
+#############################
 def create_entities(number):
     for _ in range(number):
         enemy = world.create_entity()
@@ -83,6 +79,9 @@ def create_entities(number):
         world.add_component(enemy, Damageable())
 
 
+#############################
+# Some timed query functions:
+#############################
 @timing
 def single_comp_query():
     for _, _ in world.get_component(Velocity):
@@ -101,15 +100,14 @@ def three_comp_query():
         pass
 
 
-@timing
-def four_comp_query():
-    for _, (_, _, _, _) in world.get_components(Velocity, Health, Command, Brain):
-        pass
-
+#################################################
+# Perform several queries, and print the results:
+#################################################
+result_times = []
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
-    for _ in range(10):
+    for _ in range(20):
         single_comp_query()
     print("Query one component, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
     result_times = []
@@ -118,7 +116,7 @@ for amount in range(1000, 5000, 100):
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
-    for _ in range(10):
+    for _ in range(20):
         two_comp_query()
     print("Query two components, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
     result_times = []
@@ -127,19 +125,9 @@ for amount in range(1000, 5000, 100):
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
-    for _ in range(10):
+    for _ in range(20):
         three_comp_query()
     print("Query three components, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
     result_times = []
     world._database = {}                          # Hack to reset database.
     gc.collect()
-
-for amount in range(1000, 5000, 100):
-    create_entities(amount)
-    for _ in range(10):
-        four_comp_query()
-    print("Query four components, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
-    result_times = []
-    world._database = {}                          # Hack to reset database.
-    gc.collect()
-
