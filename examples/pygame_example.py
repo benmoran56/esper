@@ -91,7 +91,6 @@ def run():
     world.add_processor(render_processor)
     world.add_processor(movement_processor)
 
-
     running = True
     while running:
         for event in pygame.event.get():
@@ -99,15 +98,21 @@ def run():
                 running = False
         keys_pressed = pygame.key.get_pressed()
 
-        # In rare instances where you want to access a specific Entity's Component, you can do this:
         if keys_pressed[pygame.K_LEFT]:
-            world.component_for_entity(player, Renderable).x -= 3
+            # Here is a way to directly access a specific Entity's Velocity
+            # Component's attribute (y) without making a temporary variable.
+            world.component_for_entity(player, Velocity).x = -3
         if keys_pressed[pygame.K_RIGHT]:
-            world.component_for_entity(player, Renderable).x += 3
+            # For clarity, here is an alternate way in which a temporary variable
+            # is created and modified. The previous way above is recommended instead.
+            player_velocity_component = world.component_for_entity(player, Velocity)
+            player_velocity_component.y = 3
         if keys_pressed[pygame.K_UP]:
-            world.component_for_entity(player, Renderable).y -= 3
+            world.component_for_entity(player, Velocity).y = -3
         if keys_pressed[pygame.K_DOWN]:
-            world.component_for_entity(player, Renderable).y += 3
+            world.component_for_entity(player, Velocity).y = 3
+        if keys_pressed[pygame.K_ESCAPE]:
+            running = False
 
         # A single call to world.process() will update all Processors:
         world.process()

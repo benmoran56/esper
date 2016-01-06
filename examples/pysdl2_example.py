@@ -137,7 +137,7 @@ def run():
             elif event.type == SDL_KEYUP:
                 if event.key.keysym.sym in (SDLK_UP, SDLK_DOWN):
                     world.component_for_entity(player, Velocity).y = 0
-                elif event.key.keysym.sym in (SDLK_LEFT, SDLK_RIGHT):
+                if event.key.keysym.sym in (SDLK_LEFT, SDLK_RIGHT):
                     world.component_for_entity(player, Velocity).x = 0
 
         # A single call to world.process() will update all Processors:
