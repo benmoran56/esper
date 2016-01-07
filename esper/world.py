@@ -14,7 +14,10 @@ class World:
 
     def clear_database(self):
         """Remove all entities and components from the world."""
-        self._database.clear()
+        self._components.clear()
+        self._entities.clear()
+        self._get_entities.cache_clear()
+        self._next_entity_id = 0
 
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the world.
@@ -140,10 +143,10 @@ class World:
 
     @lru_cache(typed=True)
     def _get_entities(self, component_types):
-        entities = set()
+        entities = self._components[component_types[0]]
 
-        for component_type in component_types:
-            entities |= self._components[component_type]
+        for component_type in component_types[1:]:
+            entities &= self._components[component_type]
 
         return entities
 
