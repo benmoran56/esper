@@ -1,3 +1,4 @@
+import pickle
 import time
 import gc
 import esper
@@ -68,15 +69,17 @@ class Brain:
 # Set up some dummy entities:
 #############################
 def create_entities(number):
-    for _ in range(number):
+    for _ in range(number // 2):
         enemy = world.create_entity()
+        world.add_component(enemy, Position())
         world.add_component(enemy, Velocity())
         world.add_component(enemy, Health())
         world.add_component(enemy, Command())
-        world.add_component(enemy, Brain())
-        world.add_component(enemy, Velocity())
-        world.add_component(enemy, Projectile())
-        world.add_component(enemy, Damageable())
+
+        thing = world.create_entity()
+        world.add_component(thing, Position())
+        world.add_component(thing, Health())
+        world.add_component(thing, Damageable())
 
 
 #############################
@@ -84,50 +87,65 @@ def create_entities(number):
 #############################
 @timing
 def single_comp_query():
-    for _, _ in world.get_component(Velocity):
+    for _, _ in world.get_component(Position):
         pass
 
 
 @timing
 def two_comp_query():
-    for _, (_, _) in world.get_components(Velocity, Health):
+    for _, _ in world.get_components(Position, Velocity):
         pass
 
 
 @timing
 def three_comp_query():
-    for _, (_, _, _) in world.get_components(Velocity, Health, Command):
+    for _, _ in world.get_components(Position, Damageable, Health):
         pass
 
 
 #################################################
 # Perform several queries, and print the results:
 #################################################
+results = {1: {}, 2: {}, 3: {}}
 result_times = []
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
     for _ in range(20):
         single_comp_query()
-    print("Query one component, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
+
+    result_min = min(result_times)
+    print("Query one component, {} Entities: {:f} ms".format(amount, result_min))
+    results[1][amount] = result_min
     result_times = []
-    world._database = {}                          # Hack to reset database.
+    world.clear_database()
     gc.collect()
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
     for _ in range(20):
         two_comp_query()
-    print("Query two components, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
+
+    result_min = min(result_times)
+    print("Query two components, {} Entities: {:f} ms".format(amount, result_min))
+    results[2][amount] = result_min
     result_times = []
-    world._database = {}                          # Hack to reset database.
+    world.clear_database()
     gc.collect()
 
 for amount in range(1000, 5000, 100):
     create_entities(amount)
     for _ in range(20):
         three_comp_query()
-    print("Query three components, {} Entities: {:f} ms".format(amount, sorted(result_times)[0]))
+
+    result_min = min(result_times)
+    print("Query three components, {} Entities: {:f} ms".format(amount, result_min))
+    results[3][amount] = result_min
     result_times = []
-    world._database = {}                          # Hack to reset database.
+    world.clear_database()
     gc.collect()
+
+fn = time.strftime('results-%Y%m%dT%H%M%S.pickle')
+print("Saving benchmark results to '%s'..." % fn)
+with open(fn, 'wb') as picklefile:
+    pickle.dump(results, picklefile)
