@@ -12,6 +12,10 @@ class World:
         self._components = {}
         self._entities = {}
 
+    def clear_database(self):
+        """Remove all entities and components from the world."""
+        self._database.clear()
+
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the world.
 
