@@ -93,13 +93,13 @@ def single_comp_query():
 
 @timing
 def two_comp_query():
-    for _, _ in world.get_components(Position, Velocity):
+    for _, (_, _) in world.get_components(Position, Velocity):
         pass
 
 
 @timing
 def three_comp_query():
-    for _, _ in world.get_components(Position, Damageable, Health):
+    for _, (_, _, _) in world.get_components(Position, Damageable, Health):
         pass
 
 
@@ -145,7 +145,11 @@ for amount in range(1000, 5000, 100):
     world.clear_database()
     gc.collect()
 
-fn = time.strftime('results-%Y%m%dT%H%M%S.pickle')
-print("Saving benchmark results to '%s'..." % fn)
-with open(fn, 'wb') as picklefile:
+
+########################################
+# Save the results to disk for plotting:
+########################################
+file_name = time.strftime('results-%Y%m%dT%H%M%S.pickle')
+print("Saving benchmark results to '{}'...".format(file_name))
+with open(file_name, 'wb') as picklefile:
     pickle.dump(results, picklefile)
