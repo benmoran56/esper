@@ -9,11 +9,13 @@ class World:
         """
         self._processors = []
         self._next_entity_id = 0
-        self._database = {}
+        self._components = {}
+        self._entities = {}
 
     def clear_database(self):
         """Remove all entities and components from the world."""
-        self._database.clear()
+        self._components.clear()
+        self._entities.clear()
         self._next_entity_id = 0
 
     def add_processor(self, processor_instance, priority=0):
@@ -82,9 +84,16 @@ class World:
         :param component_instance: A Component instance.
         """
         component_type = type(component_instance)
-        if entity not in self._database:
-            self._database[entity] = {}
-        self._database[entity][component_type] = component_instance
+
+        if component_type not in self._components:
+            self._components[component_type] = set()
+
+        self._components[component_type].add(entity)
+
+        if entity not in self._entities:
+            self._entities[entity] = {}
+
+        self._entities[entity][component_type] = component_instance
 
     def delete_component(self, entity, component_type):
         """Delete a Component instance from an Entity, by type.
@@ -97,7 +106,18 @@ class World:
         :param component_type: The type of the Component to remove.
         """
         try:
-            del self._database[entity][component_type]
+            self._components[component_type].discard(entity)
+
+            if not self._components[component_type]:
+                del self._components[component_type]
+        except KeyError:
+            pass
+
+        try:
+            del self._entities[entity][component_type]
+
+            if not self._entities[entity]:
+                del self._entities[entity]
         except KeyError:
             pass
 
@@ -107,12 +127,9 @@ class World:
         :param component_type: The Component type to retrieve.
         :return: An iterator for (Entity, Component) tuples.
         """
-        database = self._database
-        for entity in database:
-            try:
-                yield entity, database[entity][component_type]
-            except KeyError:
-                pass
+        entitydb = self._entities
+        for entity in self._components.get(component_type, []):
+            yield entity, entitydb[entity][component_type]
 
     def get_components(self, *component_types):
         """Get an iterator for entity and multiple Component sets.
@@ -121,12 +138,16 @@ class World:
         :return: An iterator for (Entity, Component1, Component2, etc)
         tuples.
         """
-        database = self._database
-        for entity in database:
-            try:
-                yield entity, [database[entity][ct] for ct in component_types]
-            except KeyError:
-                pass
+        entities = self._components[component_types[0]]
+        entitydb = self._entities
+
+        for component_type in component_types[1:]:
+            entities &= self._components[component_type]
+
+        for entity in entities:
+            components = entitydb[entity]
+            yield entity, [components[ct] for ct in component_types
+                           if ct in components]
 
     def process(self):
         """Process all Systems, in order of their priority."""
