@@ -53,13 +53,18 @@ class World:
 
     def delete_entity(self, entity):
         """Delete an Entity from the World.
-
         Delete an Entity from the World. This will also delete any Component
         instances that are assigned to the Entity.
         :param entity: The Entity ID you wish to delete.
         """
+        for component_type in self._entities.get(entity, []):
+            self._components[component_type].discard(entity)
+
+            if not self._components[component_type]:
+                del self._components[component_type]
+
         try:
-            del self._database[entity]
+            del self._entities[entity]
         except KeyError:
             pass
 
@@ -71,7 +76,7 @@ class World:
         :return: A Component instance, *if* it exists for the Entity.
         """
         try:
-            return self._database[entity][component_type]
+            return self._entities[entity][component_type]
         except KeyError:
             pass
 
@@ -87,12 +92,10 @@ class World:
 
         if component_type not in self._components:
             self._components[component_type] = set()
-
         self._components[component_type].add(entity)
 
         if entity not in self._entities:
             self._entities[entity] = {}
-
         self._entities[entity][component_type] = component_instance
 
     def delete_component(self, entity, component_type):
