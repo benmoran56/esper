@@ -143,13 +143,12 @@ class World:
         """
         entity_db = self._entities
         comp_db = self._components
-
         entity_set = set.intersection(*[comp_db[ct] for ct in component_types])
 
         for entity in entity_set:
             yield entity, [entity_db[entity][ct] for ct in component_types]
 
-    def process(self):
+    def process(self, *args):
         """Process all Systems, in order of their priority."""
         for processor in self._processors:
-            processor.process()
+            processor.process(*args)
