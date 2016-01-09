@@ -141,16 +141,13 @@ class World:
         :return: An iterator for (Entity, Component1, Component2, etc)
         tuples.
         """
-        entities = self._components[component_types[0]]
-        entitydb = self._entities
+        entity_db = self._entities
+        comp_db = self._components
 
-        for component_type in component_types[1:]:
-            entities &= self._components[component_type]
+        entity_set = set.intersection(*[comp_db[ct] for ct in component_types])
 
-        for entity in entities:
-            components = entitydb[entity]
-            yield entity, [components[ct] for ct in component_types
-                           if ct in components]
+        for entity in entity_set:
+            yield entity, [entity_db[entity][ct] for ct in component_types]
 
     def process(self):
         """Process all Systems, in order of their priority."""
