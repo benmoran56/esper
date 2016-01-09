@@ -87,7 +87,7 @@ def texture_from_image(renderer, image_name):
 def run():
     # Initialize PySDL2 stuff
     ext.init()
-    window = ext.Window(title="Esper PySDL2 Example", size=RESOLUTION)
+    window = ext.Window(title="Esper PySDL2 example", size=RESOLUTION)
     renderer = ext.Renderer(target=window)
     window.show()
 
