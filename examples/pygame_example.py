@@ -72,7 +72,7 @@ def run():
     # Initialize Pygame stuff
     pygame.init()
     window = pygame.display.set_mode(RESOLUTION)
-    pygame.display.set_caption("Esper Pygame Example")
+    pygame.display.set_caption("Esper Pygame example")
     clock = pygame.time.Clock()
     pygame.key.set_repeat(1, 1)
 
