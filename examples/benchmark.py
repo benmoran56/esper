@@ -1,6 +1,11 @@
-import pickle
-import time
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import gc
+import pickle
+import sys
+import time
+
 import esper
 
 
@@ -20,7 +25,7 @@ def timing(f):
 ##############################
 #  Instantiate the game world:
 ##############################
-world = esper.World()
+world = esper.CachedWorld() if '--use-cache' in sys.argv[1:] else esper.World()
 
 
 #################################
