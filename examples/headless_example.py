@@ -3,7 +3,11 @@
 
 from __future__ import print_function, unicode_literals
 
+import sys
 import time
+
+if sys.version_info[0] < 3:
+    from future.builtins import super
 
 import esper
 

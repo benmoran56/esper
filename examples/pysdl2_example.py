@@ -3,6 +3,11 @@
 
 from __future__ import print_function, unicode_literals
 
+import sys
+
+if sys.version_info[0] < 3:
+    from future.builtins import super
+
 from sdl2 import *
 import sdl2.ext as ext
 
