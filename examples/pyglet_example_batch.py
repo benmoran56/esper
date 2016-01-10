@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, unicode_literals
+
+import sys
+
+if sys.version_info[0] < 3:
+    from future.builtins import super
+
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
@@ -16,13 +23,13 @@ BGCOLOR = (0, 0, 0, 255)
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Renderable:
+class Renderable(object):
     def __init__(self, texture, width, height, posx, posy):
         self.texture = texture
         self._x = posx
@@ -88,7 +95,7 @@ class TextureRenderProcessor(esper.Processor):
         # This will iterate over every Entity that has this Component, and
         # add the texture associated with the Renderable Component instance
         # and its vertice_list to the render batch. The batch will then be
-        # drawn by the 'on_draw' event handler of teh main window:
+        # drawn by the 'on_draw' event handler of the main window:
         for entity, renderable in self.world.get_component(Renderable):
             self.draw_texture(renderable)
 
@@ -235,7 +242,7 @@ def run(args=None):
     def on_draw():
         # Clear the window:
         window.clear()
-        # Draw the batch of Renderables
+        # Draw the batch of Renderables:
         renderbatch.draw()
 
     def update(dt):
