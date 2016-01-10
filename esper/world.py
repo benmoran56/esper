@@ -1,3 +1,4 @@
+from functools import lru_cache
 
 
 class World:
@@ -53,6 +54,7 @@ class World:
 
     def delete_entity(self, entity):
         """Delete an Entity from the World.
+
         Delete an Entity from the World. This will also delete any Component
         instances that are assigned to the Entity.
         :param entity: The Entity ID you wish to delete.
@@ -64,7 +66,8 @@ class World:
                 del self._components[component_type]
 
         try:
-            del self._entities[entity]
+            del self._entites[entity]
+            return entity
         except KeyError:
             pass
 
@@ -92,10 +95,12 @@ class World:
 
         if component_type not in self._components:
             self._components[component_type] = set()
+
         self._components[component_type].add(entity)
 
         if entity not in self._entities:
             self._entities[entity] = {}
+
         self._entities[entity][component_type] = component_instance
 
     def delete_component(self, entity, component_type):
@@ -121,21 +126,23 @@ class World:
 
             if not self._entities[entity]:
                 del self._entities[entity]
+
+            return entity
         except KeyError:
             pass
 
     def get_component(self, component_type):
-        """Get an iterator for entity, Component pairs.
+        """Get an iterator for Entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
         :return: An iterator for (Entity, Component) tuples.
         """
-        entitydb = self._entities
+        entity_db = self._entities
         for entity in self._components.get(component_type, []):
-            yield entity, entitydb[entity][component_type]
+            yield entity, entity_db[entity][component_type]
 
     def get_components(self, *component_types):
-        """Get an iterator for entity and multiple Component sets.
+        """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
         :return: An iterator for (Entity, Component1, Component2, etc)
@@ -155,3 +162,55 @@ class World:
         """Process all Systems, in order of their priority."""
         for processor in self._processors:
             processor.process(*args)
+
+
+class CachedWorld(World):
+    def __init__(self, cache_size=128):
+        """A sub-class of World using an LRU cache for Entity lookups."""
+        super().__init__()
+        self.set_cache_size(cache_size)
+
+    def set_cache_size(self, size):
+        """Set the maximum size of the LRU cache for Entity lookup.
+
+        Replaces the existing cache.
+        """
+        wrapped = self._get_entities.__wrapped__.__get__(self, World)
+        self._get_entities = lru_cache(size)(wrapped)
+
+    def clear_database(self):
+        """Remove all Entities and Components from the world."""
+        super().clear_database()
+        self._get_entities.cache_clear()
+
+    def delete_entity(self, entity):
+        """Delete an Entity from the World."""
+        if super().delete_entity(entity) is not None:
+            self._get_entities.cache_clear()
+            return entity
+
+    def add_component(self, entity, component_instance):
+        """Add a new Component instance to an Entity."""
+        super().add_component(entity, component_instance)
+        self._get_entities.cache_clear()
+
+    def delete_component(self, entity, component_type):
+        """Delete a Component instance from an Entity, by type."""
+        if super().delete_component(entity, component_instance) is not None:
+            self._get_entities.cache_clear()
+            return entity
+
+    @lru_cache()
+    def _get_entities(self, component_types):
+        """Return set of Entities having all given Components."""
+        comp_db = self._components
+        return set.intersection(*[comp_db[ct] for ct in component_types])
+
+    def get_components(self, *component_types):
+        """Get an iterator for Entity and multiple Component sets."""
+        entity_db = self._entities
+        try:
+            for entity in self._get_entities(component_types):
+                yield entity, [entity_db[entity][ct] for ct in component_types]
+        except KeyError:
+            pass
