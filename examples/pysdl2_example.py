@@ -1,5 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function, unicode_literals
+
 from sdl2 import *
 import sdl2.ext as ext
+
 import esper
 
 
@@ -9,13 +15,13 @@ RESOLUTION = 720, 480
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Renderable:
+class Renderable(object):
     def __init__(self, texture, width, height, posx, posy):
         self.texture = texture
         self.x = posx
@@ -148,6 +154,7 @@ def run():
         sleep_time = int(start_time + 16.667 - current_time)
         if sleep_time > 0:
             SDL_Delay(sleep_time)
+
 
 if __name__ == "__main__":
     run()

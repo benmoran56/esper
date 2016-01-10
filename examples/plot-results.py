@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
+from __future__ import print_function, unicode_literals
+
 import pickle
+import sys
+
 from matplotlib import pyplot as plt
 
 if len(sys.argv) < 2:
