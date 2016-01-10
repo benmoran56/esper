@@ -14,6 +14,7 @@ What's New
 
 **0.9.2** - Switched to a different database structure internally. (No API changes)
             There are now examples for pyglet, Pygame, and PySDL2.
+            Thanks to Christopher Arndt, multiple component queries are faster.
 
 **0.9** - Esper should now be fully usable for your game or program.
           Example code for Pygame and PySDL. Pyglet example coming soon!
