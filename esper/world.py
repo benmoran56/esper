@@ -137,9 +137,9 @@ class World:
         :param component_type: The Component type to retrieve.
         :return: An iterator for (Entity, Component) tuples.
         """
-        entitydb = self._entities
+        entity_db = self._entities
         for entity in self._components.get(component_type, []):
-            yield entity, entitydb[entity][component_type]
+            yield entity, entity_db[entity][component_type]
 
     def get_components(self, *component_types):
         """Get an iterator for Entity and multiple Component sets.
@@ -148,21 +148,20 @@ class World:
         :return: An iterator for (Entity, Component1, Component2, etc)
         tuples.
         """
-        entitydb = self._entities
-        entities = self._components[component_types[0]]
+        entity_db = self._entities
+        comp_db = self._components
 
-        for component_type in component_types[1:]:
-            entities &= self._components[component_type]
+        try:
+            entity_set = set.intersection(*[comp_db[ct] for ct in component_types])
+            for entity in entity_set:
+                yield entity, [entity_db[entity][ct] for ct in component_types]
+        except KeyError:
+            pass
 
-        for entity in entities:
-            components = entitydb[entity]
-            yield entity, [components[ct] for ct in component_types
-                           if ct in components]
-
-    def process(self):
+    def process(self, *args):
         """Process all Systems, in order of their priority."""
         for processor in self._processors:
-            processor.process()
+            processor.process(*args)
 
 
 class CachedWorld(World):
@@ -204,17 +203,14 @@ class CachedWorld(World):
     @lru_cache()
     def _get_entities(self, component_types):
         """Return set of Entities having all given Components."""
-        entities = self._components[component_types[0]]
-
-        for component_type in component_types[1:]:
-            entities &= self._components[component_type]
-
-        return entities
+        comp_db = self._components
+        return set.intersection(*[comp_db[ct] for ct in component_types])
 
     def get_components(self, *component_types):
         """Get an iterator for Entity and multiple Component sets."""
-        entitydb = self._entities
-        for entity in self._get_entities(component_types):
-            components = entitydb[entity]
-            yield entity, [components[ct] for ct in component_types
-                           if ct in components]
+        entity_db = self._entities
+        try:
+            for entity in self._get_entities(component_types):
+                yield entity, [entity_db[entity][ct] for ct in component_types]
+        except KeyError:
+            pass
