@@ -73,7 +73,7 @@ class World(object):
                 del self._components[component_type]
 
         try:
-            del self._entites[entity]
+            del self._entities[entity]
             return entity
         except KeyError:
             pass

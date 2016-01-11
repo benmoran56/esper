@@ -65,8 +65,8 @@ class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
         super(MovementProcessor, self).__init__()
         self.minx = minx
-        self.maxx = maxx
         self.miny = miny
+        self.maxx = maxx
         self.maxy = maxy
 
     def process(self):
@@ -84,11 +84,13 @@ class MovementProcessor(esper.Processor):
 
 
 class TextureRenderProcessor(esper.Processor):
-    def __init__(self, batch):
+    def __init__(self, window, batch):
         super(TextureRenderProcessor, self).__init__()
+        self.window = window
         self.batch = batch
 
     def process(self):
+        self.window.clear()
         # This will iterate over every Entity that has this Component, and
         # add the texture associated with the Renderable Component instance
         # and its vertice_list to the render batch. The batch will then be
@@ -96,14 +98,17 @@ class TextureRenderProcessor(esper.Processor):
         for entity, renderable in self.world.get_component(Renderable):
             self.draw_texture(renderable)
 
+        self.batch.draw()
+
     def draw_texture(self, renderable):
         texture = renderable.texture
 
         if renderable.vertex_list is None:
             vertex_format = 'v2i/dynamic'
             renderable.vertex_list = self.batch.add(4, GL_QUADS,
-                renderable.group, vertex_format,
-                'c4B', ('t3f', texture.tex_coords))
+                                                    renderable.group,
+                                                    vertex_format, 'c4B',
+                                                    ('t3f', texture.tex_coords))
 
         if renderable._dirty:
             x1 = renderable.x - texture.anchor_x
@@ -185,26 +190,24 @@ def run(args=None):
     world = esper.World()
     player = world.create_entity()
     world.add_component(player, Velocity(x=0, y=0))
-    redsquare = Renderable(
-        texture=texture_from_image("redsquare.png"),
-        width=64,
-        height=64,
-        posx=100,
-        posy=100)
+    redsquare = Renderable(texture=texture_from_image("redsquare.png"),
+                           width=64,
+                           height=64,
+                           posx=100,
+                           posy=100)
     world.add_component(player, redsquare)
 
     # Another motionless Entity:
     enemy = world.create_entity()
-    bluesquare = Renderable(
-        texture=texture_from_image("bluesquare.png"),
-        width=64,
-        height=64,
-        posx=400,
-        posy=250)
+    bluesquare = Renderable(texture=texture_from_image("bluesquare.png"),
+                            width=64,
+                            height=64,
+                            posx=400,
+                            posy=250)
     world.add_component(enemy, bluesquare)
 
     # Create some Processor instances, and asign them to be processed.
-    render_processor = TextureRenderProcessor(renderbatch)
+    render_processor = TextureRenderProcessor(window=window, batch=renderbatch)
     movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0,
                                            maxy=RESOLUTION[1])
     world.add_processor(render_processor)
@@ -234,13 +237,6 @@ def run(args=None):
             world.component_for_entity(player, Velocity).y = 0
         if symbol in (key.LEFT, key.RIGHT):
             world.component_for_entity(player, Velocity).x = 0
-
-    @window.event
-    def on_draw():
-        # Clear the window:
-        window.clear()
-        # Draw the batch of Renderables:
-        renderbatch.draw()
 
     def update(dt):
         # A single call to world.process() will update all Processors:

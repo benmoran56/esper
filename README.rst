@@ -12,13 +12,17 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 What's New
 ----------
 
+**0.9.2** - Switched to a different database structure internally. (No API changes)
+            There are now examples for pyglet, Pygame, and PySDL2.
+            Thanks to Christopher Arndt, multiple component queries are faster.
+
 **0.9** - Esper should now be fully usable for your game or program.
           Example code for Pygame and PySDL. Pyglet example coming soon!
 
 
 1) Compatibility
 ----------------
-Esper is developed for Python 3, and is also know to work on Pypy3. Being written in pure
+Esper is developed for Python 3. It is also know to work on Pypy3. Being written in pure
 Python, it should work on any compliant interpreter. Python 2, however, is not supported
 due to differences in dictionary key iteration. It could be made to work with a little
 effort, but official support is not planned.
@@ -109,4 +113,4 @@ process method on all assigned Processors, in order of their priority (if any)::
 5) Examples
 -----------
 
-See the **/examples** folder to get some idea of how a basic game might be structured.
+See the **/examples** folder to get some idea of how a game might be structured.

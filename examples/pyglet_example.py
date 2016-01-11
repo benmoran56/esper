@@ -10,6 +10,7 @@ import pyglet
 import esper
 
 
+FPS = 60
 RESOLUTION = 720, 480
 
 
@@ -36,8 +37,8 @@ class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
         super(MovementProcessor, self).__init__()
         self.minx = minx
-        self.maxx = maxx
         self.miny = miny
+        self.maxx = maxx
         self.maxy = maxy
 
     def process(self, dt):
@@ -51,6 +52,17 @@ class MovementProcessor(esper.Processor):
             new_x = min(self.maxx - rend.w, new_x)
             new_y = min(self.maxy - rend.h, new_y)
             rend.sprite.position = new_x, new_y
+
+
+class RenderProcessor(esper.Processor):
+    def __init__(self, window, batch):
+        super(RenderProcessor, self).__init__()
+        self.window = window
+        self.batch = batch
+
+    def process(self, dt):
+        self.window.clear()
+        self.batch.draw()
 
 
 ###############################################
@@ -71,20 +83,15 @@ world.add_component(enemy, Renderable(sprite=pyglet.sprite.Sprite(pyglet.image.l
                                                                   x=400, y=250, batch=batch)))
 
 # Create some Processor instances, and asign them to be processed.
-movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0, maxy=RESOLUTION[1])
+movement_processor = MovementProcessor(minx=0, miny=0, maxx=RESOLUTION[0], maxy=RESOLUTION[1])
+render_processor = RenderProcessor(window=window, batch=batch)
 world.add_processor(movement_processor)
+world.add_processor(render_processor)
 
 
-#######################
-#  Set up a pyglet app:
-#######################
-
-@window.event
-def on_draw():
-    window.clear()
-    batch.draw()
-
-
+##############################
+#  Pyglet events for movement:
+##############################
 @window.event
 def on_key_press(key, mod):
     if key == pyglet.window.key.RIGHT:
@@ -109,5 +116,5 @@ if __name__ == "__main__":
     # NOTE!  schedule_interval will automatically pass a "delta time" argument
     #        to world.process, so you must make sure that your Processor classes
     #        account for this. See the example Processors above for an example.
-    pyglet.clock.schedule_interval(world.process, interval=1/60)
+    pyglet.clock.schedule_interval(world.process, interval=1.0/FPS)
     pyglet.app.run()
