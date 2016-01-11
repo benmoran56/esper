@@ -2,9 +2,6 @@
 
 import sys
 
-if sys.version_info[0] < 3:
-    from future.builtins import super
-
 try:
     from functools import lru_cache
 except ImportError:
@@ -181,7 +178,7 @@ class World(object):
 class CachedWorld(World):
     def __init__(self, cache_size=128):
         """A sub-class of World using an LRU cache for Entity lookups."""
-        super().__init__()
+        super(CacheWorld, self).__init__()
         self.set_cache_size(cache_size)
 
     def set_cache_size(self, size):
@@ -194,23 +191,24 @@ class CachedWorld(World):
 
     def clear_database(self):
         """Remove all Entities and Components from the world."""
-        super().clear_database()
+        super(CachedWorld, self).clear_database()
         self._get_entities.cache_clear()
 
     def delete_entity(self, entity):
         """Delete an Entity from the World."""
-        if super().delete_entity(entity) is not None:
+        if super(CachedWorld, self).delete_entity(entity) is not None:
             self._get_entities.cache_clear()
             return entity
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity."""
-        super().add_component(entity, component_instance)
+        super(CachedWorld, self).add_component(entity, component_instance)
         self._get_entities.cache_clear()
 
     def delete_component(self, entity, component_type):
         """Delete a Component instance from an Entity, by type."""
-        if super().delete_component(entity, component_instance) is not None:
+        if super(CachedWorld, self).delete_component(
+                entity, component_instance) is not None:
             self._get_entities.cache_clear()
             return entity
 

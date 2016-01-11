@@ -5,9 +5,6 @@ from __future__ import print_function, unicode_literals
 
 import sys
 
-if sys.version_info[0] < 3:
-    from future.builtins import super
-
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
@@ -66,7 +63,7 @@ class Renderable(object):
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -88,7 +85,7 @@ class MovementProcessor(esper.Processor):
 
 class TextureRenderProcessor(esper.Processor):
     def __init__(self, batch):
-        super().__init__()
+        super(TextureRenderProcessor, self).__init__()
         self.batch = batch
 
     def process(self):
@@ -143,7 +140,7 @@ texture_enable_group = TextureEnableGroup()
 
 class TextureBindGroup(pyglet.graphics.Group):
     def __init__(self, texture):
-        super().__init__(parent=texture_enable_group)
+        super(TextureBindGroup, self).__init__(parent=texture_enable_group)
         assert texture.target == GL_TEXTURE_2D
         self.texture = texture
         self.blend_src = GL_SRC_ALPHA

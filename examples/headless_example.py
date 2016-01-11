@@ -6,9 +6,6 @@ from __future__ import print_function, unicode_literals
 import sys
 import time
 
-if sys.version_info[0] < 3:
-    from future.builtins import super
-
 import esper
 
 
@@ -32,7 +29,7 @@ class Position(object):
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
 
     def process(self):
         for ent, (vel, pos) in self.world.get_components(Velocity, Position):

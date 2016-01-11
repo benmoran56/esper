@@ -5,9 +5,6 @@ from __future__ import print_function, unicode_literals
 
 import sys
 
-if sys.version_info[0] < 3:
-    from future.builtins import super
-
 import pyglet
 from pyglet.window import key
 
@@ -43,7 +40,7 @@ class Renderable(object):
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -65,7 +62,7 @@ class MovementProcessor(esper.Processor):
 
 class SpriteRenderProcessor(esper.Processor):
     def __init__(self, batch):
-        super().__init__()
+        super(SpriteRenderProcessor, self).__init__()
         self.batch = batch
 
     def process(self):

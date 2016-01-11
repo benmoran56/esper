@@ -5,9 +5,6 @@ from __future__ import print_function, unicode_literals
 
 import sys
 
-if sys.version_info[0] < 3:
-    from future.builtins import super
-
 import pygame
 
 import esper
@@ -40,7 +37,7 @@ class Renderable(object):
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -62,7 +59,7 @@ class MovementProcessor(esper.Processor):
 
 class RenderProcessor(esper.Processor):
     def __init__(self, window, clear_color=(0, 0, 0)):
-        super().__init__()
+        super(RenderProcessor, self).__init__()
         self.window = window
         self.clear_color = clear_color
 
