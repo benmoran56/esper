@@ -10,8 +10,9 @@ version = '0.9.2'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
 author = "Benjamin Moran"
+credits = ["Benjamin Moran", "Christopher Arndt"]
 license = "MIT"
-#author_email = ''
+author_email = 'benmoran56@gmail.com'
 url = 'https://github.com/benmoran56/esper'
 download_url = url + '/releases'
 platforms = 'POSIX, Windows, MacOS X'
@@ -32,7 +33,7 @@ Topic :: Games/Entertainment
 Topic :: Software Development :: Libraries :: Python Modules
 """
 classifiers = [c.strip() for c in classifiers.splitlines()
-    if c.strip() and not c.startswith('#')]
-try: # Python 2.x
+               if c.strip() and not c.startswith('#')]
+try:  # Python 2.x
     del c
 except: pass
