@@ -1,17 +1,24 @@
-import esper
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function, unicode_literals
+
+import sys
 import time
+
+import esper
 
 
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Position:
+class Position(object):
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
@@ -22,7 +29,7 @@ class Position:
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
 
     def process(self):
         for ent, (vel, pos) in self.world.get_components(Velocity, Position):
@@ -61,4 +68,3 @@ def main():
 if __name__ == '__main__':
     print("\nHeadless Example. Press Ctrl+C to quit!\n")
     main()
-

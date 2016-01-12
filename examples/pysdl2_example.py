@@ -1,5 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function, unicode_literals
+
+import sys
+
 from sdl2 import *
 import sdl2.ext as ext
+
 import esper
 
 
@@ -9,13 +17,13 @@ RESOLUTION = 720, 480
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Renderable:
+class Renderable(object):
     def __init__(self, texture, width, height, posx, posy):
         self.texture = texture
         self.x = posx
@@ -29,7 +37,7 @@ class Renderable:
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -51,7 +59,7 @@ class MovementProcessor(esper.Processor):
 
 class RenderProcessor(esper.Processor):
     def __init__(self, renderer, clear_color=(0, 0, 0)):
-        super().__init__()
+        super(RenderProcessor, self).__init__()
         self.renderer = renderer
         self.clear_color = clear_color
 
@@ -148,6 +156,7 @@ def run():
         sleep_time = int(start_time + 16.667 - current_time)
         if sleep_time > 0:
             SDL_Delay(sleep_time)
+
 
 if __name__ == "__main__":
     run()

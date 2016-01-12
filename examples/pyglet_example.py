@@ -1,4 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function, unicode_literals
+
+import sys
+
 import pyglet
+
 import esper
 
 
@@ -9,13 +17,13 @@ RESOLUTION = 720, 480
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Renderable:
+class Renderable(object):
     def __init__(self, sprite):
         self.sprite = sprite
         self.w = sprite.width
@@ -27,7 +35,7 @@ class Renderable:
 ################################
 class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.miny = miny
         self.maxx = maxx

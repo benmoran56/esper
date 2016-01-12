@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, unicode_literals
+
 import gc
 import pickle
 import sys
@@ -31,41 +33,41 @@ world = esper.CachedWorld() if '--use-cache' in sys.argv[1:] else esper.World()
 #################################
 # Define some generic components:
 #################################
-class Velocity:
+class Velocity(object):
     def __init__(self):
         self.x = 0
         self.y = 0
 
 
-class Position:
+class Position(object):
     def __init__(self):
         self.x = 0
         self.y = 0
 
 
-class Health:
+class Health(object):
     def __init__(self):
         self.hp = 100
 
 
-class Command:
+class Command(object):
     def __init__(self):
         self.attack = False
         self.defend = True
 
 
-class Projectile:
+class Projectile(object):
     def __init__(self):
         self.size = 10
         self.lifespan = 100
 
 
-class Damageable:
+class Damageable(object):
     def __init__(self):
         self.defense = 45
 
 
-class Brain:
+class Brain(object):
     def __init__(self):
         self.smarts = 9000
 

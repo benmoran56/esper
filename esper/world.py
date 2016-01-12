@@ -1,7 +1,14 @@
-from functools import lru_cache
+# -*- coding: utf-8 -*-
+
+import sys
+
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 
 
-class World:
+class World(object):
     def __init__(self):
         """A World object keeps track of all Entities, Components and Processors.
 
@@ -91,6 +98,10 @@ class World:
         :param entity: The Entity to associate the Component with.
         :param component_instance: A Component instance.
         """
+        if not isinstance(component_instance, object):
+            raise TypeError("Component must be a new-style class instance "
+                            "(derive from object).")
+
         component_type = type(component_instance)
 
         if component_type not in self._components:
@@ -167,7 +178,7 @@ class World:
 class CachedWorld(World):
     def __init__(self, cache_size=128):
         """A sub-class of World using an LRU cache for Entity lookups."""
-        super().__init__()
+        super(CacheWorld, self).__init__()
         self.set_cache_size(cache_size)
 
     def set_cache_size(self, size):
@@ -180,23 +191,24 @@ class CachedWorld(World):
 
     def clear_database(self):
         """Remove all Entities and Components from the world."""
-        super().clear_database()
+        super(CachedWorld, self).clear_database()
         self._get_entities.cache_clear()
 
     def delete_entity(self, entity):
         """Delete an Entity from the World."""
-        if super().delete_entity(entity) is not None:
+        if super(CachedWorld, self).delete_entity(entity) is not None:
             self._get_entities.cache_clear()
             return entity
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity."""
-        super().add_component(entity, component_instance)
+        super(CachedWorld, self).add_component(entity, component_instance)
         self._get_entities.cache_clear()
 
     def delete_component(self, entity, component_type):
         """Delete a Component instance from an Entity, by type."""
-        if super().delete_component(entity, component_instance) is not None:
+        if super(CachedWorld, self).delete_component(
+                entity, component_instance) is not None:
             self._get_entities.cache_clear()
             return entity
 

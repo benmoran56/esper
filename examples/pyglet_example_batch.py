@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, unicode_literals
+
+import sys
+
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
@@ -16,13 +20,13 @@ BGCOLOR = (0, 0, 0, 255)
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
+class Velocity(object):
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
 
-class Renderable:
+class Renderable(object):
     def __init__(self, texture, width, height, posx, posy):
         self.texture = texture
         self._x = posx
@@ -58,8 +62,8 @@ class Renderable:
 #  Define some Processors:
 ################################
 class MovementProcessor(esper.Processor):
-    def __init__(self, minx, miny, maxx, maxy):
-        super().__init__()
+    def __init__(self, minx, maxx, miny, maxy):
+        super(MovementProcessor, self).__init__()
         self.minx = minx
         self.miny = miny
         self.maxx = maxx
@@ -81,14 +85,14 @@ class MovementProcessor(esper.Processor):
 
 class TextureRenderProcessor(esper.Processor):
     def __init__(self, batch):
-        super().__init__()
+        super(TextureRenderProcessor, self).__init__()
         self.batch = batch
 
     def process(self):
         # This will iterate over every Entity that has this Component, and
         # add the texture associated with the Renderable Component instance
         # and its vertice_list to the render batch. The batch will then be
-        # drawn by the 'on_draw' event handler of teh main window:
+        # drawn by the 'on_draw' event handler of the main window:
         for entity, renderable in self.world.get_component(Renderable):
             self.draw_texture(renderable)
 
@@ -137,7 +141,7 @@ texture_enable_group = TextureEnableGroup()
 
 class TextureBindGroup(pyglet.graphics.Group):
     def __init__(self, texture):
-        super().__init__(parent=texture_enable_group)
+        super(TextureBindGroup, self).__init__(parent=texture_enable_group)
         assert texture.target == GL_TEXTURE_2D
         self.texture = texture
         self.blend_src = GL_SRC_ALPHA

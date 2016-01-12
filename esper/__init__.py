@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, unicode_literals
+
 from .world import CachedWorld, World
 from .templates import Processor
 
