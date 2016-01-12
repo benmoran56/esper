@@ -80,21 +80,17 @@ class MovementProcessor(esper.Processor):
 
 
 class TextureRenderProcessor(esper.Processor):
-    def __init__(self, window, batch):
+    def __init__(self, batch):
         super().__init__()
-        self.window = window
         self.batch = batch
 
     def process(self):
-        self.window.clear()
         # This will iterate over every Entity that has this Component, and
         # add the texture associated with the Renderable Component instance
         # and its vertice_list to the render batch. The batch will then be
         # drawn by the 'on_draw' event handler of teh main window:
         for entity, renderable in self.world.get_component(Renderable):
             self.draw_texture(renderable)
-
-        self.batch.draw()
 
     def draw_texture(self, renderable):
         texture = renderable.texture
@@ -203,7 +199,7 @@ def run(args=None):
     world.add_component(enemy, bluesquare)
 
     # Create some Processor instances, and asign them to be processed.
-    render_processor = TextureRenderProcessor(window=window, batch=renderbatch)
+    render_processor = TextureRenderProcessor(batch=renderbatch)
     movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0,
                                            maxy=RESOLUTION[1])
     world.add_processor(render_processor)
@@ -233,6 +229,13 @@ def run(args=None):
             world.component_for_entity(player, Velocity).y = 0
         if symbol in (key.LEFT, key.RIGHT):
             world.component_for_entity(player, Velocity).x = 0
+
+    @window.event
+    def on_draw():
+        # Clear the window:
+        window.clear()
+        # Draw the batch of Renderables:
+        renderbatch.draw()
 
     def update(dt):
         # A single call to world.process() will update all Processors:

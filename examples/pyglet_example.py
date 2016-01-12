@@ -38,7 +38,7 @@ class MovementProcessor(esper.Processor):
         for ent, (vel, rend) in self.world.get_components(Velocity, Renderable):
             # Update the Renderable Component's position by it's Velocity:
             # An example of keeping the sprite inside screen boundaries. Basically,
-            # adjust the position back inside screen boundaries if it tries to go outside:
+            # adjust the position back inside screen boundaries if it is outside:
             new_x = max(self.minx, rend.sprite.x + vel.x)
             new_y = max(self.miny, rend.sprite.y + vel.y)
             new_x = min(self.maxx - rend.w, new_x)
@@ -46,44 +46,39 @@ class MovementProcessor(esper.Processor):
             rend.sprite.position = new_x, new_y
 
 
-class RenderProcessor(esper.Processor):
-    def __init__(self, window, batch):
-        super().__init__()
-        self.window = window
-        self.batch = batch
-
-    def process(self, dt):
-        self.window.clear()
-        self.batch.draw()
-
-
 ###############################################
 #  Initialize pyglet window and graphics batch:
 ###############################################
-window = pyglet.window.Window(width=RESOLUTION[0], height=RESOLUTION[1], caption="Esper pyglet example")
+window = pyglet.window.Window(width=RESOLUTION[0],
+                              height=RESOLUTION[1],
+                              caption="Esper pyglet example")
 batch = pyglet.graphics.Batch()
 
-# Initialize Esper world, and create a "player" Entity with a few Components.
+# Initialize Esper world, and create a "player" Entity with a few Components:
 world = esper.World()
 player = world.create_entity()
 world.add_component(player, Velocity(x=0, y=0))
-world.add_component(player, Renderable(sprite=pyglet.sprite.Sprite(pyglet.image.load("redsquare.png"),
-                                                                   x=100, y=100, batch=batch)))
+player_image = pyglet.resource.image("redsquare.png")
+world.add_component(player, Renderable(sprite=pyglet.sprite.Sprite(img=player_image,
+                                                                   x=100,
+                                                                   y=100,
+                                                                   batch=batch)))
 # Another motionless Entity:
 enemy = world.create_entity()
-world.add_component(enemy, Renderable(sprite=pyglet.sprite.Sprite(pyglet.image.load("bluesquare.png"),
-                                                                  x=400, y=250, batch=batch)))
+enemy_image = pyglet.resource.image("bluesquare.png")
+world.add_component(enemy, Renderable(sprite=pyglet.sprite.Sprite(img=enemy_image,
+                                                                  x=400,
+                                                                  y=250,
+                                                                  batch=batch)))
 
-# Create some Processor instances, and asign them to be processed.
+# Create some Processor instances, and asign them to the World to be processed:
 movement_processor = MovementProcessor(minx=0, miny=0, maxx=RESOLUTION[0], maxy=RESOLUTION[1])
-render_processor = RenderProcessor(window=window, batch=batch)
 world.add_processor(movement_processor)
-world.add_processor(render_processor)
 
 
-##############################
-#  Pyglet events for movement:
-##############################
+################################################
+#  Set up pyglet events for input and rendering:
+################################################
 @window.event
 def on_key_press(key, mod):
     if key == pyglet.window.key.RIGHT:
@@ -104,9 +99,20 @@ def on_key_release(key, mod):
         world.component_for_entity(player, Velocity).y = 0
 
 
+@window.event
+def on_draw():
+    # Clear the window:
+    window.clear()
+    # Draw the batch of Renderables:
+    batch.draw()
+
+
+####################################################
+#  Schedule a World update and start the pyglet app:
+####################################################
 if __name__ == "__main__":
     # NOTE!  schedule_interval will automatically pass a "delta time" argument
     #        to world.process, so you must make sure that your Processor classes
-    #        account for this. See the example Processors above for an example.
+    #        account for this. See the example Processors above.
     pyglet.clock.schedule_interval(world.process, interval=1.0/FPS)
     pyglet.app.run()
