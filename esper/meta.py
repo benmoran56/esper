@@ -10,6 +10,7 @@ version = '0.9.2'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
 author = "Benjamin Moran"
+credits = ["Benjamin Moran", "Christopher Arndt"]
 license = "MIT"
 author_email = 'benmoran56@gmail.com'
 url = 'https://github.com/benmoran56/esper'
