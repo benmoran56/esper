@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import pygame
 import esper
 
 
+FPS = 60
 RESOLUTION = 720, 480
 
 
@@ -96,30 +100,36 @@ def run():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        keys_pressed = pygame.key.get_pressed()
-
-        if keys_pressed[pygame.K_LEFT]:
-            # Here is a way to directly access a specific Entity's Velocity
-            # Component's attribute (y) without making a temporary variable.
-            world.component_for_entity(player, Velocity).x = -3
-        if keys_pressed[pygame.K_RIGHT]:
-            # For clarity, here is an alternate way in which a temporary variable
-            # is created and modified. The previous way above is recommended instead.
-            player_velocity_component = world.component_for_entity(player, Velocity)
-            player_velocity_component.y = 3
-        if keys_pressed[pygame.K_UP]:
-            world.component_for_entity(player, Velocity).y = -3
-        if keys_pressed[pygame.K_DOWN]:
-            world.component_for_entity(player, Velocity).y = 3
-        if keys_pressed[pygame.K_ESCAPE]:
-            running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    # Here is a way to directly access a specific Entity's
+                    # Velocity Component's attribute (y) without making a
+                    # temporary variable.
+                    world.component_for_entity(player, Velocity).x = -3
+                elif event.key == pygame.K_RIGHT:
+                    # For clarity, here is an alternate way in which a
+                    # temporary variable is created and modified. The previous
+                    # way above is recommended instead.
+                    player_velocity_component = world.component_for_entity(player, Velocity)
+                    player_velocity_component.x = 3
+                elif event.key == pygame.K_UP:
+                    world.component_for_entity(player, Velocity).y = -3
+                elif event.key == pygame.K_DOWN:
+                    world.component_for_entity(player, Velocity).y = 3
+                elif event.key == pygame.K_ESCAPE:
+                    running = False
+            elif event.type == pygame.KEYUP:
+                if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
+                    world.component_for_entity(player, Velocity).x = 0
+                if event.key in (pygame.K_UP, pygame.K_DOWN):
+                    world.component_for_entity(player, Velocity).y = 0
 
         # A single call to world.process() will update all Processors:
         world.process()
 
-        clock.tick(60)
+        clock.tick(FPS)
+
 
 if __name__ == "__main__":
     run()
     pygame.quit()
-
