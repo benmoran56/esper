@@ -16,22 +16,23 @@ What's New
             There are now examples for pyglet, Pygame, and PySDL2.
             Thanks to Christopher Arndt, multiple component queries are faster.
 
-**0.9** - Esper should now be fully usable for your game or program.
-          Example code for Pygame and PySDL. Pyglet example coming soon!
+**0.9.0** - Esper should now be fully usable for your game or program.
+            Example code for Pygame and PySDL. Pyglet example coming soon!
 
 
 1) Compatibility
 ----------------
 Esper is developed for Python 3. It is also know to work on Pypy3. Being written in pure
-Python, it should work on any compliant interpreter. Python 2, however, is not supported
-due to differences in dictionary key iteration. It could be made to work with a little
-effort, but official support is not planned.
-
+Python, it should work on any compliant interpreter. Python 2 is not supported in the main
+branch for now, but Christopher Arndt is currently maintaining a branch here:
+https://github.com/SpotlightKid/esper/tree/python2
 
 2) Installation
 ---------------
-No installation is necessary. This is tiny library with no dependencies. Simply copy
+No installation is necessary. Esper is a tiny library with no dependencies. Simply copy
 the *esper* directory into the top level of your project folder, and *import esper*.
+
+If you prefer, Esper is also available on PyPI for easy installation via pip.
 
 
 3) Structure Guidelines
@@ -39,7 +40,7 @@ the *esper* directory into the top level of your project folder, and *import esp
 * Entities 
 
 Entities are simple integer IDs (1, 2, 3, 4, etc.).
-They are "created", but they are not used directly. Merely, they are used as index
+They are "created", but they are not used directly. They are simply used as index
 IDs in the internal Component database, for all Components that are assigned to
 them. Think of them as Component collection IDs.
 
@@ -72,7 +73,7 @@ to the World instance, to allow easy querying of Components. A simple Processor 
 Here you can see the standard usage of the world.get_components method. This allows
 efficient iteration over all Entities that contain both a Velocity and Position
 Component. You also get a reference to the Entity ID for the current pair of Velocity/Position
-Components, in case it's necessary for your particular Processor.
+Components if you should need it.
 
 
 4) Usage
@@ -93,22 +94,27 @@ priority "0" by default::
 
     movement_processor = MovementProcessor()
     rendering_processor = RenderingProcessor()
-    world.add_processor(processor_instance=movement_processor)
-    world.add_processor(processor_instance=rendering_processor, priority=3)
+    world.add_processor(movement_processor)
+    world.add_processor(rendering_processor, priority=3)
 
 
-Create an Entity, and assign some Component instances to them::
+Create an Entity, and assign some Component instances to it::
 
     player = world.create_entity()
     world.add_component(player, Velocity(x=0.9, y=1.2))
     world.add_component(player, Position(x=5, y=5))
-    
+
 
 Running all Processors is done with a single call to world.process(). This will call the
 process method on all assigned Processors, in order of their priority (if any)::
 
     world.process()
 
+
+Note: You can pass any args you need to *world.process()*, but you must also make sure to recieve
+them properly in the *process()* methods of your Processors. For example, if you pass a delta time
+argument as *world.process(dt)*, your Processor's *process()* methods should all receive it as:
+*process(self, dt)*
 
 5) Examples
 -----------
