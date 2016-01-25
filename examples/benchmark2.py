@@ -5,9 +5,12 @@ import gc
 import pickle
 import sys
 import time
+from matplotlib import pyplot
 
 import esper
 
+print("Not yet functional")
+sys.exit()
 
 ##########################
 # Simple timing decorator:
@@ -20,6 +23,11 @@ def timing(f):
         result_times.append((time2 - time1)*1000.0)
         return ret
     return wrap
+
+##########################
+# Create a World instance:
+##########################
+world = esper.CachedWorld()
 
 
 #################################
@@ -81,7 +89,7 @@ class MovementProcessor(esper.Processor):
 #############################
 # Set up some dummy entities:
 #############################
-def create_entities(world, number):
+def create_entities(number):
     for _ in range(number // 2):
         enemy = world.create_entity()
         world.add_component(enemy, Position())
@@ -96,39 +104,26 @@ def create_entities(world, number):
 
 
 #################################################
-# Main Loop:
+# Perform several queries, and print the results:
 #################################################
+results = {1: {}, 2: {}, 3: {}}
 result_times = []
 
 
-def main():
-    # Create a World instance to hold everything:
-    world = esper.World()
+@timing
+def query_entities():
+    for _, (_, _) in world.get_components(Position, Velocity):
+        pass
 
-    # Instantiate a Processor (or more), and add them to the world:
-    movement_processor = MovementProcessor()
-    world.add_processor(movement_processor)
+create_entities(2000)
+for amount in range(1, 5000):
+    query_entities()
+    print("Query one component, {}".format(amount))
 
-    # Create entities, and assign Component instances to them:
-    player = world.create_entity()
-    world.add_component(player, Velocity(x=0.9, y=1.2))
-    world.add_component(player, Position(x=5, y=5))
+"""
+pyplot.ylabel("Time (ms)")
+pyplot.xlabel("# Entities")
+pyplot.legend(handles=result_times, bbox_to_anchor=(0.5, 1))
 
-    # A dummy main loop:
-    try:
-        while True:
-            # Call world.process() to run all Processors.
-            world.process()
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        return
-
-
-if __name__ == '__main__':
-    print("\nNot yet functional.\n")
-    sys.exit()
-
-
-
-
+pyplot.show()
+"""
