@@ -9,8 +9,6 @@ from matplotlib import pyplot
 
 import esper
 
-print("Not yet functional")
-sys.exit()
 
 ##########################
 # Simple timing decorator:
@@ -20,7 +18,7 @@ def timing(f):
         time1 = time.time()
         ret = f(*args)
         time2 = time.time()
-        result_times.append((time2 - time1)*1000.0)
+        current_run.append((time2 - time1) * 1000.0)
         return ret
     return wrap
 
@@ -106,24 +104,26 @@ def create_entities(number):
 #################################################
 # Perform several queries, and print the results:
 #################################################
-results = {1: {}, 2: {}, 3: {}}
-result_times = []
-
+current_run = []
+final_list = []
 
 @timing
 def query_entities():
     for _, (_, _) in world.get_components(Position, Velocity):
         pass
 
-create_entities(2000)
-for amount in range(1, 5000):
-    query_entities()
-    print("Query one component, {}".format(amount))
+create_entities(4000)
+for _ in range(5):
+    for amount in range(1, 500):
+        query_entities()
+        #create_entities(1)
 
-"""
-pyplot.ylabel("Time (ms)")
-pyplot.xlabel("# Entities")
-pyplot.legend(handles=result_times, bbox_to_anchor=(0.5, 1))
+    final_list.append(current_run)
+    current_run = []
 
+averaged_results = [sorted(e)[0] for e in zip(*final_list)]
+
+pyplot.ylabel("Query time (ms)")
+pyplot.ylim((0, 4))
+pyplot.plot(averaged_results)
 pyplot.show()
-"""
