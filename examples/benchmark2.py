@@ -147,6 +147,8 @@ cached_averaged_results = [sorted(e)[0] for e in zip(*cached_results)]
 
 pyplot.ylabel("Query time (ms)")
 pyplot.xlabel("Query number")
+pyplot.ylim(0, 6)
 pyplot.plot(standard_averaged_results, label="Standard")
 pyplot.plot(cached_averaged_results, label="Cached")
+pyplot.legend(bbox_to_anchor=(0.5, 1))
 pyplot.show()
