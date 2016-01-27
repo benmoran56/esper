@@ -2,11 +2,16 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
+Esper is an Entity System, also commonly called Entity Component Systems (ECS).
 The design is based on the Entity System concepts described by Adam Martin in his blog at
 T-Machines.org, and others. Efforts were made to keep it as lightweight and performant as possible.
 
+There is a fairly accurate writeup of what an Entity System is in this Wikipedia article:
+https://en.wikipedia.org/wiki/Entity_component_system
+
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
 and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
+
 
 
 What's New
@@ -40,9 +45,10 @@ If you prefer, Esper is also available on PyPI for easy installation via pip.
 * Entities 
 
 Entities are simple integer IDs (1, 2, 3, 4, etc.).
-They are "created", but they are not used directly. They are simply used as index
-IDs in the internal Component database, for all Components that are assigned to
-them. Think of them as Component collection IDs.
+Entities are "created", but they are generally not used directly. Instead, they are
+simply used as IDs in the internal Component database, to track collections of Components.
+Creating an Entity is done with the World.create_entity() method.
+
 
 * Components
 
@@ -50,13 +56,15 @@ Components are defined as simple Python classes. In keeping with a pure Entity S
 design philosophy, they should not contain any logic. They might have initialization
 code, but no processing logic whatsoever. A simple Component might look like::
 
-    class Position(x=0, y=0)
-        self.x = x
-        self.y = y
+    class Position:
+        def __init__(self, x=0.0, y=0.0):
+            self.x = x
+            self.y = y
+
 
 * Processors
 
-Processors, also commonly known as "Systems", are where all processing logic is defined.
+Processors, also commonly known as "Systems", are where all processing logic is defined and executed.
 All Processors must inherit from the *esper.Processor* class, and have a method called
 *process*. Other than that, there are no restrictions. All Processors will have access
 to the World instance, to allow easy querying of Components. A simple Processor might look like::
@@ -70,10 +78,12 @@ to the World instance, to allow easy querying of Components. A simple Processor 
                 pos.x += vel.x
                 pos.y += vel.y
 
-Here you can see the standard usage of the world.get_components method. This allows
-efficient iteration over all Entities that contain both a Velocity and Position
-Component. You also get a reference to the Entity ID for the current pair of Velocity/Position
-Components if you should need it.
+In the above code, you can see the standard usage of the World.get_components() method. This method
+allows efficient iteration over all Entities that contain the specified Component types. You also
+get a reference to the Entity ID for the current pair of Velocity/Position Components, in case you
+should need it. For example, you may have a Processor that will delete certain Entites. You could
+add these Entity IDs to a list, and call the *self.world.delete_entity()* method on them after
+you're done iterating over the Components.
 
 
 4) Usage
@@ -82,8 +92,8 @@ The first step after importing Esper is to create a World instance. A World is t
 of Esper. It is responsible for creating Entities and assigning Components to them, and handling
 running of all assigned Processors.
 
-Create a World instance. You can have a single World for your entire game, or you can have a
-eparate instance for each of your game scenes. Whatever makes sense for your design::
+You can have a single World instance for your entire game, or you can have a separate instance
+for each of your game scenes. Whatever makes sense for your design. Create a World instance like this::
 
     world = esper.World()
 
@@ -106,7 +116,7 @@ Create an Entity, and assign some Component instances to it::
 
 
 Running all Processors is done with a single call to world.process(). This will call the
-process method on all assigned Processors, in order of their priority (if any)::
+process method on all assigned Processors, in order of their priority::
 
     world.process()
 
