@@ -119,10 +119,9 @@ def query_entities(world):
     for _, (_, _) in world.get_components(Position, Velocity):
         pass
 
-create_entities(standard_world, 5000)
-create_entities(cached_world, 5000)
-
 for current_pass in range(5):
+    standard_world.clear_database()
+    create_entities(standard_world, 5000)
     print("Standard World pass {}...".format(current_pass + 1))
     for amount in range(1, 500):
         query_entities(standard_world)
@@ -133,11 +132,13 @@ for current_pass in range(5):
     current_run = []
 
 for current_pass in range(5):
+    cached_world.clear_database()
+    create_entities(cached_world, 5000)
     print("Cached World pass {}...".format(current_pass + 1))
     for amount in range(1, 500):
         query_entities(cached_world)
         if amount > 250:
-            standard_world.delete_entity(amount)
+            cached_world.delete_entity(amount)
             cached_world.create_entity()
     cached_results.append(current_run)
     current_run = []
