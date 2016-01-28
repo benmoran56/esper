@@ -57,19 +57,17 @@ class World:
 
         Delete an Entity from the World. This will also delete any Component
         instances that are assigned to the Entity.
+
+        Raises a KeyError if the given entity does not exist in the database.
         :param entity: The Entity ID you wish to delete.
         """
-        for component_type in self._entities.get(entity, []):
+        for component_type in self._entities[entity]:
             self._components[component_type].discard(entity)
 
             if not self._components[component_type]:
                 del self._components[component_type]
 
-        try:
-            del self._entities[entity]
-            return entity
-        except KeyError:
-            pass
+        del self._entities[entity]
 
     def component_for_entity(self, entity, component_type):
         """Retrieve a specific Component instance for an Entity.
@@ -103,33 +101,29 @@ class World:
 
         self._entities[entity][component_type] = component_instance
 
-    def delete_component(self, entity, component_type):
-        """Delete a Component instance from an Entity, by type.
+    def remove_component(self, entity, component_type):
+        """Remove a Component instance from an Entity, by type.
 
-        An Component instance can be Deleted by providing it's type.
+        A Component instance can be removed by providing it's type.
         For example: world.delete_component(enemy_a, Velocity) will remove
         the Velocity instance from the Entity enemy_a.
 
-        :param entity: The Entity to delete the Component from.
+        Raises a KeyError if either the given entity or Component type does
+        not exist in the database.
+        :param entity: The Entity to remove the Component from.
         :param component_type: The type of the Component to remove.
         """
-        try:
-            self._components[component_type].discard(entity)
+        self._components[component_type].discard(entity)
 
-            if not self._components[component_type]:
-                del self._components[component_type]
-        except KeyError:
-            pass
+        if not self._components[component_type]:
+            del self._components[component_type]
 
-        try:
-            del self._entities[entity][component_type]
+        del self._entities[entity][component_type]
 
-            if not self._entities[entity]:
-                del self._entities[entity]
+        if not self._entities[entity]:
+            del self._entities[entity]
 
-            return entity
-        except KeyError:
-            pass
+        return entity
 
     def get_component(self, component_type):
         """Get an iterator for Entity, Component pairs.
@@ -185,20 +179,18 @@ class CachedWorld(World):
 
     def delete_entity(self, entity):
         """Delete an Entity from the World."""
-        if super().delete_entity(entity) is not None:
-            self._get_entities.cache_clear()
-            return entity
+        super().delete_entity(entity)
+        self._get_entities.cache_clear()
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity."""
         super().add_component(entity, component_instance)
         self._get_entities.cache_clear()
 
-    def delete_component(self, entity, component_type):
-        """Delete a Component instance from an Entity, by type."""
-        if super().delete_component(entity, component_type) is not None:
-            self._get_entities.cache_clear()
-            return entity
+    def remove_component(self, entity, component_type):
+        """Remove a Component instance from an Entity, by type."""
+        super().delete_component(entity, component_type)
+        self._get_entities.cache_clear()
 
     @lru_cache()
     def _get_entities(self, component_types):
