@@ -196,7 +196,7 @@ class CachedWorld(World):
 
     def delete_component(self, entity, component_type):
         """Delete a Component instance from an Entity, by type."""
-        if super().delete_component(entity, component_instance) is not None:
+        if super().delete_component(entity, component_type) is not None:
             self._get_entities.cache_clear()
             return entity
 
