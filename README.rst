@@ -17,6 +17,12 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 What's New
 ----------
 
+**0.9.3** - Small API change, and different exception handling.
+            The *World.delete_component* method has been renamed to *World.remove_component*
+            for consistency. The *World.delete_entity* and *World.remove_component* methods
+            will now raise a KeyError if the entity/component does not exist. Previously
+            they would pass silently.
+
 **0.9.2** - Switched to a different database structure internally. (No API changes)
             There are now examples for pyglet, Pygame, and PySDL2.
             Thanks to Christopher Arndt, multiple component queries are faster.
