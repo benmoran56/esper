@@ -3,6 +3,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-  - "nightly" # currently points to 3.6-dev
-# command to run tests
-script: pytest tests
+  - "nightly"
+  - "pypy3"
+# command to run tests:
+script: py.test -v tests
