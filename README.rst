@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/benmoran56/esper.svg?branch=master
+    :target: https://travis-ci.org/benmoran56/esper
+
 Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
