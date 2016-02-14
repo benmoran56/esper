@@ -172,25 +172,31 @@ class CachedWorld(World):
         wrapped = self._get_entities.__wrapped__.__get__(self, World)
         self._get_entities = lru_cache(size)(wrapped)
 
+    def cache_clear(self):
+        return self._get_entities.cache_clear()
+
+    def cache_info(self):
+        return self._get_entities.cache_info()
+
     def clear_database(self):
         """Remove all Entities and Components from the world."""
         super().clear_database()
-        self._get_entities.cache_clear()
+        self.cache_clear()
 
     def delete_entity(self, entity):
         """Delete an Entity from the World."""
         super().delete_entity(entity)
-        self._get_entities.cache_clear()
+        self.cache_clear()
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity."""
         super().add_component(entity, component_instance)
-        self._get_entities.cache_clear()
+        self.cache_clear()
 
     def remove_component(self, entity, component_type):
         """Remove a Component instance from an Entity, by type."""
         super().delete_component(entity, component_type)
-        self._get_entities.cache_clear()
+        self.cache_clear()
 
     @lru_cache()
     def _get_entities(self, component_types):
