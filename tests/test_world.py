@@ -34,15 +34,40 @@ def test_entity_creation(world):
 def test_single_component_query(populated_world):
     assert isinstance(populated_world.get_component(ComponentA), types.GeneratorType)
 
+    for ent, comp in populated_world.get_component(ComponentA):
+        assert type(ent) == int
+        assert type(comp) == ComponentA
+
 
 def test_dual_component_query(populated_world):
     assert isinstance(populated_world.get_components(ComponentD, ComponentE),
                       types.GeneratorType)
 
+    for ent, comps in populated_world.get_components(ComponentD, ComponentE):
+        assert type(ent) == int
+        assert type(comps) == list
+        assert len(comps) == 2
+
+    for ent, (d, e) in populated_world.get_components(ComponentD, ComponentE):
+        assert type(ent) == int
+        assert type(d) == ComponentD
+        assert type(e) == ComponentE
+
 
 def test_triple_component_query(populated_world):
     assert isinstance(populated_world.get_components(ComponentC, ComponentD, ComponentE),
                       types.GeneratorType)
+
+    for ent, comps in populated_world.get_components(ComponentC, ComponentD, ComponentE):
+        assert type(ent) == int
+        assert type(comps) == list
+        assert len(comps) == 3
+
+    for ent, (c, d, e) in populated_world.get_components(ComponentC, ComponentD, ComponentE):
+        assert type(ent) == int
+        assert type(c) == ComponentC
+        assert type(d) == ComponentD
+        assert type(e) == ComponentE
 
 
 ##################################################

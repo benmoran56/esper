@@ -1,3 +1,5 @@
+import esper
+
 from functools import lru_cache
 
 
@@ -26,8 +28,7 @@ class World:
         subclassed from the Processor class
         :param priority: A higher number is processed first.
         """
-        # TODO: raise an exception if the same type Processor already exists.
-        # TODO: check that the processor is a subclass of esper.Processor.
+        assert issubclass(processor_instance.__class__, esper.Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
