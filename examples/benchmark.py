@@ -20,7 +20,7 @@ parser.add_option("-s", "--save", dest="save", action="store_true", default=Fals
 parser.add_option("-p", "--plot", dest="plot", action="store_true", default=False,
                   help="Display benchmark. Requires matplotlib module.")
 parser.add_option("-e", "--entities", dest="entities", action="store", default=5000, type="int",
-                  help="Change the maxinum number of Entities to benchmark. Default is 5000.")
+                  help="Change the maximum number of Entities to benchmark. Default is 5000.")
 
 (options, arguments) = parser.parse_args()
 
@@ -176,16 +176,16 @@ for amount in range(500, MAX_ENTITIES, 100):
     gc.collect()
 
 
-################################################
-# Save the results to disk, or plot immediately:
-################################################
+#############################################
+# Save the results to disk, or plot directly:
+#############################################
 
 if not options.save and not options.plot:
     print("\nRun 'benchmark.py --help' for details on saving or plotting this benchmark.")
 
 if options.save:
     file_name = time.strftime('results-%Y%m%dT%H%M%S.pickle')
-    print("Saving benchmark results to '{}'...".format(file_name))
+    print("\nSaving benchmark results to '{}'...".format(file_name))
     with open(file_name, 'wb') as picklefile:
         pickle.dump(results, picklefile)
 
@@ -193,7 +193,7 @@ if options.plot:
     try:
         from matplotlib import pyplot as plt
     except ImportError:
-        print("The matplotlib module is required for plotting results.")
+        print("\nThe matplotlib module is required for plotting results.")
         sys.exit(1)
 
     lines = []
