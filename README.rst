@@ -5,11 +5,11 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
-Esper is an Entity System, also commonly called Entity Component Systems (ECS).
+Esper is an MIT licensed Entity System, also commonly called Entity Component Systems (ECS).
 The design is based on the Entity System concepts described by Adam Martin in his blog at
 T-Machines.org, and others. Efforts were made to keep it as lightweight and performant as possible.
 
-There is a fairly accurate writeup of what an Entity System is in this Wikipedia article:
+There is a fairly accurate writeup of what Entity System are in this Wikipedia article:
 https://en.wikipedia.org/wiki/Entity_component_system
 
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
@@ -51,6 +51,15 @@ If you prefer, Esper is also available on PyPI for easy installation via pip.
 
 3) Structure Guidelines
 -----------------------
+* World
+
+A World is the main point of interaction in Esper. After creating a World object, you will use
+that object to create Entities and assigning Components to them. A World is also assigned all of
+your Processor instances, and handles smoothly running everything with a single call per frame.
+Of course, Entities, Components and Processors can be created and assigned, or deleted while
+your application is running.
+
+
 * Entities 
 
 Entities are simple integer IDs (1, 2, 3, 4, etc.).
@@ -97,12 +106,9 @@ you're done iterating over the Components.
 
 4) Usage
 --------
-The first step after importing Esper is to create a World instance. A World is the main core
-of Esper. It is responsible for creating Entities and assigning Components to them, and handling
-running of all assigned Processors.
-
-You can have a single World instance for your entire game, or you can have a separate instance
-for each of your game scenes. Whatever makes sense for your design. Create a World instance like this::
+The first step after importing Esper is to create a World instance. You can have a single World
+instance for your entire game, or you can have a separate instance for each of your game scenes.
+Whatever makes sense for your design. Create a World instance like this::
 
     world = esper.World()
 
@@ -112,9 +118,11 @@ optional processing priority (higher numbers are processed first). All Processor
 priority "0" by default::
 
     movement_processor = MovementProcessor()
+    collision_processor = CollisionProcessor()
     rendering_processor = RenderingProcessor()
-    world.add_processor(movement_processor)
-    world.add_processor(rendering_processor, priority=3)
+    world.add_processor(movement_processor, priority=2)
+    world.add_processor(collision_processor, priority=3)
+    world.add_processor(rendering_processor)
 
 
 Create an Entity, and assign some Component instances to it::

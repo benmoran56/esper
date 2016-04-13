@@ -1,5 +1,4 @@
 import esper
-
 import types
 import pytest
 
@@ -120,8 +119,6 @@ def test_remove_processor(populated_world):
     assert len(populated_world._processors) == 0
 
 
-
-
 ##################################################
 #   Some helper functions and Component templates:
 ##################################################
@@ -178,12 +175,14 @@ class CorrectProcessorA(esper.Processor):
     def process(self):
         pass
 
+
 class CorrectProcessorB(esper.Processor):
     def __init__(self):
         super().__init__()
 
     def process(self):
         pass
+
 
 class IncorrectProcessor:
     def __init__(self):
