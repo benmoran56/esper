@@ -60,6 +60,17 @@ def test_get_component(populated_world):
         assert type(comp) == ComponentA
 
 
+def test_has_component(world):
+    entity1 = world.create_entity()
+    entity2 = world.create_entity()
+    world.add_component(entity1, ComponentA())
+    world.add_component(entity2, ComponentB())
+    assert world.has_component(entity1, ComponentA) == True
+    assert world.has_component(entity1, ComponentB) == False
+    assert world.has_component(entity2, ComponentA) == False
+    assert world.has_component(entity2, ComponentB) == True
+
+
 def test_get_two_components(populated_world):
     assert isinstance(populated_world.get_components(ComponentD, ComponentE),
                       types.GeneratorType)

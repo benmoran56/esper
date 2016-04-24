@@ -82,6 +82,21 @@ class World:
         except KeyError:
             pass
 
+    def has_component(self, entity, component_type):
+        """Check if a specific Entity has a Component of a certain type.
+
+        :param entity: The Entity you are querying.
+        :param component_type: The type of Component to check for.
+        :return: True if the Entity has a Component of this type,
+        otherwise False
+        """
+        return component_type in self._entities[entity]
+        #
+        # try:
+        #     return entity in self._components[component_type]
+        # except KeyError:
+        #     return False
+
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity.
 
