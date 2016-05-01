@@ -6,12 +6,11 @@
 """
 
 name = 'esper'
-version = '0.9.3'
+version = '0.9.4'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
-author = "Benjamin Moran"
-# credits = ["Benjamin Moran", "Christopher Arndt"]
-license = "MIT"
+author = 'Benjamin Moran'
+license = 'MIT'
 author_email = 'benmoran56@gmail.com'
 url = 'https://github.com/benmoran56/esper'
 download_url = url + '/releases'
