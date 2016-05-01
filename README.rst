@@ -20,6 +20,16 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 What's New
 ----------
 
+**0.9.4** - A new method was added: *World.has_component* which returns a Boolean (True/False).
+            This is mostly a simple convenience method to make writing some types of logic in
+            *Processors*.  This release also has a bit better test coverage, including coverage
+            for the undocumented *esper.CachedWorld*. As the name implies, this is a alternate
+            *World* that uses the *functools.lru_cache* module from the Python standard library.
+            Feel free to try this out in your program, or run the benchmark in the examples folder.
+            The API is the same, and it should be faster than the standard *World* in most cases. 
+            After more testing/feedback, it should be documented in a future release.
+            Thanks to Christopher Arndt for his work on this. 
+
 **0.9.3** - Small API change, and different exception handling.
             The *World.delete_component* method has been renamed to *World.remove_component*
             for consistency. The *World.delete_entity* and *World.remove_component* methods
@@ -29,9 +39,6 @@ What's New
 **0.9.2** - Switched to a different database structure internally. (No API changes)
             There are now examples for pyglet, Pygame, and PySDL2.
             Thanks to Christopher Arndt, multiple component queries are faster.
-
-**0.9.0** - Esper should now be fully usable for your game or program.
-            Example code for Pygame and PySDL. Pyglet example coming soon!
 
 
 1) Compatibility
