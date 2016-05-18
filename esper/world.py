@@ -17,22 +17,22 @@ class World:
 
     def clear_database(self):
         """Remove all entities and components from the world."""
+        self._next_entity_id = 0
         self._components.clear()
         self._entities.clear()
-        self._next_entity_id = 0
 
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the world.
 
         :param processor_instance: An instance of a Processor,
-        subclassed from the Processor class
+        subclassed from the esper.Processor class
         :param priority: A higher number is processed first.
         """
         assert issubclass(processor_instance.__class__, esper.Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
-        self._processors.sort(key=lambda processor: -processor.priority)
+        self._processors.sort(key=lambda proc: proc.priority, reverse=True)
 
     def remove_processor(self, processor_type):
         """Remove a Processor from the world, by type.
@@ -91,11 +91,6 @@ class World:
         otherwise False
         """
         return component_type in self._entities[entity]
-        #
-        # try:
-        #     return entity in self._components[component_type]
-        # except KeyError:
-        #     return False
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity.
@@ -155,7 +150,7 @@ class World:
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
-        :return: An iterator for (Entity, Component1, Component2, etc)
+        :return: An iterator for Entity, (Component1, Component2, etc)
         tuples.
         """
         entity_db = self._entities
@@ -169,8 +164,7 @@ class World:
 
     def process(self, *args):
         """Process all Systems, in order of their priority."""
-        for processor in self._processors:
-            processor.process(*args)
+        [processor.process(*args) for processor in self._processors]
 
 
 class CachedWorld(World):
