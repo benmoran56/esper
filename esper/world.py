@@ -73,14 +73,30 @@ class World:
     def component_for_entity(self, entity, component_type):
         """Retrieve a specific Component instance for an Entity.
 
-        :param entity: The Entity to retrieve the Component for.
+        Retrieve a specific Component instance for an Entity. In some cases,
+        it may be usefull to modify a specific Component, outside of your
+        Processors. For example: user input.
+        Raises a KeyError if the given entity does not exist in the database.
+        :param entity: The Entity ID to retrieve the Component for.
         :param component_type: The Component instance you wish to retrieve.
         :return: A Component instance, *if* it exists for the Entity.
         """
-        try:
-            return self._entities[entity][component_type]
-        except KeyError:
-            pass
+        return self._entities[entity][component_type]
+
+    def components_for_entity(self, entity):
+        """Retrieve all Components for a specific Entity, as a Tuple.
+
+        Retrieve all Components for a specific Entity. The method is probably
+        not appropriate to use in your Processors, but might be useful for
+        saving state, or passing specific Components between World instances.
+        Unlike most other methods, this returns all of the Components as a
+        Tuple in one batch, instead of returning a Generator for iteration.
+        Raises a KeyError if the given entity does not exist in the database.
+        :param entity: The Entity ID to retrieve the Components for.
+        :return: A tuple of all Component instances that have been
+        assigned to the passed Entity ID.
+        """
+        return tuple(self._entities[entity].values())
 
     def has_component(self, entity, component_type):
         """Check if a specific Entity has a Component of a certain type.
