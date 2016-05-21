@@ -19,6 +19,15 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
+**0.9.5** - A new method was added: *World.components_for_entity* which returns a tuple of all
+            *Components* that are assigned to an *Entity*. This is probably not useful within
+            standard *Processor* logic, but could be useful for serializing a specific *Entity's*
+            state. For example: saving player status to disk, or passing to another scene in your
+            game that might have a separate *World*. You can recreate the *Entity* using these
+            exported *Component* instances.
+            In addition to the new method, the behavior of the *World.component_for_entity* method
+            has changed slightly. It will not raise a *KeyError* if the *Entity* ID doesn't exist,
+            instead of passing silently.
 
 **0.9.4** - A new method was added: *World.has_component* which returns a Boolean (True/False).
             This is mostly a simple convenience method to make writing some types of logic in
@@ -36,17 +45,15 @@ What's New
             will now raise a KeyError if the entity/component does not exist. Previously
             they would pass silently.
 
-**0.9.2** - Switched to a different database structure internally. (No API changes)
-            There are now examples for pyglet, Pygame, and PySDL2.
-            Thanks to Christopher Arndt, multiple component queries are faster.
-
 
 1) Compatibility
 ----------------
-Esper is developed for Python 3. It is also know to work on Pypy3. Being written in pure
-Python, it should work on any compliant interpreter. Python 2 is not supported in the main
-branch for now, but Christopher Arndt is currently maintaining a branch here:
+Esper is developed for Python 3. It will also work on Pypy3. Being written in pure
+Python, it should work on any compliant interpreter. Current automated testing is done
+for both CPython and PyPy. Python 2 is not supported in the main branch,
+but Christopher Arndt is currently maintaining a branch here:
 https://github.com/SpotlightKid/esper/tree/python2
+
 
 2) Installation
 ---------------
@@ -56,8 +63,8 @@ the *esper* directory into the top level of your project folder, and *import esp
 If you prefer, Esper is also available on PyPI for easy installation via pip.
 
 
-3) Structure Guidelines
------------------------
+3) Project Structure
+--------------------
 * World
 
 A World is the main point of interaction in Esper. After creating a World object, you will use
@@ -103,7 +110,7 @@ to the World instance, to allow easy querying of Components. A simple Processor 
                 pos.x += vel.x
                 pos.y += vel.y
 
-In the above code, you can see the standard usage of the World.get_components() method. This method
+In the above code, you can see the standard usage of the *World.get_components()* method. This method
 allows efficient iteration over all Entities that contain the specified Component types. You also
 get a reference to the Entity ID for the current pair of Velocity/Position Components, in case you
 should need it. For example, you may have a Processor that will delete certain Entites. You could
@@ -150,7 +157,27 @@ them properly in the *process()* methods of your Processors. For example, if you
 argument as *world.process(dt)*, your Processor's *process()* methods should all receive it as:
 *process(self, dt)*
 
+* Additional Methods
+
+Have a look through *esper/world.py* for an idea of what additional functionality is available. All
+methods have docstrings with details on usage, which will be put into a real API document at some point.
+Here is a quick list of the methods, whose names should be semi-explanitory::
+
+
+    World.create_entity()
+    World.delete_entity(entity)
+    World.add_processor(processor_instance)
+    World.remove_processor(ProcessorType)
+    World.add_component(entity, component_instance)
+    World.remove_component(entity, ComponentType)
+    World.get_component(ComponentType)
+    World.get_components(ComponentTypeA, ComponentTypeB, Etc)
+    World.component_for_entity(entity, ComponentType)
+    World.components_for_entity(entity)
+    World.has_component(entity, ComponentType)
+    World.process()
+
 5) Examples
 -----------
 
-See the **/examples** folder to get some idea of how a game might be structured.
+See the **/examples** folder to get some idea on how a bare minimum game might be structured.
