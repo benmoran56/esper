@@ -49,7 +49,20 @@ def test_component_for_entity(world):
     entity = world.create_entity()
     world.add_component(entity, ComponentC())
     assert isinstance(world.component_for_entity(entity, ComponentC), ComponentC)
-    assert not world.component_for_entity(entity, ComponentD)
+    with pytest.raises(KeyError):
+        world.component_for_entity(entity, ComponentD)
+
+
+def test_components_for_entity(world):
+    entity = world.create_entity()
+    world.add_component(entity, ComponentA())
+    world.add_component(entity, ComponentD())
+    world.add_component(entity, ComponentE())
+    all_components = world.components_for_entity(entity)
+    assert type(all_components) == tuple
+    assert len(all_components) == 3
+    with pytest.raises(KeyError):
+        world.components_for_entity(999)
 
 
 def test_has_component(world):
