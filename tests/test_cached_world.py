@@ -143,6 +143,17 @@ def test_remove_processor(populated_world):
     assert len(populated_world._processors) == 0
 
 
+def test_get_processor(world):
+    processor_a = CorrectProcessorA()
+    processor_b = CorrectProcessorB()
+    world.add_processor(processor_a)
+    world.add_processor(processor_b)
+    retrieved_proc_b = world.get_processor(CorrectProcessorB)
+    retrieved_proc_a = world.get_processor(CorrectProcessorA)
+    assert type(retrieved_proc_a) == CorrectProcessorA
+    assert type(retrieved_proc_b) == CorrectProcessorB
+
+
 ##################################################
 #   Some helper functions and Component templates:
 ##################################################

@@ -44,10 +44,24 @@ class World:
                 processor.world = None
                 self._processors.remove(processor)
 
+    def get_processor(self, processor_type):
+        """Get a Processor instance, by type.
+
+        This method returns a Processor instance by type. This could be
+        useful in certain situations, such as wanting to call a Processor's
+        method from within another Processor.
+
+        :param processor_type: The type of the Processor you wish to fetch.
+        :return: A Processor instance that has previously been added to the World.
+        """
+        for processor in self._processors:
+            if type(processor) == processor_type:
+                return processor
+
     def create_entity(self):
         """Create a new Entity.
 
-        This method return an Entity ID, which is just a plain integer.
+        This method returns an Entity ID, which is just a plain integer.
         :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
