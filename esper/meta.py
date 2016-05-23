@@ -6,7 +6,7 @@
 """
 
 name = 'esper'
-version = '0.9.5'
+version = '0.9.6'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
 author = 'Benjamin Moran'

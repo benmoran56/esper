@@ -19,6 +19,11 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
+**0.9.6** - A new method has been added: *World.get_processor* which returns a *Processor*
+            instance by type. This could be useful if you wish to call a specific method
+            from another *Processor* from within a *Processor*. For example:
+            *self.world.get_processor(OtherProcessorType).some_method()*
+
 **0.9.5** - A new method was added: *World.components_for_entity* which returns a tuple of all
             *Components* that are assigned to an *Entity*. This is probably not useful within
             standard *Processor* logic, but could be useful for serializing a specific *Entity's*
