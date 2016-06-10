@@ -15,8 +15,6 @@ import esper
 parser = optparse.OptionParser()
 parser.add_option("-c", "--cached", dest="cached", action="store_true", default=False,
                   help="Benchmark esper.CachedWorld instead of esper.World.")
-parser.add_option("-s", "--save", dest="save", action="store_true", default=False,
-                  help="Save benchmark to disk to display later with plot-results.py")
 parser.add_option("-p", "--plot", dest="plot", action="store_true", default=False,
                   help="Display benchmark. Requires matplotlib module.")
 parser.add_option("-e", "--entities", dest="entities", action="store", default=5000, type="int",
@@ -180,14 +178,8 @@ for amount in range(500, MAX_ENTITIES, 100):
 # Save the results to disk, or plot directly:
 #############################################
 
-if not options.save and not options.plot:
-    print("\nRun 'benchmark.py --help' for details on saving or plotting this benchmark.")
-
-if options.save:
-    file_name = time.strftime('results-%Y%m%dT%H%M%S.pickle')
-    print("\nSaving benchmark results to '{}'...".format(file_name))
-    with open(file_name, 'wb') as picklefile:
-        pickle.dump(results, picklefile)
+if not options.plot:
+    print("\nRun 'benchmark.py --help' for details on plotting this benchmark.")
 
 if options.plot:
     try:
@@ -202,7 +194,7 @@ if options.plot:
         label = '%i Component%s' % (num, '' if num == 1 else 's')
         lines.extend(plt.plot(x, y, label=label))
 
-    plt.ylabel("Time (ms)")
-    plt.xlabel("# Entities")
+    plt.ylabel("Query Time (ms)")
+    plt.xlabel("Number of Entities")
     plt.legend(handles=lines, bbox_to_anchor=(0.5, 1))
     plt.show()

@@ -9,7 +9,7 @@ import esper
 try:
     from matplotlib import pyplot
 except ImportError:
-    print("The matplotlib module is currently required for this benchmark.")
+    print("The matplotlib module is required for this benchmark.")
     raise Exception
 
 ######################
@@ -146,6 +146,7 @@ for current_pass in range(5):
         if amount > 250:
             standard_world.delete_entity(amount)
             create_entities(standard_world, 1)
+        standard_world.process()
     standard_results.append(current_run)
     current_run = []
 
@@ -158,6 +159,7 @@ for current_pass in range(5):
         if amount > 250:
             cached_world.delete_entity(amount)
             create_entities(standard_world, 1)
+        cached_world.process()
     cached_results.append(current_run)
     current_run = []
 
