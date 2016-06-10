@@ -14,6 +14,7 @@ class World:
         self._next_entity_id = 0
         self._components = {}
         self._entities = {}
+        self._dead_entities = set()
 
     def clear_database(self):
         """Remove all entities and components from the world."""
@@ -67,7 +68,7 @@ class World:
         self._next_entity_id += 1
         return self._next_entity_id
 
-    def delete_entity(self, entity):
+    def delete_entity(self, entity, immediate=False):
         """Delete an Entity from the World.
 
         Delete an Entity from the World. This will also delete any Component
@@ -75,14 +76,22 @@ class World:
 
         Raises a KeyError if the given entity does not exist in the database.
         :param entity: The Entity ID you wish to delete.
+        :param immediate: If set to True, the Entity is removed from the
+        World immediately, instead of before the next call to World.process().
+        Immediate deletion of Entities should not be done at the same time
+        as Entity iteration (calls to World.get_component/s).
         """
-        for component_type in self._entities[entity]:
-            self._components[component_type].discard(entity)
+        if immediate:
+            for component_type in self._entities[entity]:
+                self._components[component_type].discard(entity)
 
-            if not self._components[component_type]:
-                del self._components[component_type]
+                if not self._components[component_type]:
+                    del self._components[component_type]
 
-        del self._entities[entity]
+            del self._entities[entity]
+
+        else:
+            self._dead_entities.add(entity)
 
     def component_for_entity(self, entity, component_type):
         """Retrieve a specific Component instance for an Entity.
@@ -194,7 +203,13 @@ class World:
 
     def process(self, *args):
         """Process all Systems, in order of their priority."""
-        [processor.process(*args) for processor in self._processors]
+        if self._dead_entities:
+            for entity in self._dead_entities:
+                self.delete_entity(entity, immediate=True)
+            self._dead_entities.clear()
+
+        for processor in self._processors:
+            processor.process(*args)
 
 
 class CachedWorld(World):
@@ -222,10 +237,13 @@ class CachedWorld(World):
         super().clear_database()
         self.cache_clear()
 
-    def delete_entity(self, entity):
+    def delete_entity(self, entity, immediate=False):
         """Delete an Entity from the World."""
-        super().delete_entity(entity)
-        self.cache_clear()
+        if immediate:
+            super().delete_entity(entity, immediate=True)
+            self.cache_clear()
+        else:
+            self._dead_entities.add(entity)
 
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity."""

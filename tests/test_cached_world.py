@@ -31,6 +31,7 @@ def test_create_entity(world):
 
 
 def test_delete_entity(world):
+    # TODO: handle case where entity has never been assigned components
     entity1 = world.create_entity()
     world.add_component(entity1, ComponentC())
     entity2 = world.create_entity()
@@ -39,10 +40,11 @@ def test_delete_entity(world):
     world.add_component(entity3, ComponentE())
 
     assert entity3 == 3
-    world.delete_entity(3)
-    # TODO: handle case where entity has never been assigned components
+    world.delete_entity(entity3, immediate=True)
     with pytest.raises(KeyError):
-        world.delete_entity(999)
+        world.components_for_entity(entity3)
+    with pytest.raises(KeyError):
+        world.delete_entity(999, immediate=True)
 
 
 def test_component_for_entity(world):
