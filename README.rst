@@ -9,16 +9,23 @@ Esper is an MIT licensed Entity System, also commonly called Entity Component Sy
 The design is based on the Entity System concepts described by Adam Martin in his blog at
 T-Machines.org, and others. Efforts were made to keep it as lightweight and performant as possible.
 
-There is a fairly accurate writeup of what Entity System are in this Wikipedia article:
+There is a fairly accurate writeup of what Entity Systems are in this Wikipedia article:
 https://en.wikipedia.org/wiki/Entity_component_system
 
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
 and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 
-
 What's New
 ----------
+**0.9.7** - By default, entities are now lazily deleted. When calling World.delete_entity(entity_id),
+            Entities are now placed into a queue to be deleted at the beginning of the next call
+            to World.process(). This means it is now safe to delete entities even while iterating
+            over components in your processor. This should allow for cleaner Processor classes,
+            removing the need to manually track and delete "dead" Entities after iteration. If you
+            do wish to delete an Entity immediately, simply pass the new optional *immediate=True*
+            argument. Ie: *self.world.delete_entity(entity, immediate=True)*.
+
 **0.9.6** - A new method has been added: *World.get_processor* which returns a *Processor*
             instance by type. This could be useful if you wish to call a specific method
             from another *Processor* from within a *Processor*. For example:
@@ -43,12 +50,6 @@ What's New
             The API is the same, and it should be faster than the standard *World* in most cases. 
             After more testing/feedback, it should be documented in a future release.
             Thanks to Christopher Arndt for his work on this. 
-
-**0.9.3** - Small API change, and different exception handling.
-            The *World.delete_component* method has been renamed to *World.remove_component*
-            for consistency. The *World.delete_entity* and *World.remove_component* methods
-            will now raise a KeyError if the entity/component does not exist. Previously
-            they would pass silently.
 
 
 1) Compatibility
@@ -160,7 +161,7 @@ process method on all assigned Processors, in order of their priority::
 Note: You can pass any args you need to *world.process()*, but you must also make sure to recieve
 them properly in the *process()* methods of your Processors. For example, if you pass a delta time
 argument as *world.process(dt)*, your Processor's *process()* methods should all receive it as:
-*process(self, dt)*
+*def process(self, dt):*
 
 * Additional Methods
 
@@ -185,4 +186,4 @@ Here is a quick list of the methods, whose names should be semi-explanitory::
 5) Examples
 -----------
 
-See the **/examples** folder to get some idea on how a bare minimum game might be structured.
+See the **/examples** folder to get an idea of how the basic structure of a game looks.
