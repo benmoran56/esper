@@ -5,8 +5,8 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
-Esper is an MIT licensed Entity System, also commonly called Entity Component Systems (ECS).
-The design is based on the Entity System concepts described by Adam Martin in his blog at
+Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
+The design is based on the Entity System concepts outlined by Adam Martin in his blog at
 T-Machines.org, and others. Efforts were made to keep it as lightweight and performant as possible.
 
 There is a fairly accurate writeup of what Entity Systems are in this Wikipedia article:
@@ -18,10 +18,10 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
-**0.9.7** - By default, entities are now lazily deleted. When calling World.delete_entity(entity_id),
+**0.9.7** - By default, entities are now lazily deleted. When calling *World.delete_entity(entity_id)*,
             Entities are now placed into a queue to be deleted at the beginning of the next call
             to World.process(). This means it is now safe to delete entities even while iterating
-            over components in your processor. This should allow for cleaner Processor classes,
+            over components in your processors. This should allow for cleaner Processor classes, by
             removing the need to manually track and delete "dead" Entities after iteration. If you
             do wish to delete an Entity immediately, simply pass the new optional *immediate=True*
             argument. Ie: *self.world.delete_entity(entity, immediate=True)*.
@@ -150,6 +150,13 @@ Create an Entity, and assign some Component instances to it::
     player = world.create_entity()
     world.add_component(player, Velocity(x=0.9, y=1.2))
     world.add_component(player, Position(x=5, y=5))
+
+Optionally, Component instances can be assigned directly to the Entity on creation::
+
+    player = world.create_entity(
+        Velocity(x=0.9, y=1.2),
+        Position(x=5, y=5)
+    )
 
 
 Running all Processors is done with a single call to world.process(). This will call the

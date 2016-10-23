@@ -5,7 +5,7 @@ from functools import lru_cache
 
 class World:
     def __init__(self):
-        """A World object keeps track of all Entities, Components and Processors.
+        """A World object keeps track of all Entities, Components, and Processors.
 
         A World contains a database of all Entity/Component assignments. It also
         handles calling the process method on any Processors assigned to it.
@@ -17,13 +17,13 @@ class World:
         self._dead_entities = set()
 
     def clear_database(self):
-        """Remove all entities and components from the world."""
+        """Remove all Entities and Components from the World."""
         self._next_entity_id = 0
         self._components.clear()
         self._entities.clear()
 
     def add_processor(self, processor_instance, priority=0):
-        """Add a Processor instance to the world.
+        """Add a Processor instance to the World.
 
         :param processor_instance: An instance of a Processor,
         subclassed from the esper.Processor class
@@ -36,7 +36,7 @@ class World:
         self._processors.sort(key=lambda proc: proc.priority, reverse=True)
 
     def remove_processor(self, processor_type):
-        """Remove a Processor from the world, by type.
+        """Remove a Processor from the World, by type.
 
         :param processor_type: The class type of the Processor to remove.
         """
@@ -49,10 +49,10 @@ class World:
         """Get a Processor instance, by type.
 
         This method returns a Processor instance by type. This could be
-        useful in certain situations, such as wanting to call a Processor's
-        method from within another Processor.
+        useful in certain situations, such as wanting to call a method on a
+        Processor, from within another Processor.
 
-        :param processor_type: The type of the Processor you wish to fetch.
+        :param processor_type: The type of the Processor you wish to retrieve.
         :return: A Processor instance that has previously been added to the World.
         """
         for processor in self._processors:
@@ -63,8 +63,11 @@ class World:
         """Create a new Entity.
 
         This method returns an Entity ID, which is just a plain integer.
-        :param components: Optional components to be added to the entity
-        on creation.
+        You can optionally pass one or more Component instances to be
+        assigned to the Entity.
+
+        :param components: Optional components to be assigned to the
+        entity on creation.
         :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
@@ -77,15 +80,15 @@ class World:
     def delete_entity(self, entity, immediate=False):
         """Delete an Entity from the World.
 
-        Delete an Entity from the World. This will also delete any Component
-        instances that are assigned to the Entity.
+        Delete an Entity and all of it's assigned Component instances from
+        the world. By default, Entity deletion is delayed until the next call
+        to *World.process*. You can request immediate deletion, however, by
+        passing the "immediate=True" parameter. This should generally not be
+        done during Entity iteration (calls to World.get_component/s).
 
         Raises a KeyError if the given entity does not exist in the database.
         :param entity: The Entity ID you wish to delete.
-        :param immediate: If set to True, the Entity is removed from the
-        World immediately, instead of before the next call to World.process().
-        Immediate deletion of Entities should not be done at the same time
-        as Entity iteration (calls to World.get_component/s).
+        :param immediate: If True, delete the Entity immediately.
         """
         if immediate:
             for component_type in self._entities[entity]:
@@ -100,15 +103,16 @@ class World:
             self._dead_entities.add(entity)
 
     def component_for_entity(self, entity, component_type):
-        """Retrieve a specific Component instance for an Entity.
+        """Retrieve a Component instance for a specific Entity.
 
-        Retrieve a specific Component instance for an Entity. In some cases,
-        it may be usefull to modify a specific Component, outside of your
-        Processors. For example: user input.
-        Raises a KeyError if the given entity does not exist in the database.
+        Retrieve a Component instance for a specific Entity. In some cases,
+        it may be necessary to access a specific Component instance.
+        For example: directly modifying a Component to handle user input.
+
+        Raises a KeyError if the given Entity and Component do not exist.
         :param entity: The Entity ID to retrieve the Component for.
         :param component_type: The Component instance you wish to retrieve.
-        :return: A Component instance, *if* it exists for the Entity.
+        :return: The Component instance requested for the given Entity ID.
         """
         return self._entities[entity][component_type]
 
@@ -120,6 +124,7 @@ class World:
         saving state, or passing specific Components between World instances.
         Unlike most other methods, this returns all of the Components as a
         Tuple in one batch, instead of returning a Generator for iteration.
+
         Raises a KeyError if the given entity does not exist in the database.
         :param entity: The Entity ID to retrieve the Components for.
         :return: A tuple of all Component instances that have been
@@ -140,8 +145,9 @@ class World:
     def add_component(self, entity, component_instance):
         """Add a new Component instance to an Entity.
 
-        If a Component of the same type is already assigned to the Entity,
-        it will be replaced with the new one.
+        Add a Component instance to an Entiy. If a Component of the same type
+        is already assigned to the Entity, it will be replaced.
+
         :param entity: The Entity to associate the Component with.
         :param component_instance: A Component instance.
         """
@@ -208,7 +214,16 @@ class World:
             pass
 
     def process(self, *args):
-        """Process all Systems, in order of their priority."""
+        """Call the process method on all Processors, in order of their priority.
+
+        Call the *process* method on all assigned Processors, respecting their
+        optional priority setting. In addition, any Entities that were marked
+        for deletion since the last call to *World.process*, will be deleted
+        at the start of this method call.
+
+        :param args: Optional arguments that will be passed through to the
+        *process* method of all Processors.
+        """
         if self._dead_entities:
             for entity in self._dead_entities:
                 self.delete_entity(entity, immediate=True)
@@ -239,7 +254,7 @@ class CachedWorld(World):
         return self._get_entities.cache_info()
 
     def clear_database(self):
-        """Remove all Entities and Components from the world."""
+        """Remove all Entities and Components from the World."""
         super().clear_database()
         self.cache_clear()
 
