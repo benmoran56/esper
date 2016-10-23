@@ -30,6 +30,15 @@ def test_create_entity(world):
     assert entity1 < entity2
 
 
+def test_create_entity_with_components(world):
+    entity1 = world.create_entity(ComponentA())
+    entity2 = world.create_entity(ComponentB())
+    assert world.has_component(entity1, ComponentA) is True
+    assert world.has_component(entity1, ComponentB) is False
+    assert world.has_component(entity2, ComponentA) is False
+    assert world.has_component(entity2, ComponentB) is True
+
+
 def test_delete_entity(world):
     # TODO: handle case where entity has never been assigned components
     entity1 = world.create_entity()
@@ -80,10 +89,10 @@ def test_has_component(world):
     entity2 = world.create_entity()
     world.add_component(entity1, ComponentA())
     world.add_component(entity2, ComponentB())
-    assert world.has_component(entity1, ComponentA) == True
-    assert world.has_component(entity1, ComponentB) == False
-    assert world.has_component(entity2, ComponentA) == False
-    assert world.has_component(entity2, ComponentB) == True
+    assert world.has_component(entity1, ComponentA) is True
+    assert world.has_component(entity1, ComponentB) is False
+    assert world.has_component(entity2, ComponentA) is False
+    assert world.has_component(entity2, ComponentB) is True
 
 
 def test_get_two_components(populated_world):

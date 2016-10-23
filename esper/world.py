@@ -59,13 +59,19 @@ class World:
             if type(processor) == processor_type:
                 return processor
 
-    def create_entity(self):
+    def create_entity(self, *components):
         """Create a new Entity.
 
         This method returns an Entity ID, which is just a plain integer.
+        :param components: Optional components to be added to the entity
+        on creation.
         :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
+
+        for component in components:
+            self.add_component(self._next_entity_id, component)
+
         return self._next_entity_id
 
     def delete_entity(self, entity, immediate=False):
