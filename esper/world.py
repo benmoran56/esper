@@ -1,10 +1,11 @@
 import esper
+import time
 
 from functools import lru_cache
 
 
 class World:
-    def __init__(self):
+    def __init__(self, timed=False):
         """A World object keeps track of all Entities, Components, and Processors.
 
         A World contains a database of all Entity/Component assignments. It also
@@ -15,6 +16,9 @@ class World:
         self._components = {}
         self._entities = {}
         self._dead_entities = set()
+        if timed:
+            self.process_times = {}
+            self.process = self._timed_process
 
     def clear_database(self):
         """Remove all Entities and Components from the World."""
@@ -231,6 +235,19 @@ class World:
 
         for processor in self._processors:
             processor.process(*args)
+
+    def _timed_process(self, *args):
+        """Track Processor execution time for benchmarking."""
+        if self._dead_entities:
+            for entity in self._dead_entities:
+                self.delete_entity(entity, immediate=True)
+            self._dead_entities.clear()
+
+        for processor in self._processors:
+            start_time = time.process_time()
+            processor.process(*args)
+            process_time = int(round((time.process_time() - start_time) * 1000, 2))
+            self.process_times[processor.__class__.__name__] = process_time
 
 
 class CachedWorld(World):
