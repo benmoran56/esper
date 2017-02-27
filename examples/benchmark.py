@@ -17,6 +17,8 @@ parser.add_option("-c", "--cached", dest="cached", action="store_true", default=
                   help="Benchmark esper.CachedWorld instead of esper.World.")
 parser.add_option("-p", "--plot", dest="plot", action="store_true", default=False,
                   help="Display benchmark. Requires matplotlib module.")
+parser.add_option("-w", "--walltime", dest="walltime", action="store_true", default=False,
+                  help="Benchmark the 'wall clock' time, instead of process time.")
 parser.add_option("-e", "--entities", dest="entities", action="store", default=5000, type="int",
                   help="Change the maximum number of Entities to benchmark. Default is 5000.")
 
@@ -27,15 +29,21 @@ if MAX_ENTITIES <= 500:
     print("The number of entities must be greater than 500.")
     sys.exit(1)
 
+if options.walltime:
+    print("Benchmarking wall clock time...\n")
+    time_query = time.time
+else:
+    time_query = time.process_time
+
 
 ##########################
 # Simple timing decorator:
 ##########################
 def timing(f):
     def wrap(*args):
-        time1 = time.time()
+        time1 = time_query()
         ret = f(*args)
-        time2 = time.time()
+        time2 = time_query()
         result_times.append((time2 - time1)*1000.0)
         return ret
     return wrap

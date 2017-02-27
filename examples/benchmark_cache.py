@@ -32,9 +32,9 @@ if MAX_ENTITIES <= 50:
 ##########################
 def timing(f):
     def wrap(*args):
-        time1 = time.time()
+        time1 = time.process_time()
         ret = f(*args)
-        time2 = time.time()
+        time2 = time.process_time()
         current_run.append((time2 - time1) * 1000.0)
         return ret
     return wrap
