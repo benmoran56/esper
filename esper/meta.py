@@ -6,7 +6,7 @@
 """
 
 name = 'esper'
-version = '0.9.7'
+version = '0.9.8'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
 author = 'Benjamin Moran'
@@ -31,7 +31,3 @@ Topic :: Software Development :: Libraries :: Python Modules
 """
 classifiers = [c.strip() for c in classifiers.splitlines()
                if c.strip() and not c.startswith('#')]
-try:  # Python 2.x
-    del c
-except:
-    pass
