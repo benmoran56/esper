@@ -5,7 +5,7 @@ from functools import lru_cache
 
 
 class World:
-    def __init__(self, timed=False):
+    def __init__(self, cache_size=128, timed=False):
         """A World object keeps track of all Entities, Components, and Processors.
 
         A World contains a database of all Entity/Component assignments. It also
@@ -19,12 +19,28 @@ class World:
         if timed:
             self.process_times = {}
             self.process = self._timed_process
+        self.set_cache_size(cache_size)
 
     def clear_database(self):
         """Remove all Entities and Components from the World."""
         self._next_entity_id = 0
         self._components.clear()
         self._entities.clear()
+        self.cache_clear()
+
+    def set_cache_size(self, size):
+        """Set the maximum size of the LRU cache for Entity lookup.
+
+        Replaces the existing cache.
+        """
+        wrapped = self._get_entities.__wrapped__.__get__(self, World)
+        self._get_entities = lru_cache(size)(wrapped)
+
+    def cache_clear(self):
+        return self._get_entities.cache_clear()
+
+    def cache_info(self):
+        return self._get_entities.cache_info()
 
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the World.
@@ -102,6 +118,7 @@ class World:
                     del self._components[component_type]
 
             del self._entities[entity]
+            self.cache_clear()
 
         else:
             self._dead_entities.add(entity)
@@ -166,6 +183,7 @@ class World:
             self._entities[entity] = {}
 
         self._entities[entity][component_type] = component_instance
+        self.cache_clear()
 
     def remove_component(self, entity, component_type):
         """Remove a Component instance from an Entity, by type.
@@ -189,6 +207,7 @@ class World:
         if not self._entities[entity]:
             del self._entities[entity]
 
+        self.cache_clear()
         return entity
 
     def get_component(self, component_type):
@@ -201,6 +220,12 @@ class World:
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
+    @lru_cache()
+    def _get_entities(self, component_types):
+        """Return set of Entities having all given Components."""
+        comp_db = self._components
+        return set.intersection(*[comp_db[ct] for ct in component_types])
+
     def get_components(self, *component_types):
         """Get an iterator for Entity and multiple Component sets.
 
@@ -209,10 +234,8 @@ class World:
         tuples.
         """
         entity_db = self._entities
-        comp_db = self._components
-
         try:
-            for entity in set.intersection(*[comp_db[ct] for ct in component_types]):
+            for entity in self._get_entities(component_types):
                 yield entity, [entity_db[entity][ct] for ct in component_types]
         except KeyError:
             pass
@@ -250,60 +273,71 @@ class World:
             self.process_times[processor.__class__.__name__] = process_time
 
 
-class CachedWorld(World):
-    def __init__(self, cache_size=128):
-        """A sub-class of World using an LRU cache for Entity lookups."""
-        super().__init__()
-        self.set_cache_size(cache_size)
-
-    def set_cache_size(self, size):
-        """Set the maximum size of the LRU cache for Entity lookup.
-
-        Replaces the existing cache.
-        """
-        wrapped = self._get_entities.__wrapped__.__get__(self, World)
-        self._get_entities = lru_cache(size)(wrapped)
-
-    def cache_clear(self):
-        return self._get_entities.cache_clear()
-
-    def cache_info(self):
-        return self._get_entities.cache_info()
-
-    def clear_database(self):
-        """Remove all Entities and Components from the World."""
-        super().clear_database()
-        self.cache_clear()
-
-    def delete_entity(self, entity, immediate=False):
-        """Delete an Entity from the World."""
-        if immediate:
-            super().delete_entity(entity, immediate=True)
-            self.cache_clear()
-        else:
-            self._dead_entities.add(entity)
-
-    def add_component(self, entity, component_instance):
-        """Add a new Component instance to an Entity."""
-        super().add_component(entity, component_instance)
-        self.cache_clear()
-
-    def remove_component(self, entity, component_type):
-        """Remove a Component instance from an Entity, by type."""
-        super().remove_component(entity, component_type)
-        self.cache_clear()
-
-    @lru_cache()
-    def _get_entities(self, component_types):
-        """Return set of Entities having all given Components."""
-        comp_db = self._components
-        return set.intersection(*[comp_db[ct] for ct in component_types])
-
-    def get_components(self, *component_types):
-        """Get an iterator for Entity and multiple Component sets."""
-        entity_db = self._entities
-        try:
-            for entity in self._get_entities(component_types):
-                yield entity, [entity_db[entity][ct] for ct in component_types]
-        except KeyError:
-            pass
+# class CachedWorld:
+#     def __init__(self, cache_size=128, timed=False):
+#         """A World object keeps track of all Entities, Components, and Processors.
+#
+#         A World contains a database of all Entity/Component assignments. It also
+#         handles calling the process method on any Processors assigned to it.
+#         """
+#         self._processors = []
+#         self._next_entity_id = 0
+#         self._components = {}
+#         self._entities = {}
+#         self._dead_entities = set()
+#         if timed:
+#             self.process_times = {}
+#             self.process = self._timed_process
+#         self.set_cache_size(cache_size)
+#
+#     def set_cache_size(self, size):
+#         """Set the maximum size of the LRU cache for Entity lookup.
+#
+#         Replaces the existing cache.
+#         """
+#         wrapped = self._get_entities.__wrapped__.__get__(self, World)
+#         self._get_entities = lru_cache(size)(wrapped)
+#
+#     def cache_clear(self):
+#         return self._get_entities.cache_clear()
+#
+#     def cache_info(self):
+#         return self._get_entities.cache_info()
+#
+#     def clear_database(self):
+#         """Remove all Entities and Components from the World."""
+#         super().clear_database()
+#         self.cache_clear()
+#
+#     def delete_entity(self, entity, immediate=False):
+#         """Delete an Entity from the World."""
+#         if immediate:
+#             super().delete_entity(entity, immediate=True)
+#             self.cache_clear()
+#         else:
+#             self._dead_entities.add(entity)
+#
+#     def add_component(self, entity, component_instance):
+#         """Add a new Component instance to an Entity."""
+#         super().add_component(entity, component_instance)
+#         self.cache_clear()
+#
+#     def remove_component(self, entity, component_type):
+#         """Remove a Component instance from an Entity, by type."""
+#         super().remove_component(entity, component_type)
+#         self.cache_clear()
+#
+#     @lru_cache()
+#     def _get_entities(self, component_types):
+#         """Return set of Entities having all given Components."""
+#         comp_db = self._components
+#         return set.intersection(*[comp_db[ct] for ct in component_types])
+#
+#     def get_components(self, *component_types):
+#         """Get an iterator for Entity and multiple Component sets."""
+#         entity_db = self._entities
+#         try:
+#             for entity in self._get_entities(component_types):
+#                 yield entity, [entity_db[entity][ct] for ct in component_types]
+#         except KeyError:
+#             pass

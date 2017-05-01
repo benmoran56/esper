@@ -42,8 +42,7 @@ def timing(f):
 ##########################
 # Create a World instance:
 ##########################
-standard_world = esper.World()
-cached_world = esper.CachedWorld()
+world = esper.World()
 
 
 #################################
@@ -123,8 +122,7 @@ def create_entities(world, number):
 # Perform several queries, and print the results:
 #################################################
 current_run = []
-standard_results = []
-cached_results = []
+results = []
 print("\nFor the first half of each pass, Entities are static.")
 print("For the second half, Entities are created/deleted each frame.\n")
 
@@ -137,38 +135,23 @@ def query_entities(world):
         pass
 
 
-for current_pass in range(5):
-    standard_world.clear_database()
-    create_entities(standard_world, MAX_ENTITIES)
-    print("Standard World pass {}...".format(current_pass + 1))
+for current_pass in range(10):
+    world.clear_database()
+    create_entities(world, MAX_ENTITIES)
+    print("Pass {}...".format(current_pass + 1))
     for amount in range(1, 500):
-        query_entities(standard_world)
+        query_entities(world)
         if amount > 250:
-            standard_world.delete_entity(amount)
-            create_entities(standard_world, 1)
-        standard_world.process()
-    standard_results.append(current_run)
+            world.delete_entity(amount)
+            create_entities(world, 1)
+        world.process()
+    results.append(current_run)
     current_run = []
 
-for current_pass in range(5):
-    cached_world.clear_database()
-    create_entities(cached_world, MAX_ENTITIES)
-    print("Cached World pass {}...".format(current_pass + 1))
-    for amount in range(1, 500):
-        query_entities(cached_world)
-        if amount > 250:
-            cached_world.delete_entity(amount)
-            create_entities(standard_world, 1)
-        cached_world.process()
-    cached_results.append(current_run)
-    current_run = []
-
-standard_averaged_results = [sorted(e)[0] for e in zip(*standard_results)]
-cached_averaged_results = [sorted(e)[0] for e in zip(*cached_results)]
+averaged_results = [sorted(e)[0] for e in zip(*results)]
 
 pyplot.ylabel("Query time (ms)")
 pyplot.xlabel("Query of {} entities".format(MAX_ENTITIES))
-pyplot.plot(standard_averaged_results, label="Standard")
-pyplot.plot(cached_averaged_results, label="Cached")
+pyplot.plot(averaged_results, label="Average query time")
 pyplot.legend(bbox_to_anchor=(0.5, 1))
 pyplot.show()

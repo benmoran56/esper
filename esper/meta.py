@@ -6,7 +6,7 @@
 """
 
 name = 'esper'
-version = '0.9.8'
+version = '0.9.9'
 description = __doc__.splitlines()[0]
 keywords = 'ecs,entity component system'
 author = 'Benjamin Moran'
@@ -26,6 +26,7 @@ Programming Language :: Python :: 3.2
 Programming Language :: Python :: 3.3
 Programming Language :: Python :: 3.4
 Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
 Topic :: Games/Entertainment
 Topic :: Software Development :: Libraries :: Python Modules
 """

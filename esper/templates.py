@@ -6,5 +6,3 @@ class Processor:
 
     def process(self, *args):
         raise NotImplementedError
-
-
