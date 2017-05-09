@@ -145,9 +145,9 @@ def three_comp_query():
 results = {1: {}, 2: {}, 3: {}}
 result_times = []
 
-for amount in range(500, MAX_ENTITIES, 100):
+for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     create_entities(amount)
-    for _ in range(20):
+    for _ in range(50):
         single_comp_query()
 
     result_min = min(result_times)
@@ -157,9 +157,9 @@ for amount in range(500, MAX_ENTITIES, 100):
     world.clear_database()
     gc.collect()
 
-for amount in range(500, MAX_ENTITIES, 100):
+for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     create_entities(amount)
-    for _ in range(20):
+    for _ in range(50):
         two_comp_query()
 
     result_min = min(result_times)
@@ -169,9 +169,9 @@ for amount in range(500, MAX_ENTITIES, 100):
     world.clear_database()
     gc.collect()
 
-for amount in range(500, MAX_ENTITIES, 100):
+for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     create_entities(amount)
-    for _ in range(20):
+    for _ in range(50):
         three_comp_query()
 
     result_min = min(result_times)

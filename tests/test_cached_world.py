@@ -5,18 +5,18 @@ import pytest
 
 @pytest.fixture
 def world():
-    return esper.World()
+    return esper.CachedWorld()
 
 
 @pytest.fixture
 def populated_world():
-    pop_world = esper.World()
+    pop_world = esper.CachedWorld()
     create_entities(pop_world, 2000)
     return pop_world
 
 
 def test_world_instantiation(world):
-    assert type(world) == esper.World
+    assert type(world) == esper.CachedWorld
     assert type(world._next_entity_id) == int
     assert type(world._entities) == dict
     assert type(world._components) == dict
@@ -88,7 +88,7 @@ def test_has_component(world):
 
 
 def test_get_component(populated_world):
-    assert isinstance(populated_world.get_component(ComponentA), types.GeneratorType)
+    assert isinstance(populated_world.get_component(ComponentA), list)
 
     for ent, comp in populated_world.get_component(ComponentA):
         assert type(ent) == int
@@ -96,7 +96,7 @@ def test_get_component(populated_world):
 
 
 def test_get_two_components(populated_world):
-    assert isinstance(populated_world.get_components(ComponentD, ComponentE), types.GeneratorType)
+    assert isinstance(populated_world.get_components(ComponentD, ComponentE), list)
 
     for ent, comps in populated_world.get_components(ComponentD, ComponentE):
         assert type(ent) == int
@@ -110,8 +110,7 @@ def test_get_two_components(populated_world):
 
 
 def test_get_three_components(populated_world):
-    assert isinstance(populated_world.get_components(ComponentC, ComponentD, ComponentE),
-                      types.GeneratorType)
+    assert isinstance(populated_world.get_components(ComponentC, ComponentD, ComponentE), list)
 
     for ent, comps in populated_world.get_components(ComponentC, ComponentD, ComponentE):
         assert type(ent) == int
