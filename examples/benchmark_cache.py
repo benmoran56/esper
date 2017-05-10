@@ -42,7 +42,7 @@ def timing(f):
 ##########################
 # Create a World instance:
 ##########################
-world = esper.World()
+world = esper.CachedWorld()
 
 
 #################################
@@ -141,7 +141,7 @@ for current_pass in range(10):
     print("Pass {}...".format(current_pass + 1))
     for amount in range(1, 500):
         query_entities(world)
-        if amount > 250:
+        if amount > 250 and amount < 400:
             world.delete_entity(amount)
             create_entities(world, 1)
         world.process()
