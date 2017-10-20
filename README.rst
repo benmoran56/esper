@@ -18,6 +18,13 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
+**0.9.9** - The main change in this release is to condense the library into a single
+            file: `esper.py`. This will make it simple to just drop into your project folder,
+            without mucking up your project with additional package folders that didn't really
+            need to exist. Of course, you can still install it from PyPi via pip if you wish.
+            I believe there is also one or two bug or typo fixes in this release, but it's been
+            so long I forgot what those were!
+
 **0.9.8** - This release contains a new timer that can be enabled to profile Processor execution
             time. Simply pass the "timed=True" parameter to the World on instantiation, and a new
             World.process_times dictionary will be available. This contains the total execution time

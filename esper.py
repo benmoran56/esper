@@ -1,7 +1,15 @@
-import esper
 import time
 
 from functools import lru_cache
+
+
+class Processor:
+    """Base class for all Processors to inherit from."""
+    def __init__(self):
+        self.world = None
+
+    def process(self, *args):
+        raise NotImplementedError
 
 
 class World:
