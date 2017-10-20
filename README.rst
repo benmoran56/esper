@@ -18,6 +18,14 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
+**0.9.8** - This release contains a new timer that can be enabled to profile Processor execution
+            time. Simply pass the "timed=True" parameter to the World on instantiation, and a new
+            World.process_times dictionary will be available. This contains the total execution time
+            of each Processor in milliseconds, and can be logged, printed, or displayed on screen as
+            is useful. It's useful to see a quick profile of which processors are using the most cpu
+            time, without fully profiling your game. This release also contains some consolidations
+            and cleanups for the benchmarks.
+
 **0.9.7** - By default, entities are now lazily deleted. When calling *World.delete_entity(entity_id)*,
             Entities are now placed into a queue to be deleted at the beginning of the next call
             to World.process(). This means it is now safe to delete entities even while iterating
