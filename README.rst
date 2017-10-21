@@ -18,12 +18,11 @@ and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
 
 What's New
 ----------
-**0.9.9** - The main change in this release is to condense the library into a single
+**0.9.9** - The big change in this release is that esper has been condensed into a single
             file: `esper.py`. This will make it simple to just drop into your project folder,
-            without mucking up your project with additional package folders that didn't really
-            need to exist. Of course, you can still install it from PyPi via pip if you wish.
-            I believe there is also one or two bug or typo fixes in this release, but it's been
-            so long I forgot what those were!
+            without cluttering your project with additional folders that didn't really need to
+            exist. You can still install it from PyPi via pip if you wish, but it's easy enough
+            to just ship with your project (and of course the license allows for this).
 
 **0.9.8** - This release contains a new timer that can be enabled to profile Processor execution
             time. Simply pass the "timed=True" parameter to the World on instantiation, and a new
@@ -41,39 +40,13 @@ What's New
             do wish to delete an Entity immediately, simply pass the new optional *immediate=True*
             argument. Ie: *self.world.delete_entity(entity, immediate=True)*.
 
-**0.9.6** - A new method has been added: *World.get_processor* which returns a *Processor*
-            instance by type. This could be useful if you wish to call a specific method
-            from another *Processor* from within a *Processor*. For example:
-            *self.world.get_processor(OtherProcessorType).some_method()*
-
-**0.9.5** - A new method was added: *World.components_for_entity* which returns a tuple of all
-            *Components* that are assigned to an *Entity*. This is probably not useful within
-            standard *Processor* logic, but could be useful for serializing a specific *Entity's*
-            state. For example: saving player status to disk, or passing to another scene in your
-            game that might have a separate *World*. You can recreate the *Entity* using these
-            exported *Component* instances.
-            In addition to the new method, the behavior of the *World.component_for_entity* method
-            has changed slightly. It will not raise a *KeyError* if the *Entity* ID doesn't exist,
-            instead of passing silently.
-
-**0.9.4** - A new method was added: *World.has_component* which returns a Boolean (True/False).
-            This is mostly a simple convenience method to make writing some types of logic in
-            *Processors*.  This release also has a bit better test coverage, including coverage
-            for the undocumented *esper.CachedWorld*. As the name implies, this is a alternate
-            *World* that uses the *functools.lru_cache* module from the Python standard library.
-            Feel free to try this out in your program, or run the benchmark in the examples folder.
-            The API is the same, and it should be faster than the standard *World* in most cases. 
-            After more testing/feedback, it should be documented in a future release.
-            Thanks to Christopher Arndt for his work on this. 
-
 
 1) Compatibility
 ----------------
 Esper is developed for Python 3. It will also work on Pypy3. Being written in pure
-Python, it should work on any compliant interpreter. Current automated testing is done
-for both CPython and PyPy. Python 2 is not supported in the main branch,
-but Christopher Arndt is currently maintaining a branch here:
-https://github.com/SpotlightKid/esper/tree/python2
+Python, it should work on any compliant interpreter. Continuous Integration (automated testing)
+is done for both CPython and PyPy. Python 2 is not supported, but Christopher Arndt is
+currently maintaining a branch here: https://github.com/SpotlightKid/esper/tree/python2
 
 
 2) Installation

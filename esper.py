@@ -1,6 +1,6 @@
-import time
+import time as _time
 
-from functools import lru_cache
+from functools import lru_cache as _lru_cache
 
 
 class Processor:
@@ -260,9 +260,9 @@ class World:
             self._dead_entities.clear()
 
         for processor in self._processors:
-            start_time = time.process_time()
+            start_time = _time.process_time()
             processor.process(*args)
-            process_time = int(round((time.process_time() - start_time) * 1000, 2))
+            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
             self.process_times[processor.__class__.__name__] = process_time
 
 
@@ -489,11 +489,11 @@ class CachedWorld:
         except KeyError:
             pass
 
-    @lru_cache()
+    @_lru_cache()
     def get_component(self, component_type):
         return [query for query in self._get_component(component_type)]
 
-    @lru_cache()
+    @_lru_cache()
     def get_components(self, *component_types):
         return [query for query in self._get_components(*component_types)]
 
@@ -524,7 +524,7 @@ class CachedWorld:
             self._dead_entities.clear()
 
         for processor in self._processors:
-            start_time = time.process_time()
+            start_time = _time.process_time()
             processor.process(*args)
-            process_time = int(round((time.process_time() - start_time) * 1000, 2))
+            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
             self.process_times[processor.__class__.__name__] = process_time
