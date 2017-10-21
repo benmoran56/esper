@@ -4,7 +4,15 @@ from functools import lru_cache
 
 
 class Processor:
-    """Base class for all Processors to inherit from."""
+    """Base class for all Processors to inherit from.
+
+    Processor instances must contain a `process` method. Other than that,
+    you are free to add any additional methods that are necessary. The process
+    method will be called by each call to `World.process`, so you will
+    generally want to iterate over entities with one (or more) calls to the
+    appropriate world methods there, such as
+    `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
+    """
     def __init__(self):
         self.world = None
 
@@ -38,10 +46,10 @@ class World:
         """Add a Processor instance to the World.
 
         :param processor_instance: An instance of a Processor,
-        subclassed from the esper.Processor class
+        subclassed from the Processor class
         :param priority: A higher number is processed first.
         """
-        assert issubclass(processor_instance.__class__, esper.Processor)
+        assert issubclass(processor_instance.__class__, Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
@@ -289,10 +297,10 @@ class CachedWorld:
         """Add a Processor instance to the World.
 
         :param processor_instance: An instance of a Processor,
-        subclassed from the esper.Processor class
+        subclassed from the Processor class
         :param priority: A higher number is processed first.
         """
-        assert issubclass(processor_instance.__class__, esper.Processor)
+        assert issubclass(processor_instance.__class__, Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
