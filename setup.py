@@ -4,7 +4,7 @@ from setuptools import setup
 readme = open('README.rst').read()
 
 setup(name='esper',
-      version='0.9.9',
+      version='0.9.9.1',
       author='Benjamin Moran',
       author_email='benmoran@protonmail.com',
       description="Esper is a lightweight Entity System for Python, with a focus on performance.",
