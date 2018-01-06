@@ -126,11 +126,17 @@ def test_get_three_components(populated_world):
 
 
 def test_clear_database(populated_world):
+    # This will put an entity in the _dead_entities set:
+    populated_world.delete_entity(2)
+    assert len(populated_world._dead_entities) == 1
+
+    # Then clear the database:
     populated_world.clear_database()
     assert len(populated_world._entities) == 0
     assert len(populated_world._components) == 0
     assert len(populated_world._processors) == 0
     assert populated_world._next_entity_id == 0
+    assert len(populated_world._dead_entities) == 0
 
 
 def test_add_processor(populated_world):
