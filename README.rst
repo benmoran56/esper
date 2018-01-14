@@ -52,7 +52,7 @@ currently maintaining a branch here: https://github.com/SpotlightKid/esper/tree/
 2) Installation
 ---------------
 No installation is necessary. Esper is a tiny library with no dependencies. Simply copy
-the *esper* directory into the top level of your project folder, and *import esper*.
+*esper.py* into the top level of your project folder, and *import esper*.
 
 If you prefer, Esper is also available on PyPI for easy installation via pip.
 
