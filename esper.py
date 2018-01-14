@@ -234,6 +234,19 @@ class World:
         except KeyError:
             pass
 
+    def try_component(self, entity, component_type):
+            """Try to get a single component type for an Entity.
+
+            :param entity: The Entity ID to retrieve the Component for.
+            :param component_type: The Component instance you wish to retrieve.
+            :return: A generator, containg the single Component instance requested,
+            or pass silently if it doesn't exist.
+            """
+            if component_type in self._entities[entity]:
+                yield self._entities[entity][component_type]
+            else:
+                raise StopIteration
+
     def process(self, *args):
         """Call the process method on all Processors, in order of their priority.
 
@@ -497,6 +510,19 @@ class CachedWorld:
     @_lru_cache()
     def get_components(self, *component_types):
         return [query for query in self._get_components(*component_types)]
+
+    def try_component(self, entity, component_type):
+            """Try to get a single component type for an Entity.
+
+            :param entity: The Entity ID to retrieve the Component for.
+            :param component_type: The Component instance you wish to retrieve.
+            :return: A generator, containg the single Component instance requested,
+            or pass silently if it doesn't exist.
+            """
+            if component_type in self._entities[entity]:
+                yield self._entities[entity][component_type]
+            else:
+                raise StopIteration
 
     def process(self, *args):
         """Call the process method on all Processors, in order of their priority.
