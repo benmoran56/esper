@@ -303,6 +303,7 @@ class CachedWorld:
     def clear_database(self):
         """Remove all Entities and Components from the World."""
         self._next_entity_id = 0
+        self._dead_entities.clear()
         self._components.clear()
         self._entities.clear()
         self.clear_cache()
