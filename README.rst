@@ -7,9 +7,10 @@ Esper
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
 The design is based on the Entity System concepts outlined by Adam Martin in his blog at
-T-Machines.org, and others. Efforts were made to keep it as lightweight and performant as possible.
+http://t-machine.org/, and others. Efforts were made to keep it as lightweight and performant
+as possible.
 
-There is a fairly accurate writeup of what Entity Systems are in this Wikipedia article:
+There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
 https://en.wikipedia.org/wiki/Entity_component_system
 
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
@@ -173,6 +174,7 @@ Here is a quick list of the methods, whose names should be semi-explanitory::
     World.remove_component(entity, ComponentType)
     World.get_component(ComponentType)
     World.get_components(ComponentTypeA, ComponentTypeB, Etc)
+    World.try_component(entity, ComponentType)
     World.component_for_entity(entity, ComponentType)
     World.components_for_entity(entity)
     World.has_component(entity, ComponentType)
