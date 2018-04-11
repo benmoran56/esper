@@ -173,6 +173,7 @@ Here is a quick list of the methods, whose names should be semi-explanitory::
     World.remove_component(entity, ComponentType)
     World.get_component(ComponentType)
     World.get_components(ComponentTypeA, ComponentTypeB, Etc)
+    World.try_component(entity, ComponentType)
     World.component_for_entity(entity, ComponentType)
     World.components_for_entity(entity)
     World.has_component(entity, ComponentType)
