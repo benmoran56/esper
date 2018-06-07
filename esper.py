@@ -238,6 +238,10 @@ class World:
 
     def try_component(self, entity, component_type):
             """Try to get a single component type for an Entity.
+            
+            This method will return the requested Component if it exists, but
+            will pass silently if it does not. This allows a way to access optional
+            Components that may not exist.
 
             :param entity: The Entity ID to retrieve the Component for.
             :param component_type: The Component instance you wish to retrieve.
@@ -250,7 +254,12 @@ class World:
                 raise StopIteration
 
     def _clear_dead_entities(self):
-        # Should mirror delete_entity
+        """Finalize deletion of any Entities that are marked dead.
+        
+        In the interest of performance, this method duplicates code from the
+        `delete_entity` method. If that method is changed, those changes should
+        be duplicated here as well.
+        """
         for entity in self._dead_entities:
 
             for component_type in self._entities[entity]:
