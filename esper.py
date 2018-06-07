@@ -111,7 +111,9 @@ class World:
         :param entity: The Entity ID you wish to delete.
         :param immediate: If True, delete the Entity immediately.
         """
+
         if immediate:
+            # If you modify this, make sure you reflect changes in _clear_dead_entities
             for component_type in self._entities[entity]:
                 self._components[component_type].discard(entity)
 
@@ -247,6 +249,24 @@ class World:
             else:
                 raise StopIteration
 
+    def _clear_dead_entities(self):
+        # Should mirror delete_entity
+        for entity in self._dead_entities:
+
+            for component_type in self._entities[entity]:
+                self._components[component_type].discard(entity)
+
+                if not self._components[component_type]:
+                    del self._components[component_type]
+
+            del self._entities[entity]
+
+        self._dead_entities.clear()
+
+    def _process(self, *args):
+        for processor in self._processors:
+            processor.process(*args)
+
     def process(self, *args):
         """Call the process method on all Processors, in order of their priority.
 
@@ -258,21 +278,12 @@ class World:
         :param args: Optional arguments that will be passed through to the
         *process* method of all Processors.
         """
-        if self._dead_entities:
-            for entity in self._dead_entities:
-                self.delete_entity(entity, immediate=True)
-            self._dead_entities.clear()
-
-        for processor in self._processors:
-            processor.process(*args)
+        self._clear_dead_entities()
+        self._process(*args)
 
     def _timed_process(self, *args):
         """Track Processor execution time for benchmarking."""
-        if self._dead_entities:
-            for entity in self._dead_entities:
-                self.delete_entity(entity, immediate=True)
-            self._dead_entities.clear()
-
+        self._clear_dead_entities()
         for processor in self._processors:
             start_time = _time.process_time()
             processor.process(*args)
