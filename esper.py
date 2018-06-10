@@ -13,8 +13,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    def __init__(self):
-        self.world = None
+    world = None
 
     def process(self, *args):
         raise NotImplementedError
