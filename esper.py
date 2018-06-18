@@ -13,8 +13,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    def __init__(self):
-        self.world = None
+    world = None
 
     def process(self, *args):
         raise NotImplementedError
@@ -310,9 +309,8 @@ class CachedWorld(World):
         self.clear_cache()
 
     def create_entity(self, *components):
-        id_ = super().create_entity(*components)
         self.clear_cache()
-        return id_
+        return super().create_entity(*components)
 
     def delete_entity(self, entity, immediate=False):
         """Delete an Entity from the World.
@@ -346,4 +344,4 @@ class CachedWorld(World):
 
     @_lru_cache()
     def get_components(self, *component_types):
-        return [query for query in super().get_components(component_types)]
+        return [query for query in super().get_components(*component_types)]

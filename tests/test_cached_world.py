@@ -26,7 +26,7 @@ def test_world_instantiation(world):
 def test_create_entity(world):
     entity1 = world.create_entity()
     entity2 = world.create_entity()
-    assert type(entity1) and type(entity2) == int
+    assert type(entity1) == int and type(entity2) == int
     assert entity1 < entity2
 
 
@@ -89,6 +89,8 @@ def test_has_component(world):
 
 def test_get_component(populated_world):
     assert isinstance(populated_world.get_component(ComponentA), list)
+    # Confirm that the actually contains something:
+    assert len(populated_world.get_component(ComponentA)) > 0, "No Components Returned"
 
     for ent, comp in populated_world.get_component(ComponentA):
         assert type(ent) == int
@@ -97,6 +99,8 @@ def test_get_component(populated_world):
 
 def test_get_two_components(populated_world):
     assert isinstance(populated_world.get_components(ComponentD, ComponentE), list)
+    # Confirm that the actually contains something:
+    assert len(populated_world.get_components(ComponentD, ComponentE)) > 0, "No Components Returned"
 
     for ent, comps in populated_world.get_components(ComponentD, ComponentE):
         assert type(ent) == int

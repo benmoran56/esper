@@ -89,6 +89,8 @@ def test_has_component(world):
 
 def test_get_component(populated_world):
     assert isinstance(populated_world.get_component(ComponentA), types.GeneratorType)
+    # Confirm that the actually contains something:
+    assert len(list(populated_world.get_component(ComponentA))) > 0, "No Components Returned"
 
     for ent, comp in populated_world.get_component(ComponentA):
         assert type(ent) == int
@@ -97,6 +99,9 @@ def test_get_component(populated_world):
 
 def test_get_two_components(populated_world):
     assert isinstance(populated_world.get_components(ComponentD, ComponentE), types.GeneratorType)
+    # Confirm that the actually contains something:
+    assert len(list(populated_world.get_components(ComponentD, ComponentE))) > 0,\
+        "No Components Returned"
 
     for ent, comps in populated_world.get_components(ComponentD, ComponentE):
         assert type(ent) == int
