@@ -1,5 +1,4 @@
 import esper
-import types
 import pytest
 
 
@@ -26,7 +25,7 @@ def test_world_instantiation(world):
 def test_create_entity(world):
     entity1 = world.create_entity()
     entity2 = world.create_entity()
-    assert type(entity1) and type(entity2) == int
+    assert type(entity1) == int and type(entity2) == int
     assert entity1 < entity2
 
 
@@ -88,9 +87,9 @@ def test_has_component(world):
 
 
 def test_get_component(populated_world):
-    assert isinstance(populated_world.get_component(ComponentA), types.GeneratorType)
+    assert isinstance(populated_world.get_component(ComponentA), list)
     # Confirm that the actually contains something:
-    assert len(list(populated_world.get_component(ComponentA))) > 0, "No Components Returned"
+    assert len(populated_world.get_component(ComponentA)) > 0, "No Components Returned"
 
     for ent, comp in populated_world.get_component(ComponentA):
         assert type(ent) == int
@@ -98,10 +97,9 @@ def test_get_component(populated_world):
 
 
 def test_get_two_components(populated_world):
-    assert isinstance(populated_world.get_components(ComponentD, ComponentE), types.GeneratorType)
+    assert isinstance(populated_world.get_components(ComponentD, ComponentE), list)
     # Confirm that the actually contains something:
-    assert len(list(populated_world.get_components(ComponentD, ComponentE))) > 0,\
-        "No Components Returned"
+    assert len(populated_world.get_components(ComponentD, ComponentE)) > 0, "No Components Returned"
 
     for ent, comps in populated_world.get_components(ComponentD, ComponentE):
         assert type(ent) == int
@@ -115,8 +113,7 @@ def test_get_two_components(populated_world):
 
 
 def test_get_three_components(populated_world):
-    assert isinstance(populated_world.get_components(ComponentC, ComponentD, ComponentE),
-                      types.GeneratorType)
+    assert isinstance(populated_world.get_components(ComponentC, ComponentD, ComponentE), list)
 
     for ent, comps in populated_world.get_components(ComponentC, ComponentD, ComponentE):
         assert type(ent) == int
@@ -131,17 +128,11 @@ def test_get_three_components(populated_world):
 
 
 def test_clear_database(populated_world):
-    # This will put an entity in the _dead_entities set:
-    populated_world.delete_entity(2)
-    assert len(populated_world._dead_entities) == 1
-
-    # Then clear the database:
     populated_world.clear_database()
     assert len(populated_world._entities) == 0
     assert len(populated_world._components) == 0
     assert len(populated_world._processors) == 0
     assert populated_world._next_entity_id == 0
-    assert len(populated_world._dead_entities) == 0
 
 
 def test_add_processor(populated_world):

@@ -13,8 +13,6 @@ import esper
 # Commandline options:
 ######################
 parser = optparse.OptionParser()
-parser.add_option("-c", "--cached", dest="cached", action="store_true", default=False,
-                  help="Benchmark esper.CachedWorld instead of esper.World.")
 parser.add_option("-p", "--plot", dest="plot", action="store_true", default=False,
                   help="Display benchmark. Requires matplotlib module.")
 parser.add_option("-w", "--walltime", dest="walltime", action="store_true", default=False,
@@ -52,11 +50,7 @@ def timing(f):
 ##############################
 #  Instantiate the game world:
 ##############################
-if options.cached:
-    print("Benchmarking CachedWorld...\n")
-    world = esper.CachedWorld()
-else:
-    world = esper.World()
+world = esper.World()
 
 
 #################################
@@ -106,16 +100,8 @@ class Brain:
 #############################
 def create_entities(number):
     for _ in range(number // 2):
-        enemy = world.create_entity()
-        world.add_component(enemy, Position())
-        world.add_component(enemy, Velocity())
-        world.add_component(enemy, Health())
-        world.add_component(enemy, Command())
-
-        thing = world.create_entity()
-        world.add_component(thing, Position())
-        world.add_component(thing, Health())
-        world.add_component(thing, Damageable())
+        world.create_entity(Position(), Velocity(), Health(), Command())
+        world.create_entity(Position(), Health(), Damageable())
 
 
 #############################
