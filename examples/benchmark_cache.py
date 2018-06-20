@@ -39,10 +39,11 @@ def timing(f):
         return ret
     return wrap
 
+
 ##########################
 # Create a World instance:
 ##########################
-world = esper.CachedWorld()
+world = esper.World()
 
 
 #################################
@@ -106,16 +107,8 @@ class MovementProcessor(esper.Processor):
 #############################
 def create_entities(world, number):
     for _ in range(number // 2):
-        enemy = world.create_entity()
-        world.add_component(enemy, Position())
-        world.add_component(enemy, Velocity())
-        world.add_component(enemy, Health())
-        world.add_component(enemy, Command())
-
-        thing = world.create_entity()
-        world.add_component(thing, Position())
-        world.add_component(thing, Health())
-        world.add_component(thing, Damageable())
+        world.create_entity(Position(), Velocity(), Health(), Command())
+        world.create_entity(Position(), Health(), Damageable())
 
 
 #################################################
@@ -138,13 +131,16 @@ def query_entities(world):
 for current_pass in range(10):
     world.clear_database()
     create_entities(world, MAX_ENTITIES)
-    print("Pass {}...".format(current_pass + 1))
+
+    print(f"Pass {current_pass + 1}...")
+
     for amount in range(1, 500):
         query_entities(world)
-        if amount > 250 and amount < 400:
-            world.delete_entity(amount)
+
+        if amount > 250:
+            world.delete_entity(amount, immediate=True)
             create_entities(world, 1)
-        world.process()
+
     results.append(current_run)
     current_run = []
 

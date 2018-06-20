@@ -13,8 +13,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    def __init__(self):
-        self.world = None
+    world = None
 
     def process(self, *args):
         raise NotImplementedError
@@ -34,7 +33,11 @@ class World:
         self._dead_entities = set()
         if timed:
             self.process_times = {}
-            self.process = self._timed_process
+            self._process = self._timed_process
+
+    def clear_cache(self):
+        self.get_component.cache_clear()
+        self.get_components.cache_clear()
 
     def clear_database(self):
         """Remove all Entities and Components from the World."""
@@ -42,6 +45,7 @@ class World:
         self._dead_entities.clear()
         self._components.clear()
         self._entities.clear()
+        self.clear_cache()
 
     def add_processor(self, processor_instance, priority=0):
         """Add a Processor instance to the World.
@@ -93,9 +97,11 @@ class World:
         """
         self._next_entity_id += 1
 
+        # TODO: duplicate add_component code here for performance
         for component in components:
             self.add_component(self._next_entity_id, component)
 
+        # self.clear_cache()
         return self._next_entity_id
 
     def delete_entity(self, entity, immediate=False):
@@ -111,9 +117,7 @@ class World:
         :param entity: The Entity ID you wish to delete.
         :param immediate: If True, delete the Entity immediately.
         """
-
         if immediate:
-            # If you modify this, make sure you reflect changes in _clear_dead_entities
             for component_type in self._entities[entity]:
                 self._components[component_type].discard(entity)
 
@@ -121,6 +125,7 @@ class World:
                     del self._components[component_type]
 
             del self._entities[entity]
+            self.clear_cache()
 
         else:
             self._dead_entities.add(entity)
@@ -185,6 +190,7 @@ class World:
             self._entities[entity] = {}
 
         self._entities[entity][component_type] = component_instance
+        self.clear_cache()
 
     def remove_component(self, entity, component_type):
         """Remove a Component instance from an Entity, by type.
@@ -208,19 +214,21 @@ class World:
         if not self._entities[entity]:
             del self._entities[entity]
 
+        self.clear_cache()
         return entity
 
-    def get_component(self, component_type):
+    def _get_component(self, component_type):
         """Get an iterator for Entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
         :return: An iterator for (Entity, Component) tuples.
         """
         entity_db = self._entities
+
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
-    def get_components(self, *component_types):
+    def _get_components(self, *component_types):
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
@@ -236,13 +244,25 @@ class World:
         except KeyError:
             pass
 
+    @_lru_cache()
+    def get_component(self, component_type):
+        return [query for query in self._get_component(component_type)]
+
+    @_lru_cache()
+    def get_components(self, *component_types):
+        return [query for query in self._get_components(*component_types)]
+
     def try_component(self, entity, component_type):
             """Try to get a single component type for an Entity.
+            
+            This method will return the requested Component if it exists, but
+            will pass silently if it does not. This allows a way to access optional
+            Components that may or may not exist.
 
             :param entity: The Entity ID to retrieve the Component for.
             :param component_type: The Component instance you wish to retrieve.
-            :return: A generator, containg the single Component instance requested,
-            or pass silently if it doesn't exist.
+            :return: A iterator containg the single Component instance requested,
+                     which is empty if the component doesn't exist.
             """
             if component_type in self._entities[entity]:
                 yield self._entities[entity][component_type]
@@ -250,7 +270,12 @@ class World:
                 raise StopIteration
 
     def _clear_dead_entities(self):
-        # Should mirror delete_entity
+        """Finalize deletion of any Entities that are marked dead.
+        
+        In the interest of performance, this method duplicates code from the
+        `delete_entity` method. If that method is changed, those changes should
+        be duplicated here as well.
+        """
         for entity in self._dead_entities:
 
             for component_type in self._entities[entity]:
@@ -262,10 +287,19 @@ class World:
             del self._entities[entity]
 
         self._dead_entities.clear()
+        self.clear_cache()
 
     def _process(self, *args):
         for processor in self._processors:
             processor.process(*args)
+
+    def _timed_process(self, *args):
+        """Track Processor execution time for benchmarking."""
+        for processor in self._processors:
+            start_time = _time.process_time()
+            processor.process(*args)
+            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
+            self.process_times[processor.__class__.__name__] = process_time
 
     def process(self, *args):
         """Call the process method on all Processors, in order of their priority.
@@ -281,60 +315,5 @@ class World:
         self._clear_dead_entities()
         self._process(*args)
 
-    def _timed_process(self, *args):
-        """Track Processor execution time for benchmarking."""
-        self._clear_dead_entities()
-        for processor in self._processors:
-            start_time = _time.process_time()
-            processor.process(*args)
-            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
-            self.process_times[processor.__class__.__name__] = process_time
 
-
-class CachedWorld(World):
-    def clear_cache(self):
-        self.get_component.cache_clear()
-        self.get_components.cache_clear()
-
-    def clear_database(self):
-        super().clear_database()
-        self.clear_cache()
-
-    def create_entity(self, *components):
-        id_ = super().create_entity(*components)
-        self.clear_cache()
-        return id_
-
-    def delete_entity(self, entity, immediate=False):
-        """Delete an Entity from the World.
-
-        Delete an Entity and all of it's assigned Component instances from
-        the world. By default, Entity deletion is delayed until the next call
-        to *World.process*. You can request immediate deletion, however, by
-        passing the "immediate=True" parameter. This should generally not be
-        done during Entity iteration (calls to World.get_component/s).
-
-        Raises a KeyError if the given entity does not exist in the database.
-        :param entity: The Entity ID you wish to delete.
-        :param immediate: If True, delete the Entity immediately.
-        """
-        super().delete_entity(entity, immediate)
-        if immediate:
-            self.clear_cache()
-
-    def add_component(self, entity, component_instance):
-        super().add_component(entity, component_instance)
-        self.clear_cache()
-
-    def remove_component(self, entity, component_type):
-        super().remove_component(entity, component_type)
-        self.clear_cache()
-        return entity
-
-    @_lru_cache()
-    def get_component(self, component_type):
-        return [query for query in super().get_component(component_type)]
-
-    @_lru_cache()
-    def get_components(self, *component_types):
-        return [query for query in super().get_components(component_types)]
+CachedWorld = World
