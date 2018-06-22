@@ -37,8 +37,8 @@ What's New
 Esper is developed for Python 3, and also support Pypy3.
 Being written in pure Python, Esper should work with any compliant interpreter.
 Continuous integration (automated testing) is supported for both CPython and PyPy.
-However, Esper does not support Python 2, `but a branch supporting Python 2 is currently being developed by Christopher Arndt<https://github.com/SpotlightKid/esper/tree/python2/>` _.
-
+However, Esper does not support Python 2, but a branch supporting Python 2 is currently being developed by `Christopher Arndt` _.
+_Christopher Arndt: https://github.com/SpotlightKid/esper/tree/python2/
 
 2) Installation
 ---------------
