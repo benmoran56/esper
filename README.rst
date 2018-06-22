@@ -11,7 +11,8 @@ Esper is based on the Entity System concepts outlined by `Adam Martin <http://t-
 
 What's New
 ----------
-**0.9.9** - Amongst other changes, Esper has been condensed to single file, `esper.py`. This makes using Esper
+**0.9.9** - 
+Amongst other changes, Esper has been condensed to single file, `esper.py`. This makes using Esper
             as simple as dropping one file nto your project folder, all without cluttering your project with
             unnecessary folders. You can still use pip to install Esper from PyPi, but this change makes it
             far easier to simply ship it inside of your project (which the license allows for).
