@@ -5,8 +5,8 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
-Esper is an MIT licensed `Entity Component System<https://en.wikipedia.org/wiki/Entity_component_system>`_ (ECS) designed to be as lightweight and performant as possible.
-Esper is based on the Entity System concepts outlined by `Adam Martin<http://t-machine.org>`_, `Sean Fisk<https://github.com/seanfisk/ecs>`_, and `Marcus von Appen<https://bitbucket.org/marcusva/python-utils>`_, alongside others.
+Esper is an MIT licensed `Entity Component System <https://en.wikipedia.org/wiki/Entity_component_system>`_ (ECS) designed to be as lightweight and performant as possible.
+Esper is based on the Entity System concepts outlined by `Adam Martin <http://t-machine.org>`_, `Sean Fisk <https://github.com/seanfisk/ecs>`_, and `Marcus von Appen <https://bitbucket.org/marcusva/python-utils>`_, alongside others.
 
 
 What's New
