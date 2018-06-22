@@ -5,38 +5,28 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
-Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
-The design is based on the Entity System concepts outlined by Adam Martin in his blog at
-http://t-machine.org/, and others. Efforts were made to keep it as lightweight and performant
-as possible.
-
-There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
-https://en.wikipedia.org/wiki/Entity_component_system
-
-Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
-and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
+Esper is an MIT licensed `Entity Component System<https://en.wikipedia.org/wiki/Entity_component_system/>`_ (ECS) designed to be as lightweight and performant as possible.
+Esper is based on the Entity System concepts outlined by `Adam Martin<http://t-machine.org/>`_, `Sean Fisk<https://github.com/seanfisk/ecs/>`_, and `Marcus von Appen<https://bitbucket.org/marcusva/python-utils/>`_, alongside others.
 
 
 What's New
 ----------
-**0.9.9** - The big change in this release is that esper has been condensed into a single
-            file: `esper.py`. This will make it simple to just drop into your project folder,
-            without cluttering your project with additional folders that didn't really need to
-            exist. You can still install it from PyPi via pip if you wish, but it's easy enough
-            to just ship with your project (and of course the license allows for this).
+**0.9.9** - Amongst other changes, Esper has been condensed to single file, `esper.py`. This makes using Esper
+            as simple as dropping one file nto your project folder, all without cluttering your project with
+            unnecessary folders. You can still use pip to install Esper from PyPi, but this change makes it
+            far easier to simply ship it inside of your project (which the license allows for).
 
-**0.9.8** - This release contains a new timer that can be enabled to profile Processor execution
-            time. Simply pass the "timed=True" parameter to the World on instantiation, and a new
-            World.process_times dictionary will be available. This contains the total execution time
-            of each Processor in milliseconds, and can be logged, printed, or displayed on screen as
-            is useful. It's useful to see a quick profile of which processors are using the most cpu
-            time, without fully profiling your game. This release also contains some consolidations
-            and cleanups for the benchmarks.
+**0.9.8** - Esper now contains a new timer than can be enabled to profile Processor execution. Simple set
+            the timed argument to true when instantiating a World, and it will contain an attribute
+            named process_times. This dictionary contains the total execution time of each Processor in milliseconds,
+            which can be useful for seeing a quickly identifying which processors are using the most cpu time,
+            without having to fully profile your game. This data can also be printed, logged, or displayed onto the
+            screen to easily access this data at a glance. This release also cleans up and merges some benchmarks.
 
-**0.9.7** - By default, entities are now lazily deleted. When calling *World.delete_entity(entity_id)*,
+**0.9.7** - In this release entities are now lazily deleted by default. When calling *World.delete_entity(entity_id)*,
             Entities are now placed into a queue to be deleted at the beginning of the next call
             to World.process(). This means it is now safe to delete entities even while iterating
-            over components in your processors. This should allow for cleaner Processor classes, by
+            over components in your processors. This should allow for cleaner Processors, by
             removing the need to manually track and delete "dead" Entities after iteration. If you
             do wish to delete an Entity immediately, simply pass the new optional *immediate=True*
             argument. Ie: *self.world.delete_entity(entity, immediate=True)*.
@@ -44,18 +34,17 @@ What's New
 
 1) Compatibility
 ----------------
-Esper is developed for Python 3. It will also work on Pypy3. Being written in pure
-Python, it should work on any compliant interpreter. Continuous Integration (automated testing)
-is done for both CPython and PyPy. Python 2 is not supported, but Christopher Arndt is
-currently maintaining a branch here: https://github.com/SpotlightKid/esper/tree/python2
+Esper is developed for Python 3, and also support Pypy3.
+Being written in pure Python, Esper should work with any compliant interpreter.
+Continuous integration (automated testing) is supported for both CPython and PyPy.
+However, Esper does not support Python 2, `but a branch supporting Python 2 is currently being developed by Christopher Arndt<https://github.com/SpotlightKid/esper/tree/python2/>`_.
 
 
 2) Installation
 ---------------
-No installation is necessary. Esper is a tiny library with no dependencies. Simply copy
-*esper.py* into the top level of your project folder, and *import esper*.
-
-If you prefer, Esper is also available on PyPI for easy installation via pip.
+Because Esper is a tiny library with no dependencies, installation is not required.
+Simply copy *esper.py* into the top level of your project folder, and *import esper*.
+Esper is also available on PyPI for easy installation via pip.
 
 
 3) Project Structure
