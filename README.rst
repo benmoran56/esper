@@ -5,8 +5,8 @@ Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
-Esper is an MIT licensed `Entity Component System<https://en.wikipedia.org/wiki/Entity_component_system/>`_ (ECS) designed to be as lightweight and performant as possible.
-Esper is based on the Entity System concepts outlined by `Adam Martin<http://t-machine.org/>`_, `Sean Fisk<https://github.com/seanfisk/ecs/>`_, and `Marcus von Appen<https://bitbucket.org/marcusva/python-utils/>`_, alongside others.
+Esper is an MIT licensed `Entity Component System<https://en.wikipedia.org/wiki/Entity_component_system/>` _ (ECS) designed to be as lightweight and performant as possible.
+Esper is based on the Entity System concepts outlined by `Adam Martin<http://t-machine.org/>` _, `Sean Fisk<https://github.com/seanfisk/ecs/>` _, and `Marcus von Appen<https://bitbucket.org/marcusva/python-utils/>` _, alongside others.
 
 
 What's New
@@ -37,7 +37,7 @@ What's New
 Esper is developed for Python 3, and also support Pypy3.
 Being written in pure Python, Esper should work with any compliant interpreter.
 Continuous integration (automated testing) is supported for both CPython and PyPy.
-However, Esper does not support Python 2, `but a branch supporting Python 2 is currently being developed by Christopher Arndt<https://github.com/SpotlightKid/esper/tree/python2/>`_.
+However, Esper does not support Python 2, `but a branch supporting Python 2 is currently being developed by Christopher Arndt<https://github.com/SpotlightKid/esper/tree/python2/>` _.
 
 
 2) Installation
