@@ -15,7 +15,7 @@ class Processor:
     """
     world = None
 
-    def process(self, *args):
+    def process(self, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -289,19 +289,19 @@ class World:
         self._dead_entities.clear()
         self.clear_cache()
 
-    def _process(self, *args):
+    def _process(self, *args, **kwargs):
         for processor in self._processors:
-            processor.process(*args)
+            processor.process(*args, **kwargs)
 
-    def _timed_process(self, *args):
+    def _timed_process(self, *args, **kwargs):
         """Track Processor execution time for benchmarking."""
         for processor in self._processors:
             start_time = _time.process_time()
-            processor.process(*args)
+            processor.process(*args, **kwargs)
             process_time = int(round((_time.process_time() - start_time) * 1000, 2))
             self.process_times[processor.__class__.__name__] = process_time
 
-    def process(self, *args):
+    def process(self, *args, **kwargs):
         """Call the process method on all Processors, in order of their priority.
 
         Call the *process* method on all assigned Processors, respecting their
@@ -313,7 +313,7 @@ class World:
         *process* method of all Processors.
         """
         self._clear_dead_entities()
-        self._process(*args)
+        self._process(*args, **kwargs)
 
 
 CachedWorld = World
