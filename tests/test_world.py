@@ -132,6 +132,7 @@ def test_clear_database(populated_world):
     assert len(populated_world._entities) == 0
     assert len(populated_world._components) == 0
     assert len(populated_world._processors) == 0
+    assert len(populated_world._dead_entities) == 0
     assert populated_world._next_entity_id == 0
 
 
@@ -158,12 +159,35 @@ def test_remove_processor(populated_world):
 def test_get_processor(world):
     processor_a = CorrectProcessorA()
     processor_b = CorrectProcessorB()
+    processor_c = CorrectProcessorC()
+
     world.add_processor(processor_a)
     world.add_processor(processor_b)
+    world.add_processor(processor_c)
+
+    retrieved_proc_c = world.get_processor(CorrectProcessorC)
     retrieved_proc_b = world.get_processor(CorrectProcessorB)
     retrieved_proc_a = world.get_processor(CorrectProcessorA)
     assert type(retrieved_proc_a) == CorrectProcessorA
     assert type(retrieved_proc_b) == CorrectProcessorB
+    assert type(retrieved_proc_c) == CorrectProcessorC
+
+
+def test_processor_args(world):
+    world.add_processor(ArgProcessor())
+    with pytest.raises(TypeError):
+        world.process()                         # Missing argument
+    world.process("arg")
+
+
+def test_processor_kwargs(world):
+    world.add_processor(KwargsProcessor())
+    with pytest.raises(TypeError):
+        world.process()                         # Missing argument
+    world.process("spam", "eggs")
+    world.process("spam", eggs="eggs")
+    world.process(spam="spam", eggs="eggs")
+    world.process(eggs="eggs", spam="spam")
 
 
 ##################################################
@@ -224,10 +248,29 @@ class CorrectProcessorA(esper.Processor):
 
 
 class CorrectProcessorB(esper.Processor):
-    def __init__(self):
+    def __init__(self, x=0, y=0):
         super().__init__()
+        self.x = x
+        self.y = y
 
     def process(self):
+        pass
+
+
+class CorrectProcessorC(esper.Processor):
+
+    def process(self):
+        pass
+
+
+class ArgProcessor(esper.Processor):
+
+    def process(self, spam):
+        pass
+
+
+class KwargsProcessor(esper.Processor):
+    def process(self, spam, eggs):
         pass
 
 
