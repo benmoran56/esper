@@ -267,7 +267,7 @@ class World:
             if component_type in self._entities[entity]:
                 yield self._entities[entity][component_type]
             else:
-                raise StopIteration
+                return None
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.

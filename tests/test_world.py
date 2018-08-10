@@ -1,3 +1,5 @@
+import types
+
 import esper
 import pytest
 
@@ -125,6 +127,18 @@ def test_get_three_components(populated_world):
         assert type(c) == ComponentC
         assert type(d) == ComponentD
         assert type(e) == ComponentE
+
+
+def test_try_component(world):
+    entity1 = world.create_entity(ComponentA(), ComponentB())
+
+    one_item_generator = world.try_component(entity=entity1, component_type=ComponentA)
+    assert type(one_item_generator) is types.GeneratorType
+    assert len(list(one_item_generator)) == 1
+
+    zero_item_generator = world.try_component(entity=entity1, component_type=ComponentC)
+    assert type(zero_item_generator) is types.GeneratorType
+    assert len(list(zero_item_generator)) == 0
 
 
 def test_clear_database(populated_world):
