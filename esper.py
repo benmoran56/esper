@@ -148,7 +148,7 @@ class World:
         """
         return self._entities[entity][component_type]
 
-    def components_for_entity(self, entity: int) -> Tuple[...]:
+    def components_for_entity(self, entity: int) -> Tuple[C, ...]:
         """Retrieve all Components for a specific Entity, as a Tuple.
 
         Retrieve all Components for a specific Entity. The method is probably
