@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import time as _time
 
 from functools import lru_cache as _lru_cache
@@ -19,7 +17,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    world: World = None
+    world: "World" = None
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
