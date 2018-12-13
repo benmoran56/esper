@@ -5,4 +5,5 @@ python:
   - "nightly"
   - "pypy3"
 # command to run tests:
+pip install --upgrade pytest --user
 script: py.test -v tests
