@@ -17,7 +17,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    world: "World" = None
+    world = None # type: World
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
@@ -30,10 +30,10 @@ class World:
         A World contains a database of all Entity/Component assignments. It also
         handles calling the process method on any Processors assigned to it.
         """
-        self._processors: List[Processor] = []
+        self._processors = [] # type: List[Processor]
         self._next_entity_id = 0
         self._components = {}
-        self._entities: Dict[int, Any] = {}
+        self._entities = {} # type: Dict[int, Any]
         self._dead_entities = set()
         if timed:
             self.process_times = {}
