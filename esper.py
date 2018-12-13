@@ -1,6 +1,10 @@
 import time as _time
 
 from functools import lru_cache as _lru_cache
+from typing import List, Type, TypeVar, Dict, Any, Tuple, Iterable
+
+C = TypeVar('C')
+P = TypeVar('P')
 
 
 class Processor:
@@ -13,7 +17,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    world = None
+    world = None # type: World
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
@@ -26,20 +30,20 @@ class World:
         A World contains a database of all Entity/Component assignments. It also
         handles calling the process method on any Processors assigned to it.
         """
-        self._processors = []
+        self._processors = [] # type: List[Processor]
         self._next_entity_id = 0
         self._components = {}
-        self._entities = {}
+        self._entities = {} # type: Dict[int, Any]
         self._dead_entities = set()
         if timed:
             self.process_times = {}
             self._process = self._timed_process
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         self.get_component.cache_clear()
         self.get_components.cache_clear()
 
-    def clear_database(self):
+    def clear_database(self) -> None:
         """Remove all Entities and Components from the World."""
         self._next_entity_id = 0
         self._dead_entities.clear()
@@ -47,7 +51,7 @@ class World:
         self._entities.clear()
         self.clear_cache()
 
-    def add_processor(self, processor_instance, priority=0):
+    def add_processor(self, processor_instance: Processor, priority=0) -> None:
         """Add a Processor instance to the World.
 
         :param processor_instance: An instance of a Processor,
@@ -60,7 +64,7 @@ class World:
         self._processors.append(processor_instance)
         self._processors.sort(key=lambda proc: proc.priority, reverse=True)
 
-    def remove_processor(self, processor_type):
+    def remove_processor(self, processor_type: Processor) -> None:
         """Remove a Processor from the World, by type.
 
         :param processor_type: The class type of the Processor to remove.
@@ -70,7 +74,7 @@ class World:
                 processor.world = None
                 self._processors.remove(processor)
 
-    def get_processor(self, processor_type):
+    def get_processor(self, processor_type: Type[P]) -> P:
         """Get a Processor instance, by type.
 
         This method returns a Processor instance by type. This could be
@@ -84,7 +88,7 @@ class World:
             if type(processor) == processor_type:
                 return processor
 
-    def create_entity(self, *components):
+    def create_entity(self, *components) -> int:
         """Create a new Entity.
 
         This method returns an Entity ID, which is just a plain integer.
@@ -104,7 +108,7 @@ class World:
         # self.clear_cache()
         return self._next_entity_id
 
-    def delete_entity(self, entity, immediate=False):
+    def delete_entity(self, entity: int, immediate=False) -> None:
         """Delete an Entity from the World.
 
         Delete an Entity and all of it's assigned Component instances from
@@ -130,7 +134,7 @@ class World:
         else:
             self._dead_entities.add(entity)
 
-    def component_for_entity(self, entity, component_type):
+    def component_for_entity(self, entity: int, component_type: Type[C]) -> C:
         """Retrieve a Component instance for a specific Entity.
 
         Retrieve a Component instance for a specific Entity. In some cases,
@@ -144,7 +148,7 @@ class World:
         """
         return self._entities[entity][component_type]
 
-    def components_for_entity(self, entity):
+    def components_for_entity(self, entity: int) -> Tuple[C, ...]:
         """Retrieve all Components for a specific Entity, as a Tuple.
 
         Retrieve all Components for a specific Entity. The method is probably
@@ -160,7 +164,7 @@ class World:
         """
         return tuple(self._entities[entity].values())
 
-    def has_component(self, entity, component_type):
+    def has_component(self, entity: int, component_type: Any) -> bool:
         """Check if a specific Entity has a Component of a certain type.
 
         :param entity: The Entity you are querying.
@@ -170,7 +174,7 @@ class World:
         """
         return component_type in self._entities[entity]
 
-    def add_component(self, entity, component_instance):
+    def add_component(self, entity: int, component_instance: Any) -> None:
         """Add a new Component instance to an Entity.
 
         Add a Component instance to an Entiy. If a Component of the same type
@@ -192,7 +196,7 @@ class World:
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
 
-    def remove_component(self, entity, component_type):
+    def remove_component(self, entity: int, component_type: Any) -> int:
         """Remove a Component instance from an Entity, by type.
 
         A Component instance can be removed by providing it's type.
@@ -217,7 +221,7 @@ class World:
         self.clear_cache()
         return entity
 
-    def _get_component(self, component_type):
+    def _get_component(self, component_type: Type[C]) -> Iterable[Tuple[int, C]]:
         """Get an iterator for Entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
@@ -228,7 +232,7 @@ class World:
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
-    def _get_components(self, *component_types):
+    def _get_components(self, *component_types: Type)-> Iterable[Tuple[int, ...]]:
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
@@ -245,14 +249,14 @@ class World:
             pass
 
     @_lru_cache()
-    def get_component(self, component_type):
+    def get_component(self, component_type: Type[C]) -> List[Tuple[int, C]]:
         return [query for query in self._get_component(component_type)]
 
     @_lru_cache()
-    def get_components(self, *component_types):
+    def get_components(self, *component_types: Type):
         return [query for query in self._get_components(*component_types)]
 
-    def try_component(self, entity, component_type):
+    def try_component(self, entity: int, component_type: Type):
             """Try to get a single component type for an Entity.
             
             This method will return the requested Component if it exists, but
