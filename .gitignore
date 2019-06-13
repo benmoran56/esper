@@ -45,3 +45,17 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+
+# IDE files
+.idea/workspace.xml
+.idea/.name
+.idea/encodings.xml
+.idea/esper.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/shelf/Uncommitted_changes_before_Update_at_16_01_18_11_17__Default_.xml
+.idea/shelf/Uncommitted_changes_before_Update_at_16_01_18_11_17__Default_/shelved.patch
+.vscode/settings.json

@@ -204,6 +204,10 @@ def test_processor_kwargs(world):
     world.process(eggs="eggs", spam="spam")
 
 
+def test_clear_cache(populated_world):
+    populated_world.clear_cache()
+
+
 ##################################################
 #   Some helper functions and Component templates:
 ##################################################
@@ -254,8 +258,6 @@ class ComponentE:
 
 
 class CorrectProcessorA(esper.Processor):
-    def __init__(self):
-        super().__init__()
 
     def process(self):
         pass
@@ -263,7 +265,6 @@ class CorrectProcessorA(esper.Processor):
 
 class CorrectProcessorB(esper.Processor):
     def __init__(self, x=0, y=0):
-        super().__init__()
         self.x = x
         self.y = y
 
@@ -289,8 +290,6 @@ class KwargsProcessor(esper.Processor):
 
 
 class IncorrectProcessor:
-    def __init__(self):
-        super().__init__()
 
     def process(self):
         pass
