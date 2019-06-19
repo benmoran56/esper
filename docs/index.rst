@@ -1,19 +1,23 @@
-.. esper documentation master file, created by
-   sphinx-quickstart on Wed Jun 19 13:31:01 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+esper - API documentation
+=========================
 
-Esper - The Python Entity System
-================================
+Processors
+----------
 
  .. autoclass:: esper.Processor
     :members:
+
+
+The World Class
+---------------
 
  .. autoclass:: esper.World
     :members:
 
 
-Indices and tables
-==================
+Components
+----------
 
-* :ref:`search`
+**esper** does not define any specific
+Component base class. Instead, normal
+Python classes are used as Components.

@@ -24,12 +24,13 @@ class Processor:
 
 
 class World:
-    def __init__(self, timed=False):
-        """A World object keeps track of all Entities, Components, and Processors.
+    """A World object keeps track of all Entities, Components, and Processors.
 
-        A World contains a database of all Entity/Component assignments. It also
-        handles calling the process method on any Processors assigned to it.
-        """
+    A World contains a database of all Entity/Component assignments. The World
+    is also responsible for executing all Processors assigned to it for each
+    frame of your game.
+    """
+    def __init__(self, timed=False):
         self._processors = []
         self._next_entity_id = 0
         self._components = {}
@@ -55,7 +56,7 @@ class World:
         """Add a Processor instance to the World.
 
         :param processor_instance: An instance of a Processor,
-        subclassed from the Processor class
+               subclassed from the Processor class
         :param priority: A higher number is processed first.
         """
         assert issubclass(processor_instance.__class__, Processor)
@@ -96,7 +97,7 @@ class World:
         assigned to the Entity.
 
         :param components: Optional components to be assigned to the
-        entity on creation.
+               entity on creation.
         :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
@@ -170,7 +171,7 @@ class World:
         :param entity: The Entity you are querying.
         :param component_type: The type of Component to check for.
         :return: True if the Entity has a Component of this type,
-        otherwise False
+                 otherwise False
         """
         return component_type in self._entities[entity]
 
@@ -257,21 +258,21 @@ class World:
         return [query for query in self._get_components(*component_types)]
 
     def try_component(self, entity: int, component_type: Type):
-            """Try to get a single component type for an Entity.
-            
-            This method will return the requested Component if it exists, but
-            will pass silently if it does not. This allows a way to access optional
-            Components that may or may not exist.
+        """Try to get a single component type for an Entity.
 
-            :param entity: The Entity ID to retrieve the Component for.
-            :param component_type: The Component instance you wish to retrieve.
-            :return: A iterator containg the single Component instance requested,
-                     which is empty if the component doesn't exist.
-            """
-            if component_type in self._entities[entity]:
-                yield self._entities[entity][component_type]
-            else:
-                return None
+        This method will return the requested Component if it exists, but
+        will pass silently if it does not. This allows a way to access optional
+        Components that may or may not exist.
+
+        :param entity: The Entity ID to retrieve the Component for.
+        :param component_type: The Component instance you wish to retrieve.
+        :return: A iterator containg the single Component instance requested,
+                 which is empty if the component doesn't exist.
+        """
+        if component_type in self._entities[entity]:
+            yield self._entities[entity][component_type]
+        else:
+            return None
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.
@@ -314,7 +315,7 @@ class World:
         at the start of this method call.
 
         :param args: Optional arguments that will be passed through to the
-        *process* method of all Processors.
+                     *process* method of all Processors.
         """
         self._clear_dead_entities()
         self._process(*args, **kwargs)
