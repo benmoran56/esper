@@ -1,6 +1,10 @@
 .. image:: https://travis-ci.org/benmoran56/esper.svg?branch=master
     :target: https://travis-ci.org/benmoran56/esper
 
+.. image:: https://readthedocs.org/projects/esper/badge/?version=latest
+    :target: https://esper.readthedocs.io/en/latest/?badge=latest
+
+
 Esper
 =====
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
@@ -12,6 +16,8 @@ as possible.
 
 There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
 https://en.wikipedia.org/wiki/Entity_component_system
+
+API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io/en/latest/
 
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
 and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
