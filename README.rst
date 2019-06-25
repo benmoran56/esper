@@ -17,7 +17,7 @@ as possible.
 There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
 https://en.wikipedia.org/wiki/Entity_component_system
 
-API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io/en/latest/
+API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
 
 Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
 and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
