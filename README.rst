@@ -2,7 +2,7 @@
     :target: https://travis-ci.org/benmoran56/esper
 
 .. image:: https://readthedocs.org/projects/esper/badge/?version=latest
-    :target: https://esper.readthedocs.io/en/latest/?badge=latest
+    :target: https://esper.readthedocs.io
 
 
 Esper
