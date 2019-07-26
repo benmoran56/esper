@@ -263,12 +263,11 @@ The *components_for_entity* method is a special method that returns ALL of the C
 assigned to a specific Entity, as a tuple. This is a heavy operation, and not something you would
 want to do each frame or inside of your *Processor.process* method. It can be useful, however, if
 you wanted to transfer all of a specific Entity's Components between two separate World instances
-(such as when changing Scenes, or Levels). For example:
-
+(such as when changing Scenes, or Levels). For example::
+    
     player_components = old_world.components_for_entity(player_entity_id)
     ...
     player_entity_id = new_world.create_entity(player_components)
-
 
 Boolean and Conditional Checks
 ------------------------------
