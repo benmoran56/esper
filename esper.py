@@ -271,8 +271,9 @@ class World:
         """Try to get a single component type for an Entity.
 
         This method will return the requested Component if it exists, but
-        will pass silently if it does not. This allows a way to access optional
-        Components that may or may not exist.
+        will pass silently if it does not. This allows a way to access
+        optional Components that may or may not exist, without having to
+        first querty the Entity to see if it has the Component type.
 
         :param entity: The Entity ID to retrieve the Component for.
         :param component_type: The Component instance you wish to retrieve.
@@ -281,6 +282,24 @@ class World:
         """
         if component_type in self._entities[entity]:
             yield self._entities[entity][component_type]
+        else:
+            return None
+
+    def try_components(self, entity: int, *component_types: Type):
+        """Try to get a multiple component types for an Entity.
+
+        This method will return the requested Components if they exist, but
+        will pass silently if they do not. This allows a way to access
+        optional Components that may or may not exist, without first having
+        to query if the entity has the Component types.
+
+        :param entity: The Entity ID to retrieve the Component for.
+        :param component_types: The Components types you wish to retrieve.
+        :return: A iterator containg the multiple Component instances requested,
+                 which is empty if the components do not exist.
+        """
+        if all(comp_type in self._entities[entity] for comp_type in component_types):
+            yield [self._entities[entity][comp_type] for comp_type in component_types]
         else:
             return None
 

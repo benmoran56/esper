@@ -153,6 +153,18 @@ def test_try_component(world):
     assert len(list(zero_item_generator)) == 0
 
 
+def test_try_components(world):
+    entity1 = world.create_entity(ComponentA(), ComponentB())
+
+    one_item_generator = world.try_components(entity1, ComponentA, ComponentB)
+    assert isinstance(one_item_generator, types.GeneratorType)
+    assert len(list(one_item_generator)) == 1
+
+    zero_item_generator = world.try_components(entity1, ComponentA, ComponentC)
+    assert isinstance(zero_item_generator, types.GeneratorType)
+    assert len(list(zero_item_generator)) == 0
+
+
 def test_clear_database(populated_world):
     populated_world.clear_database()
     assert len(populated_world._entities) == 0
