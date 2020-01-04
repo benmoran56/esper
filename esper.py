@@ -175,6 +175,16 @@ class World:
         """
         return component_type in self._entities[entity]
 
+    def has_components(self, entity: int, *component_types: Any) -> bool:
+        """Check if an Entity has all of the specified Component types.
+
+        :param entity: The Entity you are querying.
+        :param component_types: Two or more Component types to check for.
+        :return: True if the Entity has all of the Components,
+                 otherwise False
+        """
+        return all(comp_type in self._entities[entity] for comp_type in component_types)
+
     def add_component(self, entity: int, component_instance: Any) -> None:
         """Add a new Component instance to an Entity.
 
@@ -319,6 +329,3 @@ class World:
         """
         self._clear_dead_entities()
         self._process(*args, **kwargs)
-
-
-CachedWorld = World

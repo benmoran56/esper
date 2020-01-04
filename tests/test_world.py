@@ -88,6 +88,18 @@ def test_has_component(world):
     assert world.has_component(entity2, ComponentB) is True
 
 
+def test_has_components(world):
+    entity = world.create_entity()
+    world.add_component(entity, ComponentA())
+    world.add_component(entity, ComponentB())
+    world.add_component(entity, ComponentC())
+    assert world.has_components(entity, ComponentA, ComponentB) is True
+    assert world.has_components(entity, ComponentB, ComponentC) is True
+    assert world.has_components(entity, ComponentA, ComponentC) is True
+    assert world.has_components(entity, ComponentA, ComponentD) is False
+    assert world.has_components(entity, ComponentD) is False
+
+
 def test_get_component(populated_world):
     assert isinstance(populated_world.get_component(ComponentA), list)
     # Confirm that the actually contains something:
