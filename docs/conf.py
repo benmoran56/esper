@@ -12,13 +12,16 @@
 #
 import os
 import sys
+import time
+import datetime
 sys.path.insert(0, os.path.abspath('..'))
 
+YEAR = datetime.datetime.fromtimestamp(time.time()).year
 
 # -- Project information -----------------------------------------------------
 
 project = 'esper'
-copyright = '2019, Benjamin Moran'
+copyright = f'{YEAR}, Benjamin Moran'
 author = 'Benjamin Moran'
 
 # -- General configuration ---------------------------------------------------

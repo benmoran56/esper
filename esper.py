@@ -1,10 +1,18 @@
 import time as _time
 
 from functools import lru_cache as _lru_cache
-from typing import List, Type, TypeVar, Any, Tuple, Iterable
+from typing import List as _List
+from typing import Type as _Type
+from typing import TypeVar as _TypeVar
+from typing import Any as _Any
+from typing import Tuple as _Tuple
+from typing import Iterable as _Iterable
 
-C = TypeVar('C')
-P = TypeVar('P')
+
+version = '1.3'
+
+C = _TypeVar('C')
+P = _TypeVar('P')
 
 
 class Processor:
@@ -75,7 +83,7 @@ class World:
                 processor.world = None
                 self._processors.remove(processor)
 
-    def get_processor(self, processor_type: Type[P]) -> P:
+    def get_processor(self, processor_type: _Type[P]) -> P:
         """Get a Processor instance, by type.
 
         This method returns a Processor instance by type. This could be
@@ -135,7 +143,7 @@ class World:
         else:
             self._dead_entities.add(entity)
 
-    def component_for_entity(self, entity: int, component_type: Type[C]) -> C:
+    def component_for_entity(self, entity: int, component_type: _Type[C]) -> C:
         """Retrieve a Component instance for a specific Entity.
 
         Retrieve a Component instance for a specific Entity. In some cases,
@@ -149,7 +157,7 @@ class World:
         """
         return self._entities[entity][component_type]
 
-    def components_for_entity(self, entity: int) -> Tuple[C, ...]:
+    def components_for_entity(self, entity: int) -> _Tuple[C, ...]:
         """Retrieve all Components for a specific Entity, as a Tuple.
 
         Retrieve all Components for a specific Entity. The method is probably
@@ -165,7 +173,7 @@ class World:
         """
         return tuple(self._entities[entity].values())
 
-    def has_component(self, entity: int, component_type: Any) -> bool:
+    def has_component(self, entity: int, component_type: _Any) -> bool:
         """Check if a specific Entity has a Component of a certain type.
 
         :param entity: The Entity you are querying.
@@ -175,7 +183,7 @@ class World:
         """
         return component_type in self._entities[entity]
 
-    def has_components(self, entity: int, *component_types: Any) -> bool:
+    def has_components(self, entity: int, *component_types: _Any) -> bool:
         """Check if an Entity has all of the specified Component types.
 
         :param entity: The Entity you are querying.
@@ -185,7 +193,7 @@ class World:
         """
         return all(comp_type in self._entities[entity] for comp_type in component_types)
 
-    def add_component(self, entity: int, component_instance: Any) -> None:
+    def add_component(self, entity: int, component_instance: _Any) -> None:
         """Add a new Component instance to an Entity.
 
         Add a Component instance to an Entiy. If a Component of the same type
@@ -207,7 +215,7 @@ class World:
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
 
-    def remove_component(self, entity: int, component_type: Any) -> int:
+    def remove_component(self, entity: int, component_type: _Any) -> int:
         """Remove a Component instance from an Entity, by type.
 
         A Component instance can be removed by providing it's type.
@@ -232,7 +240,7 @@ class World:
         self.clear_cache()
         return entity
 
-    def _get_component(self, component_type: Type[C]) -> Iterable[Tuple[int, C]]:
+    def _get_component(self, component_type: _Type[C]) -> _Iterable[_Tuple[int, C]]:
         """Get an iterator for Entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
@@ -243,7 +251,7 @@ class World:
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
-    def _get_components(self, *component_types: Type)-> Iterable[Tuple[int, ...]]:
+    def _get_components(self, *component_types: _Type) -> _Iterable[_Tuple[int, ...]]:
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
@@ -260,14 +268,14 @@ class World:
             pass
 
     @_lru_cache()
-    def get_component(self, component_type: Type[C]) -> List[Tuple[int, C]]:
+    def get_component(self, component_type: _Type[C]) -> _List[_Tuple[int, C]]:
         return [query for query in self._get_component(component_type)]
 
     @_lru_cache()
-    def get_components(self, *component_types: Type):
+    def get_components(self, *component_types: _Type):
         return [query for query in self._get_components(*component_types)]
 
-    def try_component(self, entity: int, component_type: Type):
+    def try_component(self, entity: int, component_type: _Type):
         """Try to get a single component type for an Entity.
 
         This method will return the requested Component if it exists, but
@@ -285,7 +293,7 @@ class World:
         else:
             return None
 
-    def try_components(self, entity: int, *component_types: Type):
+    def try_components(self, entity: int, *component_types: _Type):
         """Try to get a multiple component types for an Entity.
 
         This method will return the requested Components if they exist, but
