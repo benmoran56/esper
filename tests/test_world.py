@@ -40,14 +40,22 @@ def test_create_entity_with_components(world):
     assert world.has_component(entity2, ComponentB) is True
 
 
+def test_create_entity_and_add_components(world):
+    entity1 = world.create_entity()
+    world.add_component(entity1, ComponentA())
+    world.add_component(entity1, ComponentB())
+    assert world.has_component(entity1, ComponentA) is True
+    assert world.has_component(entity1, ComponentC) is False
+
+
 def test_delete_entity(world):
-    # TODO: handle case where entity has never been assigned components
     entity1 = world.create_entity()
     world.add_component(entity1, ComponentC())
     entity2 = world.create_entity()
     world.add_component(entity2, ComponentD())
     entity3 = world.create_entity()
     world.add_component(entity3, ComponentE())
+    entity4 = world.create_entity()
 
     assert entity3 == 3
     world.delete_entity(entity3, immediate=True)
@@ -55,6 +63,8 @@ def test_delete_entity(world):
         world.components_for_entity(entity3)
     with pytest.raises(KeyError):
         world.delete_entity(999, immediate=True)
+    with pytest.raises(KeyError):
+        world.delete_entity(entity4, immediate=True)
 
 
 def test_component_for_entity(world):
@@ -212,24 +222,34 @@ def test_get_processor(world):
 
 
 def test_processor_args(world):
-    world.add_processor(ArgProcessor())
+    world.add_processor(ArgsProcessor())
     with pytest.raises(TypeError):
-        world.process()                         # Missing argument
+        world.process()  # Missing argument
     world.process("arg")
 
 
 def test_processor_kwargs(world):
     world.add_processor(KwargsProcessor())
     with pytest.raises(TypeError):
-        world.process()                         # Missing argument
+        world.process()  # Missing argument
     world.process("spam", "eggs")
     world.process("spam", eggs="eggs")
     world.process(spam="spam", eggs="eggs")
     world.process(eggs="eggs", spam="spam")
 
 
-def test_clear_cache(populated_world):
-    populated_world.clear_cache()
+# def test_clear_cache(populated_world):
+#     # TODO: actually test something here
+#     populated_world.clear_cache()
+
+
+def test_cache_results(world):
+    _______ = world.create_entity(ComponentA(), ComponentB(), ComponentC())
+    entity2 = world.create_entity(ComponentB(), ComponentC(), ComponentD())
+    assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 2
+
+    world.delete_entity(entity2, immediate=True)
+    assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 1
 
 
 ##################################################
@@ -302,7 +322,7 @@ class CorrectProcessorC(esper.Processor):
         pass
 
 
-class ArgProcessor(esper.Processor):
+class ArgsProcessor(esper.Processor):
 
     def process(self, spam):
         pass
