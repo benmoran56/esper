@@ -24,10 +24,14 @@ and Marcus von Appen's `ebs <https://bitbucket.org/marcusva/python-utils>`_.
 
 What's New
 ----------
-**1.3.0** - Dramatic performance improvements by Cythonizing Esper and using the `fastcache <https://pypi.org/project/fastcache/>`_ library.
+**1.3.1** - Dramatic performance improvements by Cythonizing Esper and using the `fastcache <https://pypi.org/project/fastcache/>`_ library.
             The usage of Cython increased performance by 22% and is evidenced in the "benchmark_fps.py"
             example. In addition, cache hits were further improved by up to 10-30x by using the fastcache
             library instead of the caching implementation found in functools.
+
+**1.3.0** - Feature release.
+            Added new `World.has_components` method which allows multiple Component queries. Returns a boolean.
+            Added new `World.try_components` method which allows multiple Component queries.
 
 **1.2.0** - Calls to `super()` are no longer necessary in your Processor subclasses.
             This should eliminate a fair amount of boilerplate. The README has also been updated

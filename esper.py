@@ -9,7 +9,7 @@ from typing import Tuple as _Tuple
 from typing import Iterable as _Iterable
 
 
-version = '1.3'
+version = '1.3.1'
 
 C = _TypeVar('C')
 P = _TypeVar('P')
