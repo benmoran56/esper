@@ -32,6 +32,7 @@ setup(
         "Topic :: Games/Entertainment",
         "Topic :: Software Development :: Libraries"
     ],
-    py_modules=['esper'],
-    #ext_modules=cythonize('esper.py')
+    #py_modules=['esper'],
+    ext_modules=cythonize('esper.py'),
+    install_requires=['cython>=0.29.14', 'fastcache>=1.1.0']
 )

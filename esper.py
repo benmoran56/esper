@@ -1,6 +1,6 @@
 import time as _time
 
-from functools import lru_cache as _lru_cache
+from fastcache import clru_cache as _lru_cache
 from typing import List as _List
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
@@ -13,6 +13,9 @@ version = '1.3'
 
 C = _TypeVar('C')
 P = _TypeVar('P')
+
+# NOTE: Limiting cache size allows taking advantage of LRU eviction capabilities
+MAX_CACHE_SIZE = 100_000
 
 
 class Processor:
@@ -267,11 +270,11 @@ class World:
         except KeyError:
             pass
 
-    @_lru_cache()
+    @_lru_cache(maxsize=MAX_CACHE_SIZE)
     def get_component(self, component_type: _Type[C]) -> _List[_Tuple[int, C]]:
         return [query for query in self._get_component(component_type)]
 
-    @_lru_cache()
+    @_lru_cache(maxsize=MAX_CACHE_SIZE)
     def get_components(self, *component_types: _Type):
         return [query for query in self._get_components(*component_types)]
 
