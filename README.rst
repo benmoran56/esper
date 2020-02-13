@@ -10,22 +10,26 @@ Esper
 **Esper is a lightweight Entity System for Python, with a focus on performance.**
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
-The design is based on the Entity System concepts outlined by Adam Martin in his blog at
-http://t-machine.org/, and others. Efforts were made to keep it as lightweight and performant
-as possible.
+The design is based on the Entity System concepts outlined by Adam Martin in `his blog <http://t-machine.org/>`_
+and others. Efforts were made to keep it as lightweight and performant
+as possible, most notably through the use of Cython.
 
-There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
-https://en.wikipedia.org/wiki/Entity_component_system
+There is a fairly accurate writeup describing Entity Systems in this `Wikipedia <https://en.wikipedia.org/wiki/Entity_component_system>`_ article.
 
-API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
+API documentation is hosted at `ReadTheDocs <https://esper.readthedocs.io>`_.
 
-Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
-and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
+Inspired by Sean Fisk's `ecs <https://github.com/seanfisk/ecs>`_,
+and Marcus von Appen's `ebs <https://bitbucket.org/marcusva/python-utils>`_.
 
 
 What's New
 ----------
-**1.2** - Calls to `super()` are no longer necessary in your Processor subclasses.
+**1.3.0** - Dramatic performance improvements by Cythonizing Esper and using the `fastcache <https://pypi.org/project/fastcache/>`_ library.
+            The usage of Cython increased performance by 22% and is evidenced in the "benchmark_fps.py"
+            example. In addition, cache hits were further improved by up to 10-30x by using the fastcache
+            library instead of the caching implementation found in functools.
+
+**1.2.0** - Calls to `super()` are no longer necessary in your Processor subclasses.
             This should eliminate a fair amount of boilerplate. The README has also been updated
             with more usage examples. All methods should now have at least one example. And finally,
             wheels are now uploaded to PyPi. This should help with packaging systems that only support
