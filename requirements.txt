@@ -1,0 +1,2 @@
+cython>=0.29.14
+fastcache>=1.1.0
