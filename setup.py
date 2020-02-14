@@ -33,5 +33,5 @@ setup(
         "Topic :: Software Development :: Libraries"
     ],
     ext_modules=cythonize('esper.py'),
-    install_requires=['cython>=0.29.14', 'fastcache>=1.1.0']
+    install_requires=['cython>=0.29.14']
 )

@@ -1,6 +1,6 @@
 import time as _time
 
-from fastcache import clru_cache as _lru_cache
+from functools import lru_cache as _lru_cache
 from typing import List as _List
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
