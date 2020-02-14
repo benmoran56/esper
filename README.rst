@@ -24,10 +24,9 @@ and Marcus von Appen's `ebs <https://bitbucket.org/marcusva/python-utils>`_.
 
 What's New
 ----------
-**1.3.1** - Dramatic performance improvements by Cythonizing Esper and using the `fastcache <https://pypi.org/project/fastcache/>`_ library.
+**1.3.1** - Dramatic performance improvements by Cythonizing Esper.
             The usage of Cython increased performance by 22% and is evidenced in the "benchmark_fps.py"
-            example. In addition, cache hits were further improved by up to 10-30x by using the fastcache
-            library instead of the caching implementation found in functools.
+            example. Cache sizes were also limited to allow for LRU optimization.
 
 **1.3.0** - Feature release.
             Added new `World.has_components` method which allows multiple Component queries. Returns a boolean.
