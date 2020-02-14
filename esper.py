@@ -15,7 +15,7 @@ C = _TypeVar('C')
 P = _TypeVar('P')
 
 # NOTE: Limiting cache size allows taking advantage of LRU eviction capabilities
-MAX_CACHE_SIZE = 100_000
+MAX_CACHE_SIZE = 100000
 
 
 class Processor:
