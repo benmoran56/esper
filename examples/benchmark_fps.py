@@ -46,7 +46,7 @@ try:
         while CTM() < start + 1000:
             world.process()
             fps += 1
-        print(f'FPS with {len(entities)} entities:', fps)
+        print('FPS with', len(entities), 'entities:', fps)
         avg.append((fps, len(entities)))
 
         # WHITTLE down FPS gradually to reach target fps
@@ -61,4 +61,4 @@ except KeyboardInterrupt:
     avg_fps = sum(avg_fps) / len(avg_fps)
     avg_ent = [ent for (_, ent) in avg]
     avg_ent = sum(avg_ent) / len(avg_ent)
-    print(f'Had an average FPS of {avg_fps} with an average of {avg_ent} entities')
+    print('Had an average FPS of', avg_fps, 'with an average of', avg_ent, 'entities')
