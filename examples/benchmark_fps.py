@@ -37,7 +37,7 @@ for i in range(NUM_ENTITIES):
     entities.append(world.create_entity(Life()))
 
 avg = []
-WHITTLE = False  # Choose whether to try to get town to target fps during test
+WHITTLE = False  # Choose whether to try to get down to target fps during test
 RUN_CONTINUOUSLY = False
 try:
     for _ in range(60):  # One minute
