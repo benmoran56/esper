@@ -199,7 +199,7 @@ scenes, etc.
 Adding and Removing Components
 ------------------------------
 In addition to adding Components to Entities when you're creating them, it's a common pattern to add or
-remove Components inside of your Processors. The following methods are availble for this purpose: 
+remove Components inside of your Processors. The following methods are available for this purpose: 
 
 * World.add_component(entity_id, component_instance)
 * World.remove_component(entity_id, ComponentClass)
