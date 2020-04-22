@@ -143,6 +143,16 @@ class World:
         else:
             self._dead_entities.add(entity)
 
+    def entity_exists(self, entity: int) -> bool:
+        """Check if a specific entity exists.
+
+        Empty entities(with no components) and dead entities(destroyed
+        by delete_entity) will not count as existent ones.
+        :param entity: The Entity ID to check existance for.
+        :return: True if the entity exists, False otherwise.
+        """
+        return entity in self._entities and entity not in self._dead_entities
+
     def component_for_entity(self, entity: int, component_type: _Type[C]) -> C:
         """Retrieve a Component instance for a specific Entity.
 
