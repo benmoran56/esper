@@ -252,6 +252,19 @@ def test_cache_results(world):
     assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 1
 
 
+def test_entity_exists(world):
+    dead_entity = world.create_entity(ComponentB())
+    world.delete_entity(dead_entity)
+    empty_entity = world.create_entity()
+    existent_entity = world.create_entity(ComponentA())
+    future_entity = existent_entity + 1
+
+    assert world.entity_exists(existent_entity)
+    assert not world.entity_exists(dead_entity)
+    assert not world.entity_exists(empty_entity)
+    assert not world.entity_exists(future_entity)
+
+
 ##################################################
 #   Some helper functions and Component templates:
 ##################################################
