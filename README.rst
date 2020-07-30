@@ -244,7 +244,7 @@ dedicated *BlinkProcessor* handles the effect, and then removes the Component af
 
 Querying Specific Components
 ----------------------------
-If you have an Engity ID and wish to query one specific, or ALL Components that are assigned
+If you have an Entity ID and wish to query one specific, or ALL Components that are assigned
 to it, the following methods are available: 
 
 * World.component_for_entity
