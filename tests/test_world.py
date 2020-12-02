@@ -47,6 +47,12 @@ def test_create_entity_and_add_components(world):
     assert world.has_component(entity1, ComponentA) is True
     assert world.has_component(entity1, ComponentC) is False
 
+def test_create_entity_and_add_components_with_alias(world):
+    entity = world.create_entity()
+    world.add_component(entity, ComponentA(), alias=ComponentF())
+    assert world.has_component(entity, ComponentF) is True
+    assert world.component_for_entity(entity, ComponentF).a == -66
+
 
 def test_delete_entity(world):
     entity1 = world.create_entity()
@@ -312,6 +318,11 @@ class ComponentE:
     def __init__(self):
         self.items = {"itema": None, "itemb": 1000}
         self.points = [a + 2 for a in list(range(44))]
+
+
+class ComponentF:
+    def __init__(self):
+        pass
 
 
 class CorrectProcessorA(esper.Processor):

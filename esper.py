@@ -203,7 +203,7 @@ class World:
         """
         return all(comp_type in self._entities[entity] for comp_type in component_types)
 
-    def add_component(self, entity: int, component_instance: _Any) -> None:
+    def add_component(self, entity: int, component_instance: _Any, alias: _Any = None) -> None:
         """Add a new Component instance to an Entity.
 
         Add a Component instance to an Entiy. If a Component of the same type
@@ -212,7 +212,7 @@ class World:
         :param entity: The Entity to associate the Component with.
         :param component_instance: A Component instance.
         """
-        component_type = type(component_instance)
+        component_type = type(alias) if alias else type(component_instance)
 
         if component_type not in self._components:
             self._components[component_type] = set()
