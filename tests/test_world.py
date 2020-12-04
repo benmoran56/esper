@@ -49,7 +49,7 @@ def test_create_entity_and_add_components(world):
 
 def test_create_entity_and_add_components_with_alias(world):
     entity = world.create_entity()
-    world.add_component(entity, ComponentA(), alias=ComponentF())
+    world.add_component(entity, ComponentA(), type_alias=ComponentF)
     assert world.has_component(entity, ComponentF) is True
     assert world.component_for_entity(entity, ComponentF).a == -66
 
