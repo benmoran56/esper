@@ -174,7 +174,7 @@ once per frame update of your game.::
     world.process()
 
 
-Note: You can pass any args you need to *world.process()*, but you must also make sure to recieve
+Note: You can pass any args you need to *world.process()*, but you must also make sure to receive
 them properly in the *process()* methods of your Processors. For example, if you pass a delta time
 argument as *world.process(dt)*, your Processor's *process()* methods should all receive it as:
 *def process(self, dt):*
@@ -187,7 +187,7 @@ into scheduled methods.
 
 Adding and Removing Processors
 ------------------------------
-You have already seen examples of adding Processors in an eariler section. There is also a *remove_processor*
+You have already seen examples of adding Processors in an earlier section. There is also a *remove_processor*
 method available:
 
 * World.add_processor(processor_instance)
@@ -205,7 +205,7 @@ remove Components inside of your Processors. The following methods are available
 * World.remove_component(entity_id, ComponentClass)
 
 As an example of this, you could have a "Blink" component with a *duration* attribute. This can be used
-to make certain things blink for s specific period of time, then dissapear. For example, the code below
+to make certain things blink for s specific period of time, then disappear. For example, the code below
 shows a simplified case of adding this Component to an Entity when it takes damage in one processor. A 
 dedicated *BlinkProcessor* handles the effect, and then removes the Component after the duration expires::
 
@@ -277,7 +277,7 @@ some action. The following two methods are available for this task:
 * World.has_component(entity, ComponentType)
 * World.try_component(entity, ComponentType)
 
-For example, you may want projectiles (and only projectiles) to dissapear when hitting a 
+For example, you may want projectiles (and only projectiles) to disappear when hitting a 
 wall in your game. The simplified code below shows how that might look::
 
     class CollisionProcessor(esper.Processor):
