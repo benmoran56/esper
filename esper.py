@@ -1,13 +1,13 @@
-import time as _time
+from __future__ import annotations
 
+import time as _time
 from functools import lru_cache as _lru_cache
+from typing import Iterable as _Iterable
 from typing import List as _List
+from typing import Optional as _Optional
+from typing import Tuple as _Tuple
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
-from typing import Any as _Any
-from typing import Tuple as _Tuple
-from typing import Iterable as _Iterable
-
 
 version = '1.3'
 
@@ -25,7 +25,7 @@ class Processor:
     appropriate world methods there, such as
     `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
     """
-    world = None
+    world: _Optional[World] = None
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
@@ -97,7 +97,7 @@ class World:
             if type(processor) == processor_type:
                 return processor
 
-    def create_entity(self, *components) -> int:
+    def create_entity(self, *components: C) -> int:
         """Create a new Entity.
 
         This method returns an Entity ID, which is just a plain integer.
@@ -183,7 +183,7 @@ class World:
         """
         return tuple(self._entities[entity].values())
 
-    def has_component(self, entity: int, component_type: _Any) -> bool:
+    def has_component(self, entity: int, component_type: _Type[C]) -> bool:
         """Check if a specific Entity has a Component of a certain type.
 
         :param entity: The Entity you are querying.
@@ -193,7 +193,7 @@ class World:
         """
         return component_type in self._entities[entity]
 
-    def has_components(self, entity: int, *component_types: _Any) -> bool:
+    def has_components(self, entity: int, *component_types: _Type[C]) -> bool:
         """Check if an Entity has all of the specified Component types.
 
         :param entity: The Entity you are querying.
@@ -203,7 +203,7 @@ class World:
         """
         return all(comp_type in self._entities[entity] for comp_type in component_types)
 
-    def add_component(self, entity: int, component_instance: _Any, type_alias: _Type = None) -> None:
+    def add_component(self, entity: int, component_instance: C, type_alias: _Optional[_Type[C]] = None) -> None:
         """Add a new Component instance to an Entity.
 
         Add a Component instance to an Entiy. If a Component of the same type
@@ -225,7 +225,7 @@ class World:
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
 
-    def remove_component(self, entity: int, component_type: _Any) -> int:
+    def remove_component(self, entity: int, component_type: _Type[C]) -> int:
         """Remove a Component instance from an Entity, by type.
 
         A Component instance can be removed by providing it's type.
@@ -261,7 +261,7 @@ class World:
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
-    def _get_components(self, *component_types: _Type) -> _Iterable[_Tuple[int, ...]]:
+    def _get_components(self, *component_types: _Type[C]) -> _Iterable[_Tuple[int, _List[C]]]:
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
@@ -282,10 +282,10 @@ class World:
         return [query for query in self._get_component(component_type)]
 
     @_lru_cache()
-    def get_components(self, *component_types: _Type):
+    def get_components(self, *component_types: _Type[C]) -> _List[_Tuple[int, _List[C]]]:
         return [query for query in self._get_components(*component_types)]
 
-    def try_component(self, entity: int, component_type: _Type):
+    def try_component(self, entity: int, component_type: _Type[C]) -> _Optional[_Iterable[C]]:
         """Try to get a single component type for an Entity.
 
         This method will return the requested Component if it exists, but
@@ -303,7 +303,7 @@ class World:
         else:
             return None
 
-    def try_components(self, entity: int, *component_types: _Type):
+    def try_components(self, entity: int, *component_types: _Type[C]) -> _Optional[_Iterable[_List[C]]]:
         """Try to get a multiple component types for an Entity.
 
         This method will return the requested Components if they exist, but
@@ -323,7 +323,7 @@ class World:
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.
-        
+
         In the interest of performance, this method duplicates code from the
         `delete_entity` method. If that method is changed, those changes should
         be duplicated here as well.
