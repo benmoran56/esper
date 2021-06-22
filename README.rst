@@ -105,6 +105,15 @@ code, but no processing logic whatsoever. A simple Component might look like::
             self.x = x
             self.y = y
 
+Esper exports Python's *dataclasses.dataclass*
+(https://docs.python.org/3/library/dataclasses.html#module-dataclasses) decorator as
+*esper.component*, which can be used to reduce boilerplate::
+
+    @component
+    class Position:
+        x: float = 0.0
+        y: float = 0.0
+
 
 * Processors
 

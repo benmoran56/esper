@@ -7,7 +7,7 @@ import sys
 import time
 import optparse
 
-import esper
+from esper import component, World
 
 ######################
 # Commandline options:
@@ -50,49 +50,49 @@ def timing(f):
 ##############################
 #  Instantiate the game world:
 ##############################
-world = esper.World()
+world = World()
 
 
 #################################
 # Define some generic components:
 #################################
+@component
 class Velocity:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    x: int = 0
+    y: int = 0
 
 
+@component
 class Position:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    x: int = 0
+    y: int = 0
 
 
+@component
 class Health:
-    def __init__(self):
-        self.hp = 100
+    hp: int = 100
 
 
+@component
 class Command:
-    def __init__(self):
-        self.attack = False
-        self.defend = True
+    attack: bool = False
+    defend: bool = True
 
 
+@component
 class Projectile:
-    def __init__(self):
-        self.size = 10
-        self.lifespan = 100
+    size: int = 10
+    lifespan: int = 100
 
 
+@component
 class Damageable:
-    def __init__(self):
-        self.defense = 45
+    defense: int = 45
 
 
+@component
 class Brain:
-    def __init__(self):
-        self.smarts = 9000
+    smarts: int = 9000
 
 
 #############################
