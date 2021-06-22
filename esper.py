@@ -1,5 +1,7 @@
 import time as _time
 
+from dataclasses import dataclass as component
+
 from functools import lru_cache as _lru_cache
 
 from typing import Any as _Any

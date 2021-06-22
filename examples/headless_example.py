@@ -1,26 +1,26 @@
-import esper
 import time
+from esper import component, Processor, World
 
 
 ##################################
 #  Define some Components:
 ##################################
+@component
 class Velocity:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
+    x: float = 0.0
+    y: float = 0.0
 
 
+@component
 class Position:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
+    x: int = 0
+    y: int = 0
 
 
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor(esper.Processor):
+class MovementProcessor(Processor):
     def __init__(self):
         super().__init__()
 
@@ -36,7 +36,7 @@ class MovementProcessor(esper.Processor):
 ##########################################################
 def main():
     # Create a World instance to hold everything:
-    world = esper.World()
+    world = World()
 
     # Instantiate a Processor (or more), and add them to the world:
     movement_processor = MovementProcessor()

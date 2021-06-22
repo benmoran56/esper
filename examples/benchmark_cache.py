@@ -4,7 +4,7 @@
 import sys
 import time
 import optparse
-import esper
+from esper import component, Processor, World
 
 try:
     from matplotlib import pyplot
@@ -43,55 +43,55 @@ def timing(f):
 ##########################
 # Create a World instance:
 ##########################
-world = esper.World()
+world = World()
 
 
 #################################
 # Define some generic components:
 #################################
+@component
 class Velocity:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
+    x: float = 0.0
+    y: float = 0.0
 
 
+@component
 class Position:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
+    x: float = 0.0
+    y: float = 0.0
 
 
+@component
 class Health:
-    def __init__(self):
-        self.hp = 100
+    hp: int = 100
 
 
+@component
 class Command:
-    def __init__(self):
-        self.attack = False
-        self.defend = True
+    attack: bool = False
+    defend: bool = True
 
 
+@component
 class Projectile:
-    def __init__(self):
-        self.size = 10
-        self.lifespan = 100
+    size: int = 10
+    lifespan: int = 100
 
 
+@component
 class Damageable:
-    def __init__(self):
-        self.defense = 45
+    defense: int = 45
 
 
+@component
 class Brain:
-    def __init__(self):
-        self.smarts = 9000
+    smarts: int = 9000
 
 
 ##########################
 #  Define some Processors:
 ##########################
-class MovementProcessor(esper.Processor):
+class MovementProcessor(Processor):
     def __init__(self):
         super().__init__()
 
