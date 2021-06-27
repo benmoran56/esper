@@ -1,7 +1,6 @@
-import types
+import pytest
 
 import esper
-import pytest
 
 
 @pytest.fixture
@@ -46,6 +45,7 @@ def test_create_entity_and_add_components(world):
     world.add_component(entity1, ComponentB())
     assert world.has_component(entity1, ComponentA) is True
     assert world.has_component(entity1, ComponentC) is False
+
 
 def test_create_entity_and_add_components_with_alias(world):
     entity = world.create_entity()
@@ -160,25 +160,24 @@ def test_get_three_components(populated_world):
 def test_try_component(world):
     entity1 = world.create_entity(ComponentA(), ComponentB())
 
-    one_item_generator = world.try_component(entity=entity1, component_type=ComponentA)
-    assert type(one_item_generator) is types.GeneratorType
-    assert len(list(one_item_generator)) == 1
+    one_item = world.try_component(entity=entity1, component_type=ComponentA)
+    assert isinstance(one_item, ComponentA)
 
-    zero_item_generator = world.try_component(entity=entity1, component_type=ComponentC)
-    assert type(zero_item_generator) is types.GeneratorType
-    assert len(list(zero_item_generator)) == 0
+    zero_item = world.try_component(entity=entity1, component_type=ComponentC)
+    assert zero_item is None
 
 
 def test_try_components(world):
     entity1 = world.create_entity(ComponentA(), ComponentB())
 
-    one_item_generator = world.try_components(entity1, ComponentA, ComponentB)
-    assert isinstance(one_item_generator, types.GeneratorType)
-    assert len(list(one_item_generator)) == 1
+    one_item = world.try_components(entity1, ComponentA, ComponentB)
+    assert isinstance(one_item, list)
+    assert len(one_item) == 2
+    assert isinstance(one_item[0], ComponentA)
+    assert isinstance(one_item[1], ComponentB)
 
-    zero_item_generator = world.try_components(entity1, ComponentA, ComponentC)
-    assert isinstance(zero_item_generator, types.GeneratorType)
-    assert len(list(zero_item_generator)) == 0
+    zero_item = world.try_components(entity1, ComponentA, ComponentC)
+    assert zero_item is None
 
 
 def test_clear_database(populated_world):
