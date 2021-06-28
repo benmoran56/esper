@@ -1,7 +1,5 @@
 import time as _time
 
-from dataclasses import dataclass as component
-
 from functools import lru_cache as _lru_cache
 
 from typing import Any as _Any
@@ -13,7 +11,7 @@ from typing import Type as _Type
 from typing import TypeVar as _TypeVar
 
 
-version = '1.4'
+version = '1.5'
 
 _C = _TypeVar('_C')
 _P = _TypeVar('_P')
@@ -119,8 +117,8 @@ class World:
         self._next_entity_id += 1
 
         # TODO: duplicate add_component code here for performance
-        for component in components:
-            self.add_component(self._next_entity_id, component)
+        for cmp in components:
+            self.add_component(self._next_entity_id, cmp)
 
         return self._next_entity_id
 

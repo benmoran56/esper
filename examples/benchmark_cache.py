@@ -4,7 +4,10 @@
 import sys
 import time
 import optparse
-from esper import component, Processor, World
+
+from dataclasses import dataclass as component
+
+from esper import Processor, World
 
 try:
     from matplotlib import pyplot

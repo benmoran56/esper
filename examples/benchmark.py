@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import gc
-import pickle
 import sys
 import time
 import optparse
 
-from esper import component, World
+from dataclasses import dataclass as component
+
+from esper import World
 
 ######################
 # Commandline options:

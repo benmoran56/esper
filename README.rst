@@ -7,57 +7,17 @@
 
 Esper
 =====
-**Esper is a lightweight Entity System for Python, with a focus on performance.**
+**Esper is a lightweight Entity System module for Python, with a focus on performance.**
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
 The design is based on the Entity System concepts outlined by Adam Martin in his blog at
 http://t-machine.org/, and others. Efforts were made to keep it as lightweight and performant
 as possible.
 
-There is a fairly accurate writeup describing Entity Systems in this Wikipedia article:
+The following Wikipedia article provides a summary of the ECS pattern:
 https://en.wikipedia.org/wiki/Entity_component_system
 
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
-
-Inspired by Sean Fisk's **ecs** https://github.com/seanfisk/ecs,
-and Marcus von Appen's **ebs** https://bitbucket.org/marcusva/python-utils.
-
-
-What's New
-----------
-**1.2** - Calls to `super()` are no longer necessary in your Processor subclasses.
-            This should eliminate a fair amount of boilerplate. The README has also been updated
-            with more usage examples. All methods should now have at least one example. And finally,
-            wheels are now uploaded to PyPi. This should help with packaging systems that only support
-            wheels. Addresses issue #38.
-
-**1.0.0** - Esper is now using simple lru_caching internally by default. The cache is currently
-            flushed when adding or deleting Entities or Components from the World, Component queries
-            are much faster otherwise. This will likely be improved in a Future version. In addition
-            to caching, Esper now supports passing kwargs to Processors. Continuous Integration testing
-            is now being done for Python 3.7.
-
-**0.9.9** - The big change in this release is that esper has been condensed into a single
-            file: `esper.py`. This will make it simple to just drop into your project folder,
-            without cluttering your project with additional folders that didn't really need to
-            exist. You can still install it from PyPi via pip if you wish, but it's easy enough
-            to just ship with your project (and of course the license allows for this).
-
-**0.9.8** - This release contains a new timer that can be enabled to profile Processor execution
-            time. Simply pass the "timed=True" parameter to the World on instantiation, and a new
-            World.process_times dictionary will be available. This contains the total execution time
-            of each Processor in milliseconds, and can be logged, printed, or displayed on screen as
-            is useful. It's useful to see a quick profile of which processors are using the most cpu
-            time, without fully profiling your game. This release also contains some consolidations
-            and cleanups for the benchmarks.
-
-**0.9.7** - By default, entities are now lazily deleted. When calling *World.delete_entity(entity_id)*,
-            Entities are now placed into a queue to be deleted at the beginning of the next call
-            to World.process(). This means it is now safe to delete entities even while iterating
-            over components in your processors. This should allow for cleaner Processor classes, by
-            removing the need to manually track and delete "dead" Entities after iteration. If you
-            do wish to delete an Entity immediately, simply pass the new optional *immediate=True*
-            argument. Ie: *self.world.delete_entity(entity, immediate=True)*.
 
 
 1) Compatibility
@@ -69,8 +29,8 @@ interpreter. Continuous Integration (automated testing) is done for both CPython
 
 2) Installation
 ---------------
-No installation is necessary. Esper is a tiny library with no dependencies. Simply copy
-*esper.py* into the top level of your project folder, and *import esper*.
+No installation is necessary. Esper is a single-file module with no dependencies.
+Simply copy *esper.py* into your project folder, and *import esper*.
 
 If you prefer, Esper is also available on PyPI for easy installation via pip.
 
@@ -90,7 +50,7 @@ your application is running.
 
 Entities are simple integer IDs (1, 2, 3, 4, etc.).
 Entities are "created", but they are generally not used directly. Instead, they are
-simply used as IDs in the internal Component database, to track collections of Components.
+simply used as IDs in the internal Component database to track collections of Components.
 Creating an Entity is done with the World.create_entity() method.
 
 
@@ -98,16 +58,18 @@ Creating an Entity is done with the World.create_entity() method.
 
 Components are defined as simple Python classes. In keeping with a pure Entity System
 design philosophy, they should not contain any logic. They might have initialization
-code, but no processing logic whatsoever. A simple Component might look like::
+code, but no processing logic whatsoever. A simple Component can be defined as::
 
     class Position:
         def __init__(self, x=0.0, y=0.0):
             self.x = x
             self.y = y
 
-Esper exports Python's *dataclasses.dataclass*
-(https://docs.python.org/3/library/dataclasses.html#module-dataclasses) decorator as
-*esper.component*, which can be used to reduce boilerplate::
+In addition, the excellent `dataclass` decorator is available in Python 3.7+.
+https://docs.python.org/3/library/dataclasses.html#module-dataclasses
+This decorator is handy to simplify the creation of Component definitions::
+
+    from dataclasses import dataclass as component
 
     @component
     class Position:
@@ -306,7 +268,7 @@ you want to first check if an Entity has a Component, get it if so, then operate
 write it this way:: 
 
     if self.world.has_component(ent, Stun):
-        stun = self.world.get_component(ent, Stun)
+        stun = self.world.component_for_entity(ent, Stun)
         stun.duration -= dt
 
 The above code works fine, but the *try_component* method is more concise and slightly faster. 
