@@ -272,9 +272,10 @@ write it this way::
         stun.duration -= dt
 
 The above code works fine, but the *try_component* method is more concise and slightly faster. 
-It allows you to get specific Components only if they exist, but passes silently if they do not::
+It allows you to get specific Components only if they exist, but returns None if they do not::
 
-    for stun in self.world.try_component(ent, Stun):
+    stun = self.world.try_component(ent, Stun)
+    if stun:
         stun.duration -= dt
 
 

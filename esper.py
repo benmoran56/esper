@@ -295,25 +295,24 @@ class World:
     def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
         return [query for query in self._get_components(*component_types)]
 
-    def try_component(self, entity: int, component_type: _Type[_C]) -> _Optional[_Iterable[_C]]:
+    def try_component(self, entity: int, component_type: _Type[_C]) -> _Optional[_C]:
         """Try to get a single component type for an Entity.
 
         This method will return the requested Component if it exists, but
         will pass silently if it does not. This allows a way to access
         optional Components that may or may not exist, without having to
-        first querty the Entity to see if it has the Component type.
+        first query the Entity to see if it has the Component type.
 
         :param entity: The Entity ID to retrieve the Component for.
         :param component_type: The Component instance you wish to retrieve.
-        :return: A iterator containg the single Component instance requested,
-                 which is empty if the component doesn't exist.
+        :return: the single Component instance requested, which is None if the component doesn't exist.
         """
         if component_type in self._entities[entity]:
-            yield self._entities[entity][component_type]
+            return self._entities[entity][component_type]
         else:
             return None
 
-    def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_Iterable[_List[_C]]]:
+    def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
         """Try to get a multiple component types for an Entity.
 
         This method will return the requested Components if they exist, but
@@ -323,11 +322,10 @@ class World:
 
         :param entity: The Entity ID to retrieve the Component for.
         :param component_types: The Components types you wish to retrieve.
-        :return: A iterator containg the multiple Component instances requested,
-                 which is empty if the components do not exist.
+        :return: A List containing the multiple Component instances requested, which is empty if the components do not exist.
         """
         if all(comp_type in self._entities[entity] for comp_type in component_types):
-            yield [self._entities[entity][comp_type] for comp_type in component_types]
+            return [self._entities[entity][comp_type] for comp_type in component_types]
         else:
             return None
 
