@@ -1,5 +1,6 @@
 import time as _time
 
+from contextlib import contextmanager
 from functools import lru_cache as _lru_cache
 
 from typing import Any as _Any
@@ -312,6 +313,25 @@ class World:
         else:
             return None
 
+    @contextmanager
+    def try_component_ctx(self, entity: int, component_type: _Type[_C]) -> _Optional[_C]:
+        """Try to get a single component type for an Entity, in a context manager.
+
+        This method will return the requested Component if it exists, but
+        will pass silently if it does not. This allows a way to access
+        optional Components that may or may not exist, without having to
+        first query the Entity to see if it has the Component type.
+
+        :param entity: The Entity ID to retrieve the Component for.
+        :param component_type: The Component instance you wish to retrieve.
+        :return: the single Component instance requested, which is None if the component doesn't exist.
+        """
+        component = self.try_component(entity, component_type)
+        if component:
+            yield component
+        else:
+            yield None
+
     def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
         """Try to get a multiple component types for an Entity.
 
@@ -328,6 +348,25 @@ class World:
             return [self._entities[entity][comp_type] for comp_type in component_types]
         else:
             return None
+
+    @contextmanager
+    def try_components_ctx(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
+        """Try to get a multiple component types for an Entity, in a context manager.
+
+        This method will return the requested Components if they exist, but
+        will pass silently if they do not. This allows a way to access
+        optional Components that may or may not exist, without first having
+        to query if the entity has the Component types.
+
+        :param entity: The Entity ID to retrieve the Component for.
+        :param component_types: The Components types you wish to retrieve.
+        :return: A List containing the multiple Component instances requested, which is empty if the components do not exist.
+        """
+        components = self.try_components(entity, *component_types)
+        if components:
+            yield components
+        else:
+            yield None
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.
