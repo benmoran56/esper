@@ -6,6 +6,7 @@ Changes
 -------
 - Update documentation with notes about dataclass decorator usage.
 - Add Python 3.9 to Continuous Integration testing.
+- The behavior of the `try_component` & `try_components` methods has changed slightly.
 
 
 esper 1.4

@@ -20,6 +20,11 @@ https://en.wikipedia.org/wiki/Entity_component_system
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
 
 
+```
+As of Esper v1.5, the behavior of the `try_component` & `try_components` methods has changed.
+Please see the notes at the bottom of this README.
+```
+
 1) Compatibility
 ----------------
 Esper is a Python 3 library only. Specifically, all currently supported versions of Python 3. 
@@ -67,7 +72,8 @@ code, but no processing logic whatsoever. A simple Component can be defined as::
 
 In addition, the excellent `dataclass` decorator is available in Python 3.7+.
 https://docs.python.org/3/library/dataclasses.html#module-dataclasses
-This decorator is handy to simplify the creation of Component definitions::
+This decorator simplifies defining your Component classes. The attribute names don't need to
+be repeated, and you can still instantiate the Component with positional or keyword arguments::
 
     from dataclasses import dataclass as component
 
@@ -134,8 +140,7 @@ Create an Entity, and assign some Component instances to it::
 
 Optionally, Component instances can be assigned directly to the Entity on creation::
 
-    player = world.create_entity(Velocity(x=0.9, y=1.2),
-                                 Position(x=5, y=5))
+    player = world.create_entity(Velocity(x=0.9, y=1.2), Position(x=5, y=5))
 
 
 Executing all Processors is done with a single call to world.process(). This will call the
@@ -243,13 +248,17 @@ you wanted to transfer all of a specific Entity's Components between two separat
 Boolean and Conditional Checks
 ------------------------------
 In some cases you may wish to check if an Entity has a specific Component before performing
-some action. The following two methods are available for this task:
+some action. The following methods are available for this task:
 
 * World.has_component(entity, ComponentType)
+* World.has_components(entity, ComponentTypeA, ComponentTypeB)
 * World.try_component(entity, ComponentType)
+* World.try_components(entity, ComponentTypeA, ComponentTypeB)
 
-For example, you may want projectiles (and only projectiles) to disappear when hitting a 
-wall in your game. The simplified code below shows how that might look::
+
+For example, you may want projectiles (and only projectiles) to disappear when hitting a wall in
+your game. We can do this by checking if the Entity has a `Projectile` Component. We don't  want
+to do anything to this Component, simply check if it's there. Consider this example::
 
     class CollisionProcessor(esper.Processor):
 
@@ -261,21 +270,44 @@ wall in your game. The simplified code below shows how that might look::
                     self.world.delete_entity(ent)
                 ...
 
-The above example is easy enough, as you don't want to actually do anything to the Component - 
-just check if it's there. In cases where you want to both check if a Component exists, and then
-operate on it if so, the *try_component* method is useful. Consider the following example, where
-you want to first check if an Entity has a Component, get it if so, then operate on it. You could
-write it this way:: 
+
+In a different scenario, we may want to perform some action on an Entity's Component, *if* it has
+one. For example, a MovementProcessor that skips over Entities that have a `Stun` Component::
+
+    class MovementProcessor(esper.Processor):
+
+        def process(self, dt):
+            for ent, (body, vel) in self.world.get_components(PhysicsBody, Velocity):
+
+                if self.world.has_component(ent, Stun):
+				    stun = self.world.component_for_entity(ent, Stun)
+				    stun.duration -= dt
+					if stun.duration <= 0:
+					    self.world.remove_component(ent, Stun)
+				    return	# Return without processing movement
+
+				movement_code_here()
+                ...
+
+
+Lets look at the core part of the code::
 
     if self.world.has_component(ent, Stun):
         stun = self.world.component_for_entity(ent, Stun)
         stun.duration -= dt
 
-The above code works fine, but the *try_component* method is more concise and slightly faster. 
-It allows you to get specific Components only if they exist, but returns None if they do not::
+This code works fine, but the *try_component* method can accomplish the same thing with one
+less call to `World`. The following example will get a specific Component if it exists, or
+return None if it does not::
 
     stun = self.world.try_component(ent, Stun)
     if stun:
+        stun.duration -= dt
+
+With Python 3.8+, the new "walrus" operator (`:=`) can also be used, making the `try_component`
+methods even more concise ::
+
+    if stun :=  self.world.try_component(ent, Stun):
         stun.duration -= dt
 
 

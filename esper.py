@@ -298,36 +298,35 @@ class World:
     def try_component(self, entity: int, component_type: _Type[_C]) -> _Optional[_C]:
         """Try to get a single component type for an Entity.
 
-        This method will return the requested Component if it exists, but
-        will pass silently if it does not. This allows a way to access
-        optional Components that may or may not exist, without having to
-        first query the Entity to see if it has the Component type.
+        This method will return the requested Component if it exists,
+        or None if it does not. This allows a way to access optional Components
+        that may or may not exist, without having to first query if the Entity
+        has the Component type.
 
         :param entity: The Entity ID to retrieve the Component for.
         :param component_type: The Component instance you wish to retrieve.
-        :return: the single Component instance requested, which is None if the component doesn't exist.
+        :return: the single Component instance requested, or None if it doesn't exist.
         """
         if component_type in self._entities[entity]:
             return self._entities[entity][component_type]
-        else:
-            return None
+        return None
 
     def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
         """Try to get a multiple component types for an Entity.
 
-        This method will return the requested Components if they exist, but
-        will pass silently if they do not. This allows a way to access
-        optional Components that may or may not exist, without first having
-        to query if the entity has the Component types.
+        This method will return the requested Components if they exist,
+        or None if they do not. This allows a way to access optional Components
+        that may or may not exist, without first having to query if the Entity
+        has the Component types.
 
         :param entity: The Entity ID to retrieve the Component for.
         :param component_types: The Components types you wish to retrieve.
-        :return: A List containing the multiple Component instances requested, which is empty if the components do not exist.
+        :return: A List of the requested Component instances, or None if
+                 they don't both exist.
         """
         if all(comp_type in self._entities[entity] for comp_type in component_types):
             return [self._entities[entity][comp_type] for comp_type in component_types]
-        else:
-            return None
+        return None
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.
