@@ -204,14 +204,25 @@ def test_processor_kwargs(world):
     world.process(eggs="eggs", spam="spam")
 
 
-def test_relations(world):
+def test_add_remove_relationship(world):
     entity1 = world.create_entity(ComponentA())
     entity2 = world.create_entity(ComponentA())
     world.add_relationship(entity2, entity1, ComponentA)
     assert world.has_relationship(entity2, entity1, ComponentA) is True
     assert world.has_relationship(entity1, entity2, ComponentA) is False
     assert world.has_relationship(entity1, entity2, ComponentB) is False
-    assert [ent for ent, _ in populated_world.get_component(ComponentA)] == [entity2, entity1]
+    assert [ent for ent, _ in world.get_component(ComponentA)] == [entity1, entity2]
+    assert [ent for ent, _ in world.get_component(ComponentA, ordered=True)] == [entity2, entity1]
+    world.remove_relationship(entity2, entity1, ComponentA)
+    assert world.has_relationship(entity2, entity1, ComponentA) is False
+
+
+def test_get_parent_children(world):
+    entity1 = world.create_entity(ComponentA())
+    entity2 = world.create_entity(ComponentA())
+    world.add_relationship(entity2, entity1, ComponentA)
+    assert world.get_parent(entity1, ComponentA) == entity2
+    assert world.get_children(entity2, ComponentA) == {entity1}
 
 
 def test_clear_cache(populated_world):
