@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key

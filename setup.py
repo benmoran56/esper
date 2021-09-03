@@ -1,14 +1,21 @@
 from setuptools import setup
 
 
-readme = open('README.rst').read()
+with open('esper.py') as f:
+    info = {}
+    for line in f.readlines():
+        if line.startswith('version'):
+            exec(line, info)
+            break
+
+README = open('README.rst').read()
 
 setup(name='esper',
-      version='1.2',
+      version=info['version'],
       author='Benjamin Moran',
       author_email='benmoran@protonmail.com',
-      description="Esper is a lightweight Entity System for Python, with a focus on performance.",
-      long_description=readme,
+      description="esper is a lightweight Entity System (ECS) for Python, with a focus on performance.",
+      long_description=README,
       license='MIT',
       keywords='ecs,entity component system,game',
       url='https://github.com/benmoran56/esper',

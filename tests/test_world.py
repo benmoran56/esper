@@ -1,7 +1,6 @@
-import types
+import pytest
 
 import esper
-import pytest
 
 
 @pytest.fixture
@@ -40,14 +39,29 @@ def test_create_entity_with_components(world):
     assert world.has_component(entity2, ComponentB) is True
 
 
+def test_create_entity_and_add_components(world):
+    entity1 = world.create_entity()
+    world.add_component(entity1, ComponentA())
+    world.add_component(entity1, ComponentB())
+    assert world.has_component(entity1, ComponentA) is True
+    assert world.has_component(entity1, ComponentC) is False
+
+
+def test_create_entity_and_add_components_with_alias(world):
+    entity = world.create_entity()
+    world.add_component(entity, ComponentA(), type_alias=ComponentF)
+    assert world.has_component(entity, ComponentF) is True
+    assert world.component_for_entity(entity, ComponentF).a == -66
+
+
 def test_delete_entity(world):
-    # TODO: handle case where entity has never been assigned components
     entity1 = world.create_entity()
     world.add_component(entity1, ComponentC())
     entity2 = world.create_entity()
     world.add_component(entity2, ComponentD())
     entity3 = world.create_entity()
     world.add_component(entity3, ComponentE())
+    entity4 = world.create_entity()
 
     assert entity3 == 3
     world.delete_entity(entity3, immediate=True)
@@ -55,6 +69,8 @@ def test_delete_entity(world):
         world.components_for_entity(entity3)
     with pytest.raises(KeyError):
         world.delete_entity(999, immediate=True)
+    with pytest.raises(KeyError):
+        world.delete_entity(entity4, immediate=True)
 
 
 def test_component_for_entity(world):
@@ -86,6 +102,18 @@ def test_has_component(world):
     assert world.has_component(entity1, ComponentB) is False
     assert world.has_component(entity2, ComponentA) is False
     assert world.has_component(entity2, ComponentB) is True
+
+
+def test_has_components(world):
+    entity = world.create_entity()
+    world.add_component(entity, ComponentA())
+    world.add_component(entity, ComponentB())
+    world.add_component(entity, ComponentC())
+    assert world.has_components(entity, ComponentA, ComponentB) is True
+    assert world.has_components(entity, ComponentB, ComponentC) is True
+    assert world.has_components(entity, ComponentA, ComponentC) is True
+    assert world.has_components(entity, ComponentA, ComponentD) is False
+    assert world.has_components(entity, ComponentD) is False
 
 
 def test_get_component(populated_world):
@@ -132,13 +160,24 @@ def test_get_three_components(populated_world):
 def test_try_component(world):
     entity1 = world.create_entity(ComponentA(), ComponentB())
 
-    one_item_generator = world.try_component(entity=entity1, component_type=ComponentA)
-    assert type(one_item_generator) is types.GeneratorType
-    assert len(list(one_item_generator)) == 1
+    one_item = world.try_component(entity=entity1, component_type=ComponentA)
+    assert isinstance(one_item, ComponentA)
 
-    zero_item_generator = world.try_component(entity=entity1, component_type=ComponentC)
-    assert type(zero_item_generator) is types.GeneratorType
-    assert len(list(zero_item_generator)) == 0
+    zero_item = world.try_component(entity=entity1, component_type=ComponentC)
+    assert zero_item is None
+
+
+def test_try_components(world):
+    entity1 = world.create_entity(ComponentA(), ComponentB())
+
+    one_item = world.try_components(entity1, ComponentA, ComponentB)
+    assert isinstance(one_item, list)
+    assert len(one_item) == 2
+    assert isinstance(one_item[0], ComponentA)
+    assert isinstance(one_item[1], ComponentB)
+
+    zero_item = world.try_components(entity1, ComponentA, ComponentC)
+    assert zero_item is None
 
 
 def test_clear_database(populated_world):
@@ -188,16 +227,16 @@ def test_get_processor(world):
 
 
 def test_processor_args(world):
-    world.add_processor(ArgProcessor())
+    world.add_processor(ArgsProcessor())
     with pytest.raises(TypeError):
-        world.process()                         # Missing argument
+        world.process()  # Missing argument
     world.process("arg")
 
 
 def test_processor_kwargs(world):
     world.add_processor(KwargsProcessor())
     with pytest.raises(TypeError):
-        world.process()                         # Missing argument
+        world.process()  # Missing argument
     world.process("spam", "eggs")
     world.process("spam", eggs="eggs")
     world.process(spam="spam", eggs="eggs")
@@ -225,8 +264,31 @@ def test_get_parent_children(world):
     assert world.get_children(entity2, ComponentA) == {entity1}
 
 
-def test_clear_cache(populated_world):
-    populated_world.clear_cache()
+# def test_clear_cache(populated_world):
+#     # TODO: actually test something here
+#     populated_world.clear_cache()
+
+
+def test_cache_results(world):
+    _______ = world.create_entity(ComponentA(), ComponentB(), ComponentC())
+    entity2 = world.create_entity(ComponentB(), ComponentC(), ComponentD())
+    assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 2
+
+    world.delete_entity(entity2, immediate=True)
+    assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 1
+
+
+def test_entity_exists(world):
+    dead_entity = world.create_entity(ComponentB())
+    world.delete_entity(dead_entity)
+    empty_entity = world.create_entity()
+    existent_entity = world.create_entity(ComponentA())
+    future_entity = existent_entity + 1
+
+    assert world.entity_exists(existent_entity)
+    assert not world.entity_exists(dead_entity)
+    assert not world.entity_exists(empty_entity)
+    assert not world.entity_exists(future_entity)
 
 
 ##################################################
@@ -278,6 +340,11 @@ class ComponentE:
         self.points = [a + 2 for a in list(range(44))]
 
 
+class ComponentF:
+    def __init__(self):
+        pass
+
+
 class CorrectProcessorA(esper.Processor):
 
     def process(self):
@@ -299,7 +366,7 @@ class CorrectProcessorC(esper.Processor):
         pass
 
 
-class ArgProcessor(esper.Processor):
+class ArgsProcessor(esper.Processor):
 
     def process(self, spam):
         pass
