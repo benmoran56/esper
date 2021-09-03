@@ -1,7 +1,7 @@
 import time as _time
 
 from functools import lru_cache as _lru_cache
-from typing import Dict, List, Type, TypeVar, Any, Tuple, Iterable
+from typing import List, Type, TypeVar, Any, Tuple, Iterable
 
 C = TypeVar('C')
 P = TypeVar('P')
