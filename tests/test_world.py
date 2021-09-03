@@ -204,6 +204,16 @@ def test_processor_kwargs(world):
     world.process(eggs="eggs", spam="spam")
 
 
+def test_relations(world):
+    entity1 = world.create_entity(ComponentA())
+    entity2 = world.create_entity(ComponentA())
+    world.add_relationship(entity2, entity1, ComponentA)
+    assert world.has_relationship(entity2, entity1, ComponentA) is True
+    assert world.has_relationship(entity1, entity2, ComponentA) is False
+    assert world.has_relationship(entity1, entity2, ComponentB) is False
+    assert [ent for ent, _ in populated_world.get_component(ComponentA)] == [entity2, entity1]
+
+
 def test_clear_cache(populated_world):
     populated_world.clear_cache()
 

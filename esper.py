@@ -1,7 +1,7 @@
 import time as _time
 
 from functools import lru_cache as _lru_cache
-from typing import List, Type, TypeVar, Any, Tuple, Iterable
+from typing import Dict, List, Type, TypeVar, Any, Tuple, Iterable
 
 C = TypeVar('C')
 P = TypeVar('P')
@@ -30,6 +30,7 @@ class World:
     is also responsible for executing all Processors assigned to it for each
     frame of your game.
     """
+
     def __init__(self, timed=False):
         self._processors = []
         self._next_entity_id = 0
@@ -222,7 +223,90 @@ class World:
         self.clear_cache()
         return entity
 
-    def _get_component(self, component_type: Type[C]) -> Iterable[Tuple[int, C]]:
+    def add_relation(self, parent: int, child: int, component_type: Type[C]) -> None:
+        """Add a new relation between two Components.
+
+        Add a new relation between two Components, that must already exist in
+        the World. This could be used for things like:
+
+        renderable_a = World.create_component(Renderable())
+        renderable_a = World.create_component(Renderable())
+        World.add_relation(renderable_a, renderable_a, Renderable)
+
+        The two renderables are related through the Renderable component type.
+
+        :param parent: The entity id of the parent.
+        :param child: The entity id of the child.
+        :param component_type: The type of component that forms a relation.
+        """
+
+        self._parent_relations.setdefault(component_type, {})
+        self._child_relations.setdefault(component_type, {})
+
+        self._parent_relations[component_type].setdefault(parent, set())
+        self._parent_relations[component_type][parent].add(child)
+
+        current_parent = self._child_relations[component_type].get(child)
+        self._child_relations[component_type][child] = parent
+
+        if current_parent:
+            self._parent_relations[component_type][current_parent].remove(
+                child)
+            if not self._parent_relations[component_type][current_parent]:
+                del self._parent_relations[component_type][current_parent]
+        self.clear_cache()
+
+    def remove_relation(self, parent: int, child: int, component_type: Type[C]) -> None:
+        """Remove a relation between two Components.
+
+        :param parent: The entity id of the parent.
+        :param child: The entity id of the child.
+        :param component_type: The type of Component between parent and child.
+        """
+        if (parent in self._parent_relations[component_type] and
+                child in self._parent_relations[component_type][parent]):
+            self._parent_relations[parent].remove(child)
+            if not self._parent_relations[component_type][parent]:
+                del self._parent_relations[component_type][parent]
+        if child in self._child_relations[component_type]:
+            del self._child_relations[component_type][child]
+        self.clear_cache()
+
+    def has_relation(self, parent: int, child: int, component_type: Type[C]) -> bool:
+        """Check if a parent has a child.
+
+        :param parent: The parent entity.
+        :param child: The child entity.
+        :param component_type: The type of Component between parent and child.
+        :return: True if parent has child, otherwise False.
+        """
+        return (parent in self._parent_relations.get(component_type, {}).get(parent, []) and
+                parent == self._child_relations.get(component_type, {}).get(parent))
+
+    def _get_relation_order(self, component_type: Type[C]) -> Dict[C, int]:
+        """Get the order in which components are related to each other.
+
+        :param component_type: The type of component to get the order for.
+        :return: A dictionary mapping an entity to it's order.
+        """
+        compiled = []
+        parents = self._parent_relations.get(component_type, {})
+        children = self._child_relations.get(component_type, {})
+        root_parents = [p for p in parents.keys() if p not in children]
+
+        def get_children(parent, parents):
+            l = [parent]
+            for child in parents[parent]:
+                if child in parents:
+                    l += get_children(child, parents)
+                else:
+                    l.append(child)
+            return l
+        for parent in root_parents:
+            compiled += get_children(parent, parents)
+        return {x: i for i, x in enumerate(compiled)}
+
+    def _get_component(self, component_type: Type[C], ordered: bool = False) -> Iterable[Tuple[int, C]]:
         """Get an iterator for Entity, Component pairs.
 
         :param component_type: The Component type to retrieve.
@@ -230,10 +314,14 @@ class World:
         """
         entity_db = self._entities
 
-        for entity in self._components.get(component_type, []):
+        components = list(self._components.get(component_type, []))
+        if ordered:
+            sort_order = self._get_relation_order(component_type)
+            components.sort(key=lambda i: sort_order.get(i, -1))
+        for entity in components:
             yield entity, entity_db[entity][component_type]
 
-    def _get_components(self, *component_types: Type)-> Iterable[Tuple[int, ...]]:
+    def _get_components(self, *component_types: Type, order_by: Type = None) -> Iterable[Tuple[int, ...]]:
         """Get an iterator for Entity and multiple Component sets.
 
         :param component_types: Two or more Component types.
@@ -244,18 +332,23 @@ class World:
         comp_db = self._components
 
         try:
-            for entity in set.intersection(*[comp_db[ct] for ct in component_types]):
+            intersections = set.intersection(
+                *[comp_db[ct] for ct in component_types])
+            if order_by:
+                sort_order = self._get_relation_order(order_by)
+                list(intersections).sort(key=lambda i: sort_order.get(i, -1))
+            for entity in intersections:
                 yield entity, [entity_db[entity][ct] for ct in component_types]
         except KeyError:
             pass
 
     @_lru_cache()
-    def get_component(self, component_type: Type[C]) -> List[Tuple[int, C]]:
-        return [query for query in self._get_component(component_type)]
+    def get_component(self, component_type: Type[C], ordered: bool = False) -> List[Tuple[int, C]]:
+        return [query for query in self._get_component(component_type, ordered=ordered)]
 
     @_lru_cache()
-    def get_components(self, *component_types: Type):
-        return [query for query in self._get_components(*component_types)]
+    def get_components(self, *component_types: Type, order_by: Type = None):
+        return [query for query in self._get_components(*component_types, order_by=order_by)]
 
     def try_component(self, entity: int, component_type: Type):
         """Try to get a single component type for an Entity.
@@ -276,7 +369,7 @@ class World:
 
     def _clear_dead_entities(self):
         """Finalize deletion of any Entities that are marked dead.
-        
+
         In the interest of performance, this method duplicates code from the
         `delete_entity` method. If that method is changed, those changes should
         be duplicated here as well.
@@ -303,7 +396,8 @@ class World:
         for processor in self._processors:
             start_time = _time.process_time()
             processor.process(*args, **kwargs)
-            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
+            process_time = int(
+                round((_time.process_time() - start_time) * 1000, 2))
             self.process_times[processor.__class__.__name__] = process_time
 
     def process(self, *args, **kwargs):
