@@ -2,7 +2,7 @@ import time as _time
 
 from functools import lru_cache as _lru_cache
 
-from typing import Any as _Any, Type
+from typing import Any as _Any
 from typing import Iterable as _Iterable
 from typing import List as _List
 from typing import Optional as _Optional
@@ -77,7 +77,7 @@ class World:
         self._processors.append(processor_instance)
         self._processors.sort(key=lambda proc: proc.priority, reverse=True)
 
-    def remove_processor(self, processor_type: Type[Processor]) -> None:
+    def remove_processor(self, processor_type: _Type[Processor]) -> None:
         """Remove a Processor from the World, by type.
 
         :param processor_type: The class type of the Processor to remove.
