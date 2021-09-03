@@ -306,6 +306,45 @@ It allows you to get specific Components only if they exist, but passes silently
     for stun in self.world.try_component(ent, Stun):
         stun.duration -= dt
 
+Relationships
+-------------
+It may be necessary to relate two entities together. The following methods facilitate this:
+
+* World.add_relationship(parent_entity, child_entity, ComponentType)
+* World.remove_relationship(parent_entity, child_entity, ComponentType)
+* World.has_relationship(parent_entity, child_entity, ComponentType)
+* World.get_parent(entity, ComponentType)
+* World.get_children(entity, ComponentType)
+
+This can be useful when evaluating transforms and you need to ensure a parent is
+calculated before its children.::
+
+    class Position(x, y):
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    entity_a = world.create_entity(Position(2,2))
+    entity_b = world.create_entity(Position(0,0))
+    world.add_relation(entity_b, entity_a, Position)
+
+    class PositionProcessor(esper.Processor):
+
+        def process(self, dt):
+            for ent, position in self.world.get_component(Position, ordered=True):
+                ...
+                if parent := self.world.get_parent(ent, Position):
+                    if parent_position := self.world.try_component(parent, Position):
+                        position += parent_position
+                ...
+
+In the above code, the ``ordered=True`` argument is used to ensure the components are returned
+in a way that the parent's (entity_b) position is updated before the child's (entity_a) position.
+This allows for the child's position to be updated relative to it's parent.
+
+This process can also be used to ensure things like render order is maintained as the list of entities
+retrieved via the ``World.get_component()`` and ``World.get_components()`` methods using the
+``ordered`` and ``order_by`` parameters respectively.
 
 5) More Examples
 ----------------
