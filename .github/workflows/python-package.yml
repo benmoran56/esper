@@ -1,0 +1,26 @@
+name: Python Package Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9", "pypy-3.6", "pypy-3.7"]
+      fail-fast: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install test dependencies
+        run: |
+          pip install pytest
+      - name: Run tests
+        run: |
+          pytest -v tests
