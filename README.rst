@@ -34,10 +34,12 @@ interpreter. Continuous Integration (automated testing) is done for both CPython
 
 2) Installation
 ---------------
-No installation is necessary. Esper is a single-file module with no dependencies.
-Simply copy *esper.py* into your project folder, and *import esper*.
+No installation is necessary. Esper is a Python package with no dependencies or extensions.
+Simply copy the *esper* folder into your project folder, and *import esper*.
 
-If you prefer, Esper is also available on PyPI for easy installation via pip.
+If you prefer, Esper is also available on PyPI for easy installation via pip::
+
+    pip install esper
 
 
 3) Project Structure
