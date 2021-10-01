@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-with open('esper.py') as f:
+with open('esper/__init__.py') as f:
     info = {}
     for line in f.readlines():
         if line.startswith('version'):
@@ -21,7 +21,8 @@ setup(name='esper',
       url='https://github.com/benmoran56/esper',
       download_url='https://github.com/benmoran56/esper/releases',
       platforms='POSIX, Windows, MacOS X',
-      py_modules=['esper'],
+      packages=['esper'],
+      package_data={'esper': ['py.typed']},
       classifiers=["Development Status :: 5 - Production/Stable",
                    "Intended Audience :: Developers",
                    "License :: OSI Approved :: MIT License",
