@@ -1,7 +1,6 @@
 import time as _time
 
-from functools import lru_cache as _lru_cache
-
+from typing import TYPE_CHECKING as _TYPE_CHECKING
 from typing import Any as _Any
 from typing import Iterable as _Iterable
 from typing import List as _List
@@ -10,6 +9,13 @@ from typing import Tuple as _Tuple
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
 
+
+if _TYPE_CHECKING:
+    _F = _TypeVar('_F')
+    def _lru_cache(func: _F) -> _F:
+        pass
+else:
+    from functools import lru_cache as _lru_cache
 
 version = '1.5'
 
@@ -287,11 +293,11 @@ class World:
         except KeyError:
             pass
 
-    @_lru_cache()
+    @_lru_cache
     def get_component(self, component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
         return [query for query in self._get_component(component_type)]
 
-    @_lru_cache()
+    @_lru_cache
     def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
         return [query for query in self._get_components(*component_types)]
 
