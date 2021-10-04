@@ -1,7 +1,5 @@
 import time as _time
 
-from functools import lru_cache as _lru_cache
-
 from typing import Any as _Any
 from typing import Iterable as _Iterable
 from typing import List as _List
@@ -48,13 +46,15 @@ class World:
         self._components = {}
         self._entities = {}
         self._dead_entities = set()
+        self._get_component_cache = {}
+        self._get_components_cache = {}
         if timed:
             self.process_times = {}
             self._process = self._timed_process
 
     def clear_cache(self) -> None:
-        self.get_component.cache_clear()
-        self.get_components.cache_clear()
+        self._get_component_cache = {}
+        self._get_components_cache = {}
 
     def clear_database(self) -> None:
         """Remove all Entities and Components from the World."""
@@ -287,13 +287,27 @@ class World:
         except KeyError:
             pass
 
-    @_lru_cache()
     def get_component(self, component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
-        return [query for query in self._get_component(component_type)]
+        """Return a sequence of (entity, component) pairs for each entity with
+        component_type.
+        """
+        try:
+            return self._get_component_cache[component_type]
+        except KeyError:
+            return self._get_component_cache.setdefault(
+                component_type, list(self._get_component(component_type))
+            )
 
-    @_lru_cache()
     def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
-        return [query for query in self._get_components(*component_types)]
+        """Return a sequence of (entity, (*components)) pairs for each entity
+        with every component in component_types.
+        """
+        try:
+            return self._get_components_cache[component_types]
+        except KeyError:
+            return self._get_components_cache.setdefault(
+                component_types, list(self._get_components(*component_types))
+            )
 
     def try_component(self, entity: int, component_type: _Type[_C]) -> _Optional[_C]:
         """Try to get a single component type for an Entity.
