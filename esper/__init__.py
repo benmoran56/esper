@@ -42,7 +42,7 @@ class World:
     """
     def __init__(self, timed=False):
         self._processors = []
-        self._next_entity_id = 0
+        self._next_entity_id = 1
         self._components = {}
         self._entities = {}
         self._dead_entities = set()
@@ -58,7 +58,7 @@ class World:
 
     def clear_database(self) -> None:
         """Remove all Entities and Components from the World."""
-        self._next_entity_id = 0
+        self._next_entity_id = 1
         self._dead_entities.clear()
         self._components.clear()
         self._entities.clear()
