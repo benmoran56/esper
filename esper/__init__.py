@@ -48,6 +48,7 @@ class World:
         self._dead_entities = set()
         self._get_component_cache = {}
         self._get_components_cache = {}
+        self._event_registry = {}
         if timed:
             self.process_times = {}
             self._process = self._timed_process
@@ -63,6 +64,22 @@ class World:
         self._components.clear()
         self._entities.clear()
         self.clear_cache()
+
+    def dispatch_event(self, name: str, *args) -> None:
+        for func in self._event_registry.get(name, []):
+            func(*args)
+
+    def set_handler(self, name: str, func) -> None:
+        if name not in self._event_registry:
+            self._event_registry[name] = []
+
+        self._event_registry[name].append(func)
+
+    def remove_handler(self, name, func) -> None:
+        if func not in self._event_registry.get(name, []):
+            return
+
+        self._event_registry[name].remove(func)
 
     def add_processor(self, processor_instance: Processor, priority=0) -> None:
         """Add a Processor instance to the World.
