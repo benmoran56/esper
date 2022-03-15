@@ -7,9 +7,10 @@ from typing import Optional as _Optional
 from typing import Tuple as _Tuple
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
+from weakref import WeakMethod as _WeakMethod
 
 
-version = '1.5'
+version = '2.0'
 
 _C = _TypeVar('_C')
 _P = _TypeVar('_P')
@@ -20,10 +21,12 @@ class Processor:
 
     Processor instances must contain a `process` method. Other than that,
     you are free to add any additional methods that are necessary. The process
-    method will be called by each call to `World.process`, so you will
+    method will be called by each call to :py:class:`World.process`, so you will
     generally want to iterate over entities with one (or more) calls to the
-    appropriate world methods there, such as
-    `for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):`
+    appropriate world methods there, such as::
+
+        for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
+             your_code_here()
     """
 
     priority = 0
@@ -31,6 +34,67 @@ class Processor:
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
+
+
+event_registry = {}
+
+
+def dispatch_event(name: str, *args) -> None:
+    """Dispatch an event, with optional arguments.
+
+    Events can be dispatched directly by name.
+
+    :param name: The name of the event type to dispatch.
+    :param args: Optional arguments to pass to event handlers.
+    """
+    for func in event_registry.get(name, []):
+        func()(*args)
+
+
+def _make_callback(name):
+    """Create a callback to remove dead handlers."""
+    def callback(weak_method):
+        event_registry[name].remove(weak_method)
+        if not event_registry[name]:
+            del event_registry[name]
+
+    return callback
+
+
+def set_handler(name: str, func) -> None:
+    """Register a function to handle the named event type.
+
+    After registering a function, it will receive all events that
+    are dispatched by the passed name. Only a weak reference is
+    kept to the passed function. If
+
+
+    :param name: The name of the event type to handle.
+    :param func: The function or method to register as a handler
+                 for the event type.
+    """
+    if name not in event_registry:
+        event_registry[name] = set()
+
+    event_registry[name].add(_WeakMethod(func, _make_callback(name)))
+
+
+def remove_handler(name, func) -> None:
+    """Remove a handler from specific event type.
+
+    If the passed function/method is not registered to
+    receive the named event, or if the named event does
+    not exist, this function call will pass silently.
+
+    :param name: The name of the event to remove from.
+    :param func: The handler to remove.
+    """
+    if func not in event_registry.get(name, []):
+        return
+
+    event_registry[name].remove(func)
+    if not event_registry[name]:
+        del event_registry[name]
 
 
 class World:
@@ -46,40 +110,25 @@ class World:
         self._components = {}
         self._entities = {}
         self._dead_entities = set()
+
         self._get_component_cache = {}
         self._get_components_cache = {}
-        self._event_registry = {}
+
         if timed:
             self.process_times = {}
             self._process = self._timed_process
 
     def clear_cache(self) -> None:
-        self._get_component_cache = {}
-        self._get_components_cache = {}
+        self._get_component_cache.clear()
+        self._get_components_cache.clear()
 
     def clear_database(self) -> None:
         """Remove all Entities and Components from the World."""
-        self._next_entity_id = 0
         self._dead_entities.clear()
-        self._components.clear()
         self._entities.clear()
+        self._components.clear()
+        self._next_entity_id = 0
         self.clear_cache()
-
-    def dispatch_event(self, name: str, *args) -> None:
-        for func in self._event_registry.get(name, []):
-            func(*args)
-
-    def set_handler(self, name: str, func) -> None:
-        if name not in self._event_registry:
-            self._event_registry[name] = []
-
-        self._event_registry[name].append(func)
-
-    def remove_handler(self, name, func) -> None:
-        if func not in self._event_registry.get(name, []):
-            return
-
-        self._event_registry[name].remove(func)
 
     def add_processor(self, processor_instance: Processor, priority=0) -> None:
         """Add a Processor instance to the World.
@@ -278,23 +327,12 @@ class World:
         return entity
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
-        """Get an iterator for Entity, Component pairs.
-
-        :param component_type: The Component type to retrieve.
-        :return: An iterator for (Entity, Component) tuples.
-        """
         entity_db = self._entities
 
         for entity in self._components.get(component_type, []):
             yield entity, entity_db[entity][component_type]
 
     def _get_components(self, *component_types: _Type[_C]) -> _Iterable[_Tuple[int, _List[_C]]]:
-        """Get an iterator for Entity and multiple Component sets.
-
-        :param component_types: Two or more Component types.
-        :return: An iterator for Entity, (Component1, Component2, etc)
-        tuples.
-        """
         entity_db = self._entities
         comp_db = self._components
 
@@ -305,8 +343,10 @@ class World:
             pass
 
     def get_component(self, component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
-        """Return a sequence of (entity, component) pairs for each entity with
-        component_type.
+        """Get an iterator for Entity, Component pairs.
+
+        :param component_type: The Component type to retrieve.
+        :return: An iterator for (Entity, Component) tuples.
         """
         try:
             return self._get_component_cache[component_type]
@@ -316,8 +356,10 @@ class World:
             )
 
     def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
-        """Return a sequence of (entity, (*components)) pairs for each entity
-        with every component in component_types.
+        """Get an iterator for Entity and multiple Component sets.
+
+        :param component_types: Two or more Component types.
+        :return: An iterator for Entity, (Component1, Component2, etc.) tuples.
         """
         try:
             return self._get_components_cache[component_types]

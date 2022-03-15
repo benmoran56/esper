@@ -1,3 +1,14 @@
+esper 2.0
+=========
+Feature release
+
+Changes
+-------
+- Add a simple event system, for registering and dispatching events.
+- Replace usage of the lru_cache module with internal cache.
+- To help with type checking, esper has been converted to a package.
+
+
 esper 1.5
 =========
 Maintenance release

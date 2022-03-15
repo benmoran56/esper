@@ -11,19 +11,19 @@ Esper
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
 The design is based on the Entity System concepts outlined by Adam Martin in his blog at
-http://t-machine.org/, and others. Efforts were made to keep it as lightweight and performant
-as possible.
+http://t-machine.org/, and others. The primary focus is on keeping it as lightweight and
+performant as possible, while handling common use cases.
 
 The following Wikipedia article provides a summary of the ECS pattern:
 https://en.wikipedia.org/wiki/Entity_component_system
 
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
+Due to the small size of the project, this README currently serves as general documentation.
 
+**What's new:** As of Esper 2.0, there is support for basic event dispatching and handling.
+This is fairly minimal, in keeping with the scope of the project, but it should be robust enough
+to handle most common needs.
 
-```
-As of Esper v1.5, the behavior of the `try_component` & `try_components` methods has changed.
-Please see the notes at the bottom of this README.
-```
 
 1) Compatibility
 ----------------
@@ -39,7 +39,7 @@ Simply copy the *esper* folder into your project folder, and *import esper*.
 
 If you prefer, Esper is also available on PyPI for easy installation via pip::
 
-    pip install esper
+    pip install --user esper
 
 
 3) Project Structure
@@ -152,7 +152,7 @@ once per frame update of your game.::
     world.process()
 
 
-Note: You can pass any args you need to *world.process()*, but you must also make sure to receive
+**Note:** You can pass any args you need to *world.process()*, but you must also make sure to receive
 them properly in the *process()* methods of your Processors. For example, if you pass a delta time
 argument as *world.process(dt)*, your Processor's *process()* methods should all receive it as:
 *def process(self, dt):*
@@ -161,7 +161,7 @@ into scheduled methods.
 
 
 5) Additional methods
-=====================
+---------------------
 
 Adding and Removing Processors
 ------------------------------
@@ -313,7 +313,35 @@ methods even more concise ::
         stun.duration -= dt
 
 
-5) More Examples
+6) More Examples
 ----------------
 
 See the **/examples** folder to get an idea of how a basic structure of a game might look.
+
+7) Event Dispatching
+====================
+
+Esper contains basic event dispatching and handling support, provided but three functions.
+These are exposed directly on the `esper` module, and are not tied to a specific `World` instance.
+Minimal error checking is done, so it's left up to the user to ensure correct naming and
+number of arguments.
+
+Events are dispatched by name::
+
+    esper.dispatch_event('event_name', arg1, arg2)
+
+In order to receive the above event, you must register handlers. An event handler can be a
+function or class method. Registering a handler is also done by name::
+
+    esper.set_handler('event_name', my_func)
+    # or
+    esper.set_handler('event_name', self.my_method)
+
+**Note:** Only weak-references are kept to the registered handlers. If a handler is garbage
+collected, it will be automatically un-registered by an internal callback.
+
+Handlers can also be removed at any time, if you no longer want them to receive events::
+
+    esper.remove_handler('event_name', my_func)
+    # or
+    esper.remove_handler('event_name', self.my_method)
