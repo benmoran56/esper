@@ -318,12 +318,12 @@ methods even more concise ::
 
 See the **/examples** folder to get an idea of how a basic structure of a game might look.
 
-7) Event Dispatching
-====================
+Event Dispatching
+=================
 
-Esper contains basic event dispatching and handling support, provided but three functions.
-These are exposed directly on the `esper` module, and are not tied to a specific `World` instance.
-Minimal error checking is done, so it's left up to the user to ensure correct naming and
+Esper includes basic support for event dispatching and handling. This functionality is provided by
+three functions, exposed directly on the `esper` module. Events are not tied to a specific `World`
+instance. Minimal error checking is done, so it's left up to the user to ensure correct naming and
 number of arguments.
 
 Events are dispatched by name::
