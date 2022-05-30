@@ -357,4 +357,4 @@ Contributions to Esper are always welcome, but there are some specific project g
 - Avoid bloat as much as possible. New features will be considered if they are commonly useful. Generally speaking, we don't want to add functionality that is better handled in another module or library. 
 - Performance is preferrable to readability.
 
-If you have any questions before contributing, feel free to [open an issue](https://github.com/benmoran56/esper/issues).
+If you have any questions before contributing, feel free to `open an issue <https://github.com/benmoran56/esper/issues>`_.
