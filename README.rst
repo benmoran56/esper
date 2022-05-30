@@ -4,10 +4,8 @@
 .. image:: https://readthedocs.org/projects/esper/badge/?version=latest
     :target: https://esper.readthedocs.io
 
-
-Esper
-=====
-**Esper is a lightweight Entity System module for Python, with a focus on performance.**
+Esper is a lightweight Entity System module for Python, with a focus on performance
+===================================================================================
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
 The design is based on the Entity System concepts outlined by Adam Martin in his blog at
@@ -42,8 +40,9 @@ If you prefer, Esper is also available on PyPI for easy installation via pip::
     pip install --user esper
 
 
-3) Project Structure
---------------------
+3) Structure
+------------
+
 * World
 
 A World is the main point of interaction in Esper. After creating a World object, you will use
@@ -345,3 +344,17 @@ Handlers can also be removed at any time, if you no longer want them to receive 
     esper.remove_handler('event_name', my_func)
     # or
     esper.remove_handler('event_name', self.my_method)
+
+
+
+Contributing
+============
+
+Contributions to Esper are always welcome, but there are some specific project goals to keep in mind:
+
+- Pure Python code only - no binary extensions, Cython, etc.
+- Try to target all currently supported Python versions. Exceptions can be made if there is a compelling reason.
+- Avoid bloat as much as possible. New features will be considered if they are commonly useful. Generally speaking, we don't want to add functionality that is better handled in another module or library. 
+- Performance is preferrable to readability.
+
+If you have any questions before contributing, feel free to [open an issue](https://github.com/benmoran56/esper/issues).
