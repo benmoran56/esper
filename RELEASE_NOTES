@@ -1,3 +1,13 @@
+esper 2.1
+=========
+Maintenance release
+
+Changes
+-------
+- Fix bug when adding a function as an event handler.
+- Add some event handler unit tests.
+
+
 esper 2.0
 =========
 Feature release

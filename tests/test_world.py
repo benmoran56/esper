@@ -243,9 +243,8 @@ def test_processor_kwargs(world):
     world.process(eggs="eggs", spam="spam")
 
 
-# def test_clear_cache(populated_world):
-#     # TODO: actually test something here
-#     populated_world.clear_cache()
+def test_clear_cache(populated_world):
+    populated_world.clear_cache()
 
 
 def test_cache_results(world):
@@ -268,6 +267,64 @@ def test_entity_exists(world):
     assert not world.entity_exists(dead_entity)
     assert not world.entity_exists(empty_entity)
     assert not world.entity_exists(future_entity)
+
+
+def test_event_dispatch_no_handlers():
+    esper.dispatch_event("foo")
+    esper.dispatch_event("foo", 1)
+    esper.dispatch_event("foo", 1, 2)
+    esper.event_registry.clear()
+
+
+def test_event_dispatch_one_arg():
+    esper.set_handler("foo", myhandler_onearg)
+    esper.dispatch_event("foo", 1)
+    esper.event_registry.clear()
+
+
+def test_event_dispatch_two_args():
+    esper.set_handler("foo", myhandler_twoargs)
+    esper.dispatch_event("foo", 1, 2)
+    esper.event_registry.clear()
+
+
+def test_event_dispatch_incorrect_args():
+    esper.set_handler("foo", myhandler_noargs)
+    assert pytest.raises(TypeError), esper.dispatch_event("foo")
+    esper.event_registry.clear()
+
+
+def test_set_methoad_as_handler_in_init():
+
+    class MyClass(esper.Processor):
+
+        def __init__(self):
+            esper.set_handler("foo", self._my_handler)
+
+        def _my_handler(self):
+            print("OK")
+
+        def process(self, dt):
+            pass
+
+    myclass = MyClass()
+    esper.dispatch_event("foo")
+    esper.event_registry.clear()
+
+
+def test_set_instance_methoad_as_handler():
+    class MyClass(esper.Processor):
+
+        def my_handler(self):
+            print("OK")
+
+        def process(self, dt):
+            pass
+
+    myclass = MyClass()
+    esper.set_handler("foo", myclass.my_handler)
+    esper.dispatch_event("foo")
+    esper.event_registry.clear()
 
 
 ##################################################
@@ -360,3 +417,17 @@ class IncorrectProcessor:
 
     def process(self):
         pass
+
+
+# Event handler templates:
+
+def myhandler_noargs():
+    print("OK")
+
+
+def myhandler_onearg(arg):
+    print("Arg:", arg)
+
+
+def myhandler_twoargs(arg1, arg2):
+    print("Args:", arg1, arg2)

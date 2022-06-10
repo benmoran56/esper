@@ -1,5 +1,6 @@
 import time as _time
 
+from types import MethodType as _MethodType
 from typing import Any as _Any
 from typing import Iterable as _Iterable
 from typing import List as _List
@@ -7,10 +8,11 @@ from typing import Optional as _Optional
 from typing import Tuple as _Tuple
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
+from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
 
-version = '2.0'
+version = '2.1'
 
 _C = _TypeVar('_C')
 _P = _TypeVar('_P')
@@ -76,7 +78,10 @@ def set_handler(name: str, func) -> None:
     if name not in event_registry:
         event_registry[name] = set()
 
-    event_registry[name].add(_WeakMethod(func, _make_callback(name)))
+    if isinstance(func, _MethodType):
+        event_registry[name].add(_WeakMethod(func, _make_callback(name)))
+    else:
+        event_registry[name].add(_ref(func, _make_callback(name)))
 
 
 def remove_handler(name, func) -> None:
