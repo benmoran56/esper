@@ -30,6 +30,21 @@ def test_create_entity(world):
     assert entity1 < entity2
 
 
+def test_create_known_entity(world):
+    entity1 = world.create_entity()
+    entity2 = world.create_known_entity(2)
+    entity3 = world.create_entity(ComponentA())
+    assert entity1 == 1
+    assert entity2 == 2
+    assert entity3 == 3
+    with pytest.raises(ValueError):
+        world.create_known_entity(3)
+    # cannot be guarranteed
+    # because they no are trace of empty entities in World instance
+    # with pytest.raises(ValueError):
+    #     world.create_known_entity(1)
+
+
 def test_create_entity_with_components(world):
     entity1 = world.create_entity(ComponentA())
     entity2 = world.create_entity(ComponentB())
