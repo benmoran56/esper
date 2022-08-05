@@ -174,6 +174,11 @@ class World:
         else:
             return None
 
+    def create_known_entity(self, id_):
+        if id_ > self._next_entity_id:
+            self._next_entity_id = id_
+        return id_
+
     def create_entity(self, *components: _C) -> int:
         """Create a new Entity.
 
