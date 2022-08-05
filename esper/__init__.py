@@ -174,10 +174,21 @@ class World:
         else:
             return None
 
-    def create_known_entity(self, id_):
-        if id_ > self._next_entity_id:
-            self._next_entity_id = id_
-        return id_
+    def create_known_entity(self, entity: int):
+        """Create a new entity using known id
+
+        Raises a ValueError if an entity as already been created using this ID.
+        Empty and dead entities will count as created ones.
+
+        :param entity: Entity ID
+        :return Entity ID
+        """
+        if entity in self._entities:
+            raise ValueError("Entity ID %i already exists" % entity)
+        self._entities[entity] = {}
+        if entity > self._next_entity_id:
+            self._next_entity_id = entity
+        return entity
 
     def create_entity(self, *components: _C) -> int:
         """Create a new Entity.
