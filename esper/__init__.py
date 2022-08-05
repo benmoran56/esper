@@ -202,6 +202,7 @@ class World:
         :return: The next Entity ID in sequence.
         """
         self._next_entity_id += 1
+        self._entities[self._next_entity_id] = {}
 
         # TODO: duplicate add_component code here for performance
         for cmp in components:
