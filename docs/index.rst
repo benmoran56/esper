@@ -8,9 +8,11 @@ Processors
 
 Components
 ----------
-**esper** does not define any specific
-Component base class. Instead, normal
-Python classes are used as Components.
+**esper** does not define any specific Component base class
+to inherit from. Instead, a normal Python class can be used.
+Also, while it's not required, the the `@dataclass` decorator
+from the `dataclasses` module can be useful to help write
+compact Component classes.
 
 
 The World Class
@@ -21,12 +23,9 @@ The World Class
 
 Events
 ------
-**esper** provides basic functionality for
-dispatching and handling events. Minimal
-error checking is done. It's left up to the
-user to ensure that events and handlers are
-dispatched and received with the correct
-number of arguments.
+For convenience, **esper** includes functionality for
+dispatching and handling events. This is limited in scope,
+but should be robust enough for most general use cases.
 
 .. autofunction:: esper.dispatch_event
 .. autofunction:: esper.set_handler
