@@ -1,3 +1,13 @@
+esper 2.2
+=========
+Maintenance release
+
+Changes
+-------
+- Fix incomplete docstrings for event functions.
+- Typing and docstring cleanups and rewording.
+
+
 esper 2.1
 =========
 Maintenance release
