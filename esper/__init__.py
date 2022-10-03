@@ -237,9 +237,9 @@ class World:
             self._dead_entities.add(entity)
 
     def entity_exists(self, entity: int) -> bool:
-        """Check if a specific entity exists.
+        """Check if a specific Entity exists.
 
-        Empty entities(with no components) and dead entities(destroyed
+        Empty Entities (with no components) and dead Entities (destroyed
         by delete_entity) will not count as existent ones.
         """
         return entity in self._entities and entity not in self._dead_entities
