@@ -164,7 +164,7 @@ class World:
                itself, not the instance.
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
+            if type(processor) is processor_type:
                 processor.world = None
                 self._processors.remove(processor)
 
@@ -176,7 +176,7 @@ class World:
         Processor, from within another Processor.
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
+            if type(processor) is processor_type:
                 return processor
         else:
             return None
