@@ -117,6 +117,7 @@ class World:
     is also responsible for executing all Processors assigned to it for each
     frame of your game.
     """
+
     def __init__(self, timed=False):
         self._processors = []
         self._next_entity_id = 0
