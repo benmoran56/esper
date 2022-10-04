@@ -117,6 +117,7 @@ class World:
     is also responsible for executing all Processors assigned to it for each
     frame of your game.
     """
+
     def __init__(self, timed=False):
         self._processors = []
         self._next_entity_id = 0
@@ -164,7 +165,7 @@ class World:
                itself, not the instance.
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
+            if type(processor) is processor_type:
                 processor.world = None
                 self._processors.remove(processor)
 
@@ -176,7 +177,7 @@ class World:
         Processor, from within another Processor.
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
+            if type(processor) is processor_type:
                 return processor
         else:
             return None
@@ -237,9 +238,9 @@ class World:
             self._dead_entities.add(entity)
 
     def entity_exists(self, entity: int) -> bool:
-        """Check if a specific entity exists.
+        """Check if a specific Entity exists.
 
-        Empty entities(with no components) and dead entities(destroyed
+        Empty Entities (with no components) and dead Entities (destroyed
         by delete_entity) will not count as existent ones.
         """
         return entity in self._entities and entity not in self._dead_entities
