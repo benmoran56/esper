@@ -1,3 +1,12 @@
+esper 2.3
+=========
+Maintenance release
+
+Changes
+-------
+- Equality comparison changes, and other minor cleanup.
+
+
 esper 2.2
 =========
 Maintenance release

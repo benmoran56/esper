@@ -14,7 +14,7 @@ from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
 
-version = '2.2'
+version = '2.3'
 
 
 ###################

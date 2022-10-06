@@ -8,7 +8,7 @@ with open('esper/__init__.py') as f:
             exec(line, info)
             break
 
-README = open('README.rst').read()
+README = open('README.md').read()
 
 setup(name='esper',
       version=info['version'],
