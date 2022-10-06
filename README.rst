@@ -26,21 +26,18 @@ to handle most common needs.
 
 See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
 
-
-<!--ts-->
-   * [Compatibility](#compatibility)
-   * [Installation](#installation)
-   * [Design](#design)
-   * [Quick Start](#quick start)
-   * [General Usage](#general usage)
-      * [Adding and Removing Processors](#Adding and Removing Processors)
-      * [Adding and Removing Components](#Adding and Removing Components)
-      * [Querying Specific Components](#Querying Specific Components)
-      * [Boolean and Conditional Checks](#Boolean and Conditional Checks)
-      * [More Examples](#More Examples)
-   * [Event Dispatching](#Event Dispatching)
-   * [Contributing](#Contributing)
-<!--te-->
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Design](#design)
+- [Quick Start](#quick start)
+- [General Usage](#general usage)
+  * [Adding and Removing Processors](#Adding and Removing Processors)
+  * [Adding and Removing Components](#Adding and Removing Components)
+  * [Querying Specific Components](#Querying Specific Components)
+  * [Boolean and Conditional Checks](#Boolean and Conditional Checks)
+  * [More Examples](#More Examples)
+- [Event Dispatching](#Event Dispatching)
+- [Contributing](#Contributing)
 
 
 Compatibility
