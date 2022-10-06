@@ -1,8 +1,5 @@
-.. image:: https://travis-ci.org/benmoran56/esper.svg?branch=master
-    :target: https://travis-ci.org/benmoran56/esper
-
-.. image:: https://readthedocs.org/projects/esper/badge/?version=latest
-    :target: https://esper.readthedocs.io
+[![CI Status](https://readthedocs.org/projects/esper/badge/?version=latest)](https://travis-ci.org/benmoran56/esper)
+[![Documentation Status](https://readthedocs.org/projects/esper/badge/?version=latest)](https://esper.readthedocs.io/?badge=latest)
 
 Esper is a lightweight Entity System module for Python, with a focus on performance
 ===================================================================================
@@ -25,6 +22,19 @@ This is fairly minimal, in keeping with the scope of the project, but it should 
 to handle most common needs.
 
 See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
+
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Design](#design)
+- [Quick Start](#quick-start)
+- [General Usage](#general-usage)
+  * [Adding and Removing Processors](#adding-and-removing-processors)
+  * [Adding and Removing Components](#adding-and-removing-components)
+  * [Querying Specific Components](#querying-specific-components)
+  * [Boolean and Conditional Checks](#boolean-and-conditional-checks)
+  * [More Examples](#more-examples)
+- [Event Dispatching](#event-dispatching)
+- [Contributing](#contributing)
 
 
 Compatibility
