@@ -26,29 +26,16 @@ to handle most common needs.
 
 See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
 
-- [Compatibility](#compatibility)
-- [Installation](#installation)
-- [Design](#design)
-- [Quick Start](#quick start)
-- [General Usage](#general usage)
-  * [Adding and Removing Processors](#Adding and Removing Processors)
-  * [Adding and Removing Components](#Adding and Removing Components)
-  * [Querying Specific Components](#Querying Specific Components)
-  * [Boolean and Conditional Checks](#Boolean and Conditional Checks)
-  * [More Examples](#More Examples)
-- [Event Dispatching](#Event Dispatching)
-- [Contributing](#Contributing)
-
 
 Compatibility
--------------
+=============
 Esper attempts to target all currently supported Python releases (not EOL).
 Because Esper is written in pure Python, *any* compliant interpreter should work, such as
 Pypy3. Continuous Integration (automated testing) is currently done for both CPython and PyPy3.
 
 
 Installation
-------------
+============
 No installation is necessary. Esper is a Python package with no dependencies or extensions.
 Simply copy the *esper* folder into your project folder, and *import esper*.
 
@@ -58,7 +45,7 @@ If you prefer, Esper is also available on PyPI for easy installation via pip::
 
 
 Design
-------
+======
 
 * World
 
@@ -127,7 +114,7 @@ as a result of some condition being met.
 
 
 Quick Start
------------
+===========
 
 The first step after importing Esper is to create a World instance. You can have a single World
 instance for your entire game, or you can have a separate instance for each of your game scenes.
@@ -177,7 +164,7 @@ into scheduled methods.
 
 
 General Usage
--------------
+=============
 
 Adding and Removing Processors
 ------------------------------
