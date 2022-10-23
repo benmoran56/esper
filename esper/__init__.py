@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import time as _time
 
 from types import MethodType as _MethodType
@@ -116,7 +114,7 @@ class Processor:
     """
 
     priority = 0
-    world: World
+    world: "World"
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
