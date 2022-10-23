@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import time as _time
 
 from types import MethodType as _MethodType
 
-from typing import Any as _Any
 from typing import Iterable as _Iterable
 from typing import List as _List
 from typing import Optional as _Optional
@@ -14,7 +15,7 @@ from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
 
-version = '2.3'
+version = '2.4'
 
 
 ###################
@@ -87,24 +88,35 @@ def remove_handler(name: str, func) -> None:
 
 
 _C = _TypeVar('_C')
-_P = _TypeVar('_P')
 
 
 class Processor:
     """Base class for all Processors to inherit from.
 
-    Processor instances must contain a `process` method. Other than that,
-    you are free to add any additional methods that are necessary. The process
-    method will be called by each call to :py:class:`esper.World.process`, so you will
-    generally want to iterate over entities with one (or more) calls to the
-    appropriate world methods there, such as::
+    Processor instances must contain a `process` method, but you are otherwise
+    free to define the class any way you wish. Processors should be instantiated,
+    and then added to a :py:class:`esper.World` instance by calling
+    :py:meth:`esper.World.add_processor`. For example::
 
-        for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
-             your_code_here()
+        my_world = World()
+
+        my_processor_instance = MyProcessor()
+        my_world.add_processor(my_processor_instance)
+
+    After adding your Processors to a :py:class:`esper.World`, Processor.world
+    will be set to the World it is in. This allows easy access to the World and
+    it's methods from your Processor methods. All Processors in a World will have
+    their `process` methods called by a single call to :py:meth:`esper.World.process`,
+    so you will generally want to iterate over entities with one (or more) calls to
+    the appropriate world methods::
+
+        def process(self):
+            for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
+                your_code_here()
     """
 
     priority = 0
-    world = _Any
+    world: World
 
     def process(self, *args, **kwargs):
         raise NotImplementedError
@@ -133,6 +145,7 @@ class World:
             self._process = self._timed_process
 
     def clear_cache(self) -> None:
+        """Manually clear the internal cache."""
         self._get_component_cache.clear()
         self._get_components_cache.clear()
 
@@ -152,7 +165,6 @@ class World:
         priority will be executed first when :py:meth:`esper.World.process`
         is called.
         """
-        assert issubclass(processor_instance.__class__, Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
@@ -161,15 +173,21 @@ class World:
     def remove_processor(self, processor_type: _Type[Processor]) -> None:
         """Remove a Processor from the World, by type.
 
-        :note: You must provide the type, Ie: the class definition
-               itself, not the instance.
+        Make sure to provide the class itself, **not** an instance. For example::
+
+            # OK:
+            self.world.remove_processor(MyProcessor)
+
+            # NG:
+            self.world.remove_processor(my_processor_instance)
+
         """
         for processor in self._processors:
             if type(processor) is processor_type:
-                processor.world = None
+                del processor.world
                 self._processors.remove(processor)
 
-    def get_processor(self, processor_type: _Type[_P]) -> _Optional[_P]:
+    def get_processor(self, processor_type: _Type[Processor]) -> _Optional[Processor]:
         """Get a Processor instance, by type.
 
         This method returns a Processor instance by type. This could be
@@ -189,7 +207,6 @@ class World:
         You can optionally pass one or more Component instances to be
         assigned to the Entity on creation. Components can be also be
         added later with the :py:meth:`esper.World.add_component` method.
-
         """
         self._next_entity_id += 1
 
