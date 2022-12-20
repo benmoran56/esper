@@ -1,4 +1,4 @@
-name: Python Package Tests
+name: unit tests
 
 on:
   push:
@@ -6,13 +6,20 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    needs: black-formatting-check
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "pypy3"]
-      fail-fast: true
+        os:
+          - 'ubuntu-latest'
+          - 'macos-latest'
+          - 'windows-latest'
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
     steps:
-      - name: Checkout repository
+      - name: Python ${{ matrix.python-version }} ${{ matrix.os }}
         uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
