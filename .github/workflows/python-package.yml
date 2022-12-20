@@ -4,10 +4,10 @@ on:
   push:
   pull_request:
 
+
 jobs:
-  test:
+  tests:
     runs-on: ${{ matrix.os }}
-    needs: black-formatting-check
     strategy:
       matrix:
         os:
