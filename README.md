@@ -1,5 +1,6 @@
-[![CI Status](https://readthedocs.org/projects/esper/badge/?version=latest)](https://travis-ci.org/benmoran56/esper)
-[![Documentation Status](https://readthedocs.org/projects/esper/badge/?version=latest)](https://esper.readthedocs.io/?badge=latest)
+[![pypi](https://badge.fury.io/py/esper.svg)](https://pypi.python.org/pypi/esper)
+[![rtd](https://readthedocs.org/projects/esper/badge/?version=latest)](https://esper.readthedocs.io)
+[![PyTest](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml)
 
 Esper is a lightweight Entity System module for Python, with a focus on performance
 ===================================================================================
