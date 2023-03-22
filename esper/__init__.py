@@ -8,6 +8,8 @@ from typing import Optional as _Optional
 from typing import Tuple as _Tuple
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
+from typing import Any as _Any
+from typing import overload as _overload
 
 from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
@@ -86,6 +88,9 @@ def remove_handler(name: str, func) -> None:
 
 
 _C = _TypeVar('_C')
+_C2 = _TypeVar('_C2')
+_C3 = _TypeVar('_C3')
+_C4 = _TypeVar('_C4')
 
 
 class Processor:
@@ -363,7 +368,19 @@ class World:
                 component_type, list(self._get_component(component_type))
             )
 
-    def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2]) -> _List[_Tuple[int, _Tuple[_C, _C2]]]:
+        ...
+
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3]]]:
+        ...
+
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
+        ...
+
+    def get_components(self, *component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tuple[_Any, ...]]]:
         """Get an iterator for Entity and multiple Component sets."""
         try:
             return self._get_components_cache[component_types]
