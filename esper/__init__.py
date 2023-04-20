@@ -215,6 +215,9 @@ class World:
 
         entity = self._next_entity_id
 
+        if entity not in self._entities:
+            self._entities[entity] = {}
+
         for component_instance in components:
 
             component_type = type(component_instance)
@@ -223,9 +226,6 @@ class World:
                 self._components[component_type] = set()
 
             self._components[component_type].add(entity)
-
-            if entity not in self._entities:
-                self._entities[entity] = {}
 
             self._entities[entity][component_type] = component_instance
             self.clear_cache()
@@ -313,9 +313,6 @@ class World:
             self._components[component_type] = set()
 
         self._components[component_type].add(entity)
-
-        if entity not in self._entities:
-            self._entities[entity] = {}
 
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
