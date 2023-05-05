@@ -1,3 +1,4 @@
+import inspect as _inspect
 import time as _time
 
 from types import MethodType as _MethodType
@@ -323,25 +324,32 @@ class World:
     def remove_component(self, entity: int, component_type: _Type[_C]) -> int:
         """Remove a Component instance from an Entity, by type.
 
-        A Component instance can be removed by providing its type.
+        A Component instance can only be removed by providing its type.
         For example: world.delete_component(enemy_a, Velocity) will remove
         the Velocity instance from the Entity enemy_a.
 
         Raises a KeyError if either the given entity or Component type does
         not exist in the database.
         """
+        if not _inspect.isclass(component_type):
+            raise TypeError("Provided component type is not a class")
+
+        if entity not in self._entities:
+            raise KeyError("Entity does not exist")
+
+        if (
+            component_type not in self._components
+            or component_type not in self._entities[entity]
+        ):
+            raise KeyError("Component does not exist")
+
         self._components[component_type].discard(entity)
 
         if not self._components[component_type]:
             del self._components[component_type]
 
-        del self._entities[entity][component_type]
-
-        if not self._entities[entity]:
-            del self._entities[entity]
-
         self.clear_cache()
-        return entity
+        return self._entities[entity].pop(component_type)
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities

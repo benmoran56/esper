@@ -269,6 +269,55 @@ def test_entity_exists(world):
     assert not world.entity_exists(future_entity)
 
 
+class TestRemoveComponent:
+    def test_remove_from_not_existing_entity_raises_key_error(self, world):
+        with pytest.raises(KeyError):
+            world.remove_component(123, ComponentA)
+
+    def test_remove_not_existing_component_raises_key_error(self, world):
+        entity = world.create_entity(ComponentB())
+
+        with pytest.raises(KeyError):
+            world.remove_component(entity, ComponentA)
+
+    def test_remove_component_with_object_raises_type_error(self, populated_world):
+        entity = 2
+        component = ComponentD()
+
+        assert populated_world.has_component(entity, type(component))
+        with pytest.raises(TypeError):
+            populated_world.remove_component(entity, component)
+
+    def test_remove_component_returns_removed_instance(self, world):
+        component = ComponentA()
+        entity = world.create_entity(component)
+
+        result = world.remove_component(entity, type(component))
+
+        assert result is component
+
+    def test_remove_last_component_leaves_empty_entity(self, world):
+        entity = world.create_entity()
+        world.add_component(entity, ComponentA())
+
+        world.remove_component(entity, ComponentA)
+
+        assert not world.has_component(entity, ComponentA)
+        assert world.entity_exists(entity)
+
+    def test_removing_one_component_leaves_other_intact(self, world):
+        component_a = ComponentA()
+        component_b = ComponentB()
+        component_c = ComponentC()
+        entity = world.create_entity(component_a, component_b, component_c)
+
+        world.remove_component(entity, ComponentB)
+
+        assert world.component_for_entity(entity, ComponentA) is component_a
+        assert not world.has_component(entity, ComponentB)
+        assert world.component_for_entity(entity, ComponentC) is component_c
+
+
 def test_event_dispatch_no_handlers():
     esper.dispatch_event("foo")
     esper.dispatch_event("foo", 1)
