@@ -1,7 +1,9 @@
+import inspect as _inspect
 import time as _time
 
 from types import MethodType as _MethodType
 
+from typing import cast as _cast
 from typing import Iterable as _Iterable
 from typing import List as _List
 from typing import Optional as _Optional
@@ -317,10 +319,10 @@ class World:
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
 
-    def remove_component(self, entity: int, component_type: _Type[_C]) -> int:
+    def remove_component(self, entity: int, component_type: _Type[_C]) -> _C:
         """Remove a Component instance from an Entity, by type.
 
-        A Component instance can be removed by providing its type.
+        A Component instance can only be removed by providing its type.
         For example: world.delete_component(enemy_a, Velocity) will remove
         the Velocity instance from the Entity enemy_a.
 
@@ -332,13 +334,8 @@ class World:
         if not self._components[component_type]:
             del self._components[component_type]
 
-        del self._entities[entity][component_type]
-
-        if not self._entities[entity]:
-            del self._entities[entity]
-
         self.clear_cache()
-        return entity
+        return self._entities[entity].pop(component_type)
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities
