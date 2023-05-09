@@ -332,25 +332,13 @@ class World:
         Raises a KeyError if either the given entity or Component type does
         not exist in the database.
         """
-        if not _inspect.isclass(component_type):
-            raise TypeError("Provided component type is not a class")
-
-        if entity not in self._entities:
-            raise KeyError("Entity does not exist")
-
-        if (
-            component_type not in self._components
-            or component_type not in self._entities[entity]
-        ):
-            raise KeyError("Component does not exist")
-
         self._components[component_type].discard(entity)
 
         if not self._components[component_type]:
             del self._components[component_type]
 
         self.clear_cache()
-        return _cast(_C, self._entities[entity].pop(component_type))
+        return self._entities[entity].pop(component_type)
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities

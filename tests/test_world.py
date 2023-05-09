@@ -280,12 +280,12 @@ class TestRemoveComponent:
         with pytest.raises(KeyError):
             world.remove_component(entity, ComponentA)
 
-    def test_remove_component_with_object_raises_type_error(self, populated_world):
+    def test_remove_component_with_object_raises_key_error(self, populated_world):
         entity = 2
         component = ComponentD()
 
         assert populated_world.has_component(entity, type(component))
-        with pytest.raises(TypeError):
+        with pytest.raises(KeyError):
             populated_world.remove_component(entity, component)
 
     def test_remove_component_returns_removed_instance(self, world):
