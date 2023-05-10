@@ -1,23 +1,21 @@
-import inspect as _inspect
 import time as _time
 
 from types import MethodType as _MethodType
 
-from typing import cast as _cast
-from typing import Iterable as _Iterable
-from typing import List as _List
-from typing import Optional as _Optional
-from typing import Tuple as _Tuple
-from typing import Type as _Type
-from typing import TypeVar as _TypeVar
 from typing import Any as _Any
+from typing import List as _List
+from typing import Type as _Type
+from typing import Tuple as _Tuple
+from typing import TypeVar as _TypeVar
+from typing import Iterable as _Iterable
+from typing import Optional as _Optional
 from typing import overload as _overload
 
 from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
 
-version = '2.4'
+version = '2.5'
 
 
 ###################

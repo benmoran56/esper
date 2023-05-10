@@ -1,3 +1,14 @@
+esper 2.5
+=========
+Maintenance release
+
+Changes
+-------
+- Removing all Components from an Entity will no longer automatically delete the Entity.
+- Typing fixes and additions.
+- Entity DB check and creation is done once when Entity is created, not when adding Components.
+
+
 esper 2.4
 =========
 Maintenance release
