@@ -296,13 +296,13 @@ one. For example, a MovementProcessor that skips over Entities that have a `Stun
             for ent, (body, vel) in self.world.get_components(PhysicsBody, Velocity):
 
                 if self.world.has_component(ent, Stun):
-				    stun = self.world.component_for_entity(ent, Stun)
-				    stun.duration -= dt
-					if stun.duration <= 0:
-					    self.world.remove_component(ent, Stun)
-				    return	# Return without processing movement
+                    stun = self.world.component_for_entity(ent, Stun)
+                    stun.duration -= dt
+                    if stun.duration <= 0:
+                        self.world.remove_component(ent, Stun)
+                    continue    # Continue to the next Entity
 
-				movement_code_here()
+                movement_code_here()
                 ...
 
 
