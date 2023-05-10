@@ -359,13 +359,14 @@ def test_set_methoad_as_handler_in_init():
         def __init__(self):
             esper.set_handler("foo", self._my_handler)
 
-        def _my_handler(self):
+        @staticmethod
+        def _my_handler():
             print("OK")
 
         def process(self, dt):
             pass
 
-    myclass = MyClass()
+    _myclass = MyClass()
     esper.dispatch_event("foo")
     esper.event_registry.clear()
 
@@ -373,7 +374,8 @@ def test_set_methoad_as_handler_in_init():
 def test_set_instance_methoad_as_handler():
     class MyClass(esper.Processor):
 
-        def my_handler(self):
+        @staticmethod
+        def my_handler():
             print("OK")
 
         def process(self, dt):
@@ -435,8 +437,7 @@ class ComponentE:
 
 
 class ComponentF:
-    def __init__(self):
-        pass
+    pass
 
 
 class CorrectProcessorA(esper.Processor):
