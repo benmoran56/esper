@@ -3,7 +3,10 @@ import time as _time
 from types import MethodType as _MethodType
 
 from typing import Any as _Any
+from typing import Callable as _Callable
+from typing import Dict as _Dict
 from typing import List as _List
+from typing import Set as _Set
 from typing import Type as _Type
 from typing import Tuple as _Tuple
 from typing import TypeVar as _TypeVar
@@ -22,10 +25,10 @@ version = '2.5'
 #  Event system
 ###################
 
-event_registry: dict = {}
+event_registry: _Dict[str, _Any] = {}
 
 
-def dispatch_event(name: str, *args) -> None:
+def dispatch_event(name: str, *args: _Any) -> None:
     """Dispatch an event by name, with optional arguments.
 
     Any handlers set with the :py:func:`esper.set_handler` function
@@ -40,9 +43,9 @@ def dispatch_event(name: str, *args) -> None:
         func()(*args)
 
 
-def _make_callback(name: str):
+def _make_callback(name: str) -> _Callable[[_Any], None]:
     """Create an internal callback to remove dead handlers."""
-    def callback(weak_method):
+    def callback(weak_method: _Any) -> None:
         event_registry[name].remove(weak_method)
         if not event_registry[name]:
             del event_registry[name]
@@ -50,7 +53,7 @@ def _make_callback(name: str):
     return callback
 
 
-def set_handler(name: str, func) -> None:
+def set_handler(name: str, func: _Callable[..., None]) -> None:
     """Register a function to handle the named event type.
 
     After registering a function (or method), it will receive all
@@ -67,7 +70,7 @@ def set_handler(name: str, func) -> None:
         event_registry[name].add(_ref(func, _make_callback(name)))
 
 
-def remove_handler(name: str, func) -> None:
+def remove_handler(name: str, func: _Callable[..., None]) -> None:
     """Unregister a handler from receiving events of this name.
 
     If the passed function/method is not registered to
@@ -121,7 +124,7 @@ class Processor:
     priority = 0
     world: "World"
 
-    def process(self, *args, **kwargs):
+    def process(self, *args: _Any, **kwargs: _Any) -> None:
         raise NotImplementedError
 
 
@@ -133,19 +136,15 @@ class World:
     frame of your game.
     """
 
-    def __init__(self, timed=False):
-        self._processors = []
-        self._next_entity_id = 0
-        self._components = {}
-        self._entities = {}
-        self._dead_entities = set()
+    def __init__(self) -> None:
+        self._processors: _List[Processor] = []
+        self._next_entity_id: int = 0
+        self._components: _Dict[_Type[_Any], _Set[_Any]] = {}
+        self._entities: _Dict[int, _Dict[_Type[_Any], _Any]] = {}
+        self._dead_entities: _Set[int] = set()
 
-        self._get_component_cache = {}
-        self._get_components_cache = {}
-
-        if timed:
-            self.process_times = {}
-            self._process = self._timed_process
+        self._get_component_cache: _Dict[_Type[_Any], _List[_Any]] = {}
+        self._get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 
     def clear_cache(self) -> None:
         """Manually clear the internal cache."""
@@ -160,7 +159,7 @@ class World:
         self._next_entity_id = 0
         self.clear_cache()
 
-    def add_processor(self, processor_instance: Processor, priority=0) -> None:
+    def add_processor(self, processor_instance: Processor, priority: int = 0) -> None:
         """Add a Processor instance to the World.
 
         All processors should subclass :py:class:`esper.Processor`.
@@ -274,7 +273,7 @@ class World:
 
         Raises a KeyError if the given Entity and Component do not exist.
         """
-        return self._entities[entity][component_type]
+        return self._entities[entity][component_type]  # type: ignore
 
     def components_for_entity(self, entity: int) -> _Tuple[_C, ...]:
         """Retrieve all Components for a specific Entity, as a Tuple.
@@ -333,7 +332,7 @@ class World:
             del self._components[component_type]
 
         self.clear_cache()
-        return self._entities[entity].pop(component_type)
+        return self._entities[entity].pop(component_type)  # type: ignore
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities
@@ -390,7 +389,7 @@ class World:
         has the Component type.
         """
         if component_type in self._entities[entity]:
-            return self._entities[entity][component_type]
+            return self._entities[entity][component_type]  # type: ignore
         return None
 
     def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
@@ -405,7 +404,7 @@ class World:
             return [self._entities[entity][comp_type] for comp_type in component_types]
         return None
 
-    def _clear_dead_entities(self):
+    def _clear_dead_entities(self) -> None:
         """Finalize deletion of any Entities that are marked as dead.
 
         In the interest of performance, this method duplicates code from the
@@ -425,19 +424,11 @@ class World:
         self._dead_entities.clear()
         self.clear_cache()
 
-    def _process(self, *args, **kwargs):
+    def _process(self, *args: _Any, **kwargs: _Any) -> None:
         for processor in self._processors:
             processor.process(*args, **kwargs)
 
-    def _timed_process(self, *args, **kwargs):
-        """Track Processor execution time for benchmarking."""
-        for processor in self._processors:
-            start_time = _time.process_time()
-            processor.process(*args, **kwargs)
-            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
-            self.process_times[processor.__class__.__name__] = process_time
-
-    def process(self, *args, **kwargs):
+    def process(self, *args: _Any, **kwargs: _Any) -> None:
         """Call the process method on all Processors, in order of their priority.
 
         Call the :py:meth:`esper.Processor.process` method on all assigned Processors,
@@ -447,3 +438,16 @@ class World:
         """
         self._clear_dead_entities()
         self._process(*args, **kwargs)
+
+
+class TimedWorld(World):
+    def __init__(self) -> None:
+        self.process_times: _Dict[str, int] = {}
+
+    def _process(self, *args: _Any, **kwargs: _Any) -> None:
+        """Track Processor execution time for benchmarking."""
+        for processor in self._processors:
+            start_time = _time.process_time()
+            processor.process(*args, **kwargs)
+            process_time = int(round((_time.process_time() - start_time) * 1000, 2))
+            self.process_times[processor.__class__.__name__] = process_time
