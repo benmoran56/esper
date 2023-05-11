@@ -24,4 +24,5 @@ jobs:
       - name: Run tests
         run: pytest -v tests
       - name: Run mypy
-        uses: sasanquaneuf/mypy-github-action@releases/v1
+        run: mypy -v esper
+
