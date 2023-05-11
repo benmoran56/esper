@@ -20,8 +20,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install test dependencies
-        run: |
-          pip install pytest
+        run: pip install pytest mypy
       - name: Run tests
-        run: |
-          pytest -v tests
+        run: pytest -v tests
+      - name: Run mypy
+        uses: sasanquaneuf/mypy-github-action@releases/v1
