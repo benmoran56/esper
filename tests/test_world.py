@@ -54,6 +54,11 @@ def test_create_entity_with_components(world):
     assert world.has_component(entity2, ComponentB) is True
 
 
+def test_adding_component_to_not_existing_entity_raises_error(world):
+    with pytest.raises(KeyError):
+        world.add_component(123, ComponentA())
+
+
 def test_create_entity_and_add_components(world):
     entity1 = world.create_entity()
     world.add_component(entity1, ComponentA())
@@ -74,18 +79,17 @@ def test_delete_entity(world):
     world.add_component(entity1, ComponentC())
     entity2 = world.create_entity()
     world.add_component(entity2, ComponentD())
-    entity3 = world.create_entity()
-    world.add_component(entity3, ComponentE())
-    entity4 = world.create_entity()
+    entity_with_component = world.create_entity()
+    world.add_component(entity_with_component, ComponentE())
+    empty_entity = world.create_entity()
 
-    assert entity3 == 3
-    world.delete_entity(entity3, immediate=True)
+    assert entity_with_component == 3
+    world.delete_entity(entity_with_component, immediate=True)
     with pytest.raises(KeyError):
-        world.components_for_entity(entity3)
+        world.components_for_entity(entity_with_component)
     with pytest.raises(KeyError):
         world.delete_entity(999, immediate=True)
-    with pytest.raises(KeyError):
-        world.delete_entity(entity4, immediate=True)
+    world.delete_entity(empty_entity, immediate=True)
 
 
 def test_component_for_entity(world):
@@ -271,17 +275,71 @@ def test_cache_results(world):
     assert len(list(query for query in world.get_components(ComponentB, ComponentC))) == 1
 
 
-def test_entity_exists(world):
-    dead_entity = world.create_entity(ComponentB())
-    world.delete_entity(dead_entity)
-    empty_entity = world.create_entity()
-    existent_entity = world.create_entity(ComponentA())
-    future_entity = existent_entity + 1
+class TestEntityExists:
+    def test_dead_entity(self, world):
+        dead_entity = world.create_entity(ComponentB())
+        world.delete_entity(dead_entity)
+        assert not world.entity_exists(dead_entity)
 
-    assert world.entity_exists(existent_entity)
-    assert not world.entity_exists(dead_entity)
-    assert not world.entity_exists(empty_entity)
-    assert not world.entity_exists(future_entity)
+    def test_not_created_entity(self, world):
+        assert not world.entity_exists(123)
+
+    def test_empty_entity(self, world):
+        empty_entity = world.create_entity()
+        assert world.entity_exists(empty_entity)
+
+    def test_entity_with_component(self, world):
+        entity_with_component = world.create_entity(ComponentA())
+        assert world.entity_exists(entity_with_component)
+
+
+class TestRemoveComponent:
+    def test_remove_from_not_existing_entity_raises_key_error(self, world):
+        with pytest.raises(KeyError):
+            world.remove_component(123, ComponentA)
+
+    def test_remove_not_existing_component_raises_key_error(self, world):
+        entity = world.create_entity(ComponentB())
+
+        with pytest.raises(KeyError):
+            world.remove_component(entity, ComponentA)
+
+    def test_remove_component_with_object_raises_key_error(self, populated_world):
+        entity = 2
+        component = ComponentD()
+
+        assert populated_world.has_component(entity, type(component))
+        with pytest.raises(KeyError):
+            populated_world.remove_component(entity, component)
+
+    def test_remove_component_returns_removed_instance(self, world):
+        component = ComponentA()
+        entity = world.create_entity(component)
+
+        result = world.remove_component(entity, type(component))
+
+        assert result is component
+
+    def test_remove_last_component_leaves_empty_entity(self, world):
+        entity = world.create_entity()
+        world.add_component(entity, ComponentA())
+
+        world.remove_component(entity, ComponentA)
+
+        assert not world.has_component(entity, ComponentA)
+        assert world.entity_exists(entity)
+
+    def test_removing_one_component_leaves_other_intact(self, world):
+        component_a = ComponentA()
+        component_b = ComponentB()
+        component_c = ComponentC()
+        entity = world.create_entity(component_a, component_b, component_c)
+
+        world.remove_component(entity, ComponentB)
+
+        assert world.component_for_entity(entity, ComponentA) is component_a
+        assert not world.has_component(entity, ComponentB)
+        assert world.component_for_entity(entity, ComponentC) is component_c
 
 
 def test_event_dispatch_no_handlers():
@@ -316,13 +374,14 @@ def test_set_methoad_as_handler_in_init():
         def __init__(self):
             esper.set_handler("foo", self._my_handler)
 
-        def _my_handler(self):
+        @staticmethod
+        def _my_handler():
             print("OK")
 
         def process(self, dt):
             pass
 
-    myclass = MyClass()
+    _myclass = MyClass()
     esper.dispatch_event("foo")
     esper.event_registry.clear()
 
@@ -330,7 +389,8 @@ def test_set_methoad_as_handler_in_init():
 def test_set_instance_methoad_as_handler():
     class MyClass(esper.Processor):
 
-        def my_handler(self):
+        @staticmethod
+        def my_handler():
             print("OK")
 
         def process(self, dt):
@@ -392,8 +452,7 @@ class ComponentE:
 
 
 class ComponentF:
-    def __init__(self):
-        pass
+    pass
 
 
 class CorrectProcessorA(esper.Processor):

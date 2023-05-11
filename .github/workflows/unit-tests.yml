@@ -1,0 +1,42 @@
+name: unit tests
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest', 'macos-latest', 'windows-latest' ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12-dev', 'pypy-3.7' ]
+    steps:
+      - name: Python ${{ matrix.python-version }} ${{ matrix.os }}
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install test dependencies
+        run: pip install pytest
+      - name: Run tests
+        run: pytest -v tests
+  typechecking:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest', 'macos-latest', 'windows-latest' ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12-dev' ]
+    steps:
+      - name: Python ${{ matrix.python-version }} ${{ matrix.os }}
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install mypy
+        run: pip install mypy
+      - name: Run mypy
+        run: mypy -v esper

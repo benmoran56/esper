@@ -1,60 +1,47 @@
 import time as _time
 
 from types import MethodType as _MethodType
+
 from typing import Any as _Any
-from typing import Iterable as _Iterable
 from typing import List as _List
-from typing import Optional as _Optional
-from typing import Tuple as _Tuple
 from typing import Type as _Type
+from typing import Tuple as _Tuple
 from typing import TypeVar as _TypeVar
+from typing import Iterable as _Iterable
+from typing import Optional as _Optional
+from typing import overload as _overload
+
 from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
 
-version = '2.1'
-
-_C = _TypeVar('_C')
-_P = _TypeVar('_P')
+version = '2.5'
 
 
-class Processor:
-    """Base class for all Processors to inherit from.
+###################
+#  Event system
+###################
 
-    Processor instances must contain a `process` method. Other than that,
-    you are free to add any additional methods that are necessary. The process
-    method will be called by each call to :py:class:`World.process`, so you will
-    generally want to iterate over entities with one (or more) calls to the
-    appropriate world methods there, such as::
-
-        for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
-             your_code_here()
-    """
-
-    priority = 0
-    world = _Any
-
-    def process(self, *args, **kwargs):
-        raise NotImplementedError
-
-
-event_registry = {}
+event_registry: dict = {}
 
 
 def dispatch_event(name: str, *args) -> None:
-    """Dispatch an event, with optional arguments.
+    """Dispatch an event by name, with optional arguments.
 
-    Events can be dispatched directly by name.
+    Any handlers set with the :py:func:`esper.set_handler` function
+    will recieve the event. If no handlers have been set, this
+    function call will pass silently.
 
-    :param name: The name of the event type to dispatch.
-    :param args: Optional arguments to pass to event handlers.
+    :note:: If optional arguments are provided, but set handlers
+            do not account for them, it will likely result in a
+            TypeError or other undefined crash.
     """
     for func in event_registry.get(name, []):
         func()(*args)
 
 
-def _make_callback(name):
-    """Create a callback to remove dead handlers."""
+def _make_callback(name: str):
+    """Create an internal callback to remove dead handlers."""
     def callback(weak_method):
         event_registry[name].remove(weak_method)
         if not event_registry[name]:
@@ -66,14 +53,10 @@ def _make_callback(name):
 def set_handler(name: str, func) -> None:
     """Register a function to handle the named event type.
 
-    After registering a function, it will receive all events that
-    are dispatched by the passed name. Only a weak reference is
-    kept to the passed function. If
+    After registering a function (or method), it will receive all
+    events that are dispatched by the specified name.
 
-
-    :param name: The name of the event type to handle.
-    :param func: The function or method to register as a handler
-                 for the event type.
+    :note:: Only a weak reference is kept to the passed function,
     """
     if name not in event_registry:
         event_registry[name] = set()
@@ -84,15 +67,12 @@ def set_handler(name: str, func) -> None:
         event_registry[name].add(_ref(func, _make_callback(name)))
 
 
-def remove_handler(name, func) -> None:
-    """Remove a handler from specific event type.
+def remove_handler(name: str, func) -> None:
+    """Unregister a handler from receiving events of this name.
 
     If the passed function/method is not registered to
     receive the named event, or if the named event does
     not exist, this function call will pass silently.
-
-    :param name: The name of the event to remove from.
-    :param func: The handler to remove.
     """
     if func not in event_registry.get(name, []):
         return
@@ -102,6 +82,49 @@ def remove_handler(name, func) -> None:
         del event_registry[name]
 
 
+###################
+#   ECS Classes
+###################
+
+
+_C = _TypeVar('_C')
+_C2 = _TypeVar('_C2')
+_C3 = _TypeVar('_C3')
+_C4 = _TypeVar('_C4')
+
+
+class Processor:
+    """Base class for all Processors to inherit from.
+
+    Processor instances must contain a `process` method, but you are otherwise
+    free to define the class any way you wish. Processors should be instantiated,
+    and then added to a :py:class:`esper.World` instance by calling
+    :py:meth:`esper.World.add_processor`. For example::
+
+        my_world = World()
+
+        my_processor_instance = MyProcessor()
+        my_world.add_processor(my_processor_instance)
+
+    After adding your Processors to a :py:class:`esper.World`, Processor.world
+    will be set to the World it is in. This allows easy access to the World and
+    it's methods from your Processor methods. All Processors in a World will have
+    their `process` methods called by a single call to :py:meth:`esper.World.process`,
+    so you will generally want to iterate over entities with one (or more) calls to
+    the appropriate world methods::
+
+        def process(self):
+            for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
+                your_code_here()
+    """
+
+    priority = 0
+    world: "World"
+
+    def process(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 class World:
     """A World object keeps track of all Entities, Components, and Processors.
 
@@ -109,6 +132,7 @@ class World:
     is also responsible for executing all Processors assigned to it for each
     frame of your game.
     """
+
     def __init__(self, timed=False):
         self._processors = []
         self._next_entity_id = 0
@@ -124,6 +148,7 @@ class World:
             self._process = self._timed_process
 
     def clear_cache(self) -> None:
+        """Manually clear the internal cache."""
         self._get_component_cache.clear()
         self._get_components_cache.clear()
 
@@ -138,11 +163,11 @@ class World:
     def add_processor(self, processor_instance: Processor, priority=0) -> None:
         """Add a Processor instance to the World.
 
-        :param processor_instance: An instance of a Processor,
-               subclassed from the Processor class
-        :param priority: A higher number is processed first.
+        All processors should subclass :py:class:`esper.Processor`.
+        An optional priority argument can be provided. A higher
+        priority will be executed first when :py:meth:`esper.World.process`
+        is called.
         """
-        assert issubclass(processor_instance.__class__, Processor)
         processor_instance.priority = priority
         processor_instance.world = self
         self._processors.append(processor_instance)
@@ -151,25 +176,29 @@ class World:
     def remove_processor(self, processor_type: _Type[Processor]) -> None:
         """Remove a Processor from the World, by type.
 
-        :param processor_type: The class type of the Processor to remove.
+        Make sure to provide the class itself, **not** an instance. For example::
+
+            # OK:
+            self.world.remove_processor(MyProcessor)
+
+            # NG:
+            self.world.remove_processor(my_processor_instance)
+
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
-                processor.world = None
+            if type(processor) is processor_type:
+                del processor.world
                 self._processors.remove(processor)
 
-    def get_processor(self, processor_type: _Type[_P]) -> _Optional[_P]:
+    def get_processor(self, processor_type: _Type[Processor]) -> _Optional[Processor]:
         """Get a Processor instance, by type.
 
         This method returns a Processor instance by type. This could be
         useful in certain situations, such as wanting to call a method on a
         Processor, from within another Processor.
-
-        :param processor_type: The type of the Processor you wish to retrieve.
-        :return: A Processor instance that has previously been added to the World.
         """
         for processor in self._processors:
-            if type(processor) == processor_type:
+            if type(processor) is processor_type:
                 return processor
         else:
             return None
@@ -191,36 +220,45 @@ class World:
         return entity
 
     def create_entity(self, *components: _C) -> int:
-        """Create a new Entity.
+        """Create a new Entity, with optional Components.
 
-        This method returns an Entity ID, which is just a plain integer.
+        This method returns an Entity ID, which is a plain integer.
         You can optionally pass one or more Component instances to be
-        assigned to the Entity.
-
-        :param components: Optional components to be assigned to the
-               entity on creation.
-        :return: The next Entity ID in sequence.
+        assigned to the Entity on creation. Components can be also be
+        added later with the :py:meth:`esper.World.add_component` method.
         """
         self._next_entity_id += 1
 
-        # TODO: duplicate add_component code here for performance
-        for cmp in components:
-            self.add_component(self._next_entity_id, cmp)
+        entity = self._next_entity_id
 
-        return self._next_entity_id
+        if entity not in self._entities:
+            self._entities[entity] = {}
 
-    def delete_entity(self, entity: int, immediate=False) -> None:
+        for component_instance in components:
+
+            component_type = type(component_instance)
+
+            if component_type not in self._components:
+                self._components[component_type] = set()
+
+            self._components[component_type].add(entity)
+
+            self._entities[entity][component_type] = component_instance
+            self.clear_cache()
+
+        return entity
+
+    def delete_entity(self, entity: int, immediate: bool = False) -> None:
         """Delete an Entity from the World.
 
         Delete an Entity and all of it's assigned Component instances from
         the world. By default, Entity deletion is delayed until the next call
-        to *World.process*. You can request immediate deletion, however, by
-        passing the "immediate=True" parameter. This should generally not be
-        done during Entity iteration (calls to World.get_component/s).
+        to :py:meth:`esper.World.process`. You can, however, request immediate
+        deletion by passing the `immediate=True` parameter. Note that immediate
+        deletion may cause issues, such as when done during Entity iteration
+        (calls to World.get_component/s).
 
         Raises a KeyError if the given entity does not exist in the database.
-        :param entity: The Entity ID you wish to delete.
-        :param immediate: If True, delete the Entity immediately.
         """
         if immediate:
             for component_type in self._entities[entity]:
@@ -236,12 +274,10 @@ class World:
             self._dead_entities.add(entity)
 
     def entity_exists(self, entity: int) -> bool:
-        """Check if a specific entity exists.
+        """Check if a specific Entity exists.
 
-        Empty entities(with no components) and dead entities(destroyed
+        Empty Entities (with no components) and dead Entities (destroyed
         by delete_entity) will not count as existent ones.
-        :param entity: The Entity ID to check existance for.
-        :return: True if the entity exists, False otherwise.
         """
         return entity in self._entities and entity not in self._dead_entities
 
@@ -253,9 +289,6 @@ class World:
         For example: directly modifying a Component to handle user input.
 
         Raises a KeyError if the given Entity and Component do not exist.
-        :param entity: The Entity ID to retrieve the Component for.
-        :param component_type: The Component instance you wish to retrieve.
-        :return: The Component instance requested for the given Entity ID.
         """
         return self._entities[entity][component_type]
 
@@ -265,49 +298,30 @@ class World:
         Retrieve all Components for a specific Entity. The method is probably
         not appropriate to use in your Processors, but might be useful for
         saving state, or passing specific Components between World instances.
-        Unlike most other methods, this returns all of the Components as a
+        Unlike most other methods, this returns all the Components as a
         Tuple in one batch, instead of returning a Generator for iteration.
 
         Raises a KeyError if the given entity does not exist in the database.
-        :param entity: The Entity ID to retrieve the Components for.
-        :return: A tuple of all Component instances that have been
-        assigned to the passed Entity ID.
         """
         return tuple(self._entities[entity].values())
 
     def has_component(self, entity: int, component_type: _Type[_C]) -> bool:
-        """Check if a specific Entity has a Component of a certain type.
-
-        :param entity: The Entity you are querying.
-        :param component_type: The type of Component to check for.
-        :return: True if the Entity has a Component of this type,
-                 otherwise False
-        """
+        """Check if an Entity has a specific Component type."""
         return component_type in self._entities[entity]
 
     def has_components(self, entity: int, *component_types: _Type[_C]) -> bool:
-        """Check if an Entity has all of the specified Component types.
-
-        :param entity: The Entity you are querying.
-        :param component_types: Two or more Component types to check for.
-        :return: True if the Entity has all of the Components,
-                 otherwise False
-        """
+        """Check if an Entity has all the specified Component types."""
         return all(comp_type in self._entities[entity] for comp_type in component_types)
 
     def add_component(self, entity: int, component_instance: _C, type_alias: _Optional[_Type[_C]] = None) -> None:
         """Add a new Component instance to an Entity.
 
         Add a Component instance to an Entiy. If a Component of the same type
-        is already assigned to the Entity, it will be replaced. By default,
-        the Component's class type is used for internal categorization. You
-        can optionally provide a custom `type_alias`, for cases where you
-        would like to manually override this behavior.
+        is already assigned to the Entity, it will be replaced.
 
-        :param entity: The Entity to associate the Component with.
-        :param component_instance: A Component instance.
-        :param type_alias: An optional type that the Component instance
-                           should be stored as.
+        A `type_alias` can also be provided. This can be useful if you're using
+        subclasses to organize your Components, but would like to query them
+        later by some common parent type.
         """
         component_type = type_alias or type(component_instance)
 
@@ -316,36 +330,26 @@ class World:
 
         self._components[component_type].add(entity)
 
-        if entity not in self._entities:
-            self._entities[entity] = {}
-
         self._entities[entity][component_type] = component_instance
         self.clear_cache()
 
-    def remove_component(self, entity: int, component_type: _Type[_C]) -> int:
+    def remove_component(self, entity: int, component_type: _Type[_C]) -> _C:
         """Remove a Component instance from an Entity, by type.
 
-        A Component instance can be removed by providing it's type.
+        A Component instance can only be removed by providing its type.
         For example: world.delete_component(enemy_a, Velocity) will remove
         the Velocity instance from the Entity enemy_a.
 
         Raises a KeyError if either the given entity or Component type does
         not exist in the database.
-        :param entity: The Entity to remove the Component from.
-        :param component_type: The type of the Component to remove.
         """
         self._components[component_type].discard(entity)
 
         if not self._components[component_type]:
             del self._components[component_type]
 
-        del self._entities[entity][component_type]
-
-        if not self._entities[entity]:
-            del self._entities[entity]
-
         self.clear_cache()
-        return entity
+        return self._entities[entity].pop(component_type)
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities
@@ -364,11 +368,7 @@ class World:
             pass
 
     def get_component(self, component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
-        """Get an iterator for Entity, Component pairs.
-
-        :param component_type: The Component type to retrieve.
-        :return: An iterator for (Entity, Component) tuples.
-        """
+        """Get an iterator for Entity, Component pairs."""
         try:
             return self._get_component_cache[component_type]
         except KeyError:
@@ -376,12 +376,20 @@ class World:
                 component_type, list(self._get_component(component_type))
             )
 
-    def get_components(self, *component_types: _Type[_C]) -> _List[_Tuple[int, _List[_C]]]:
-        """Get an iterator for Entity and multiple Component sets.
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2]) -> _List[_Tuple[int, _Tuple[_C, _C2]]]:
+        ...
 
-        :param component_types: Two or more Component types.
-        :return: An iterator for Entity, (Component1, Component2, etc.) tuples.
-        """
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3]]]:
+        ...
+
+    @_overload
+    def get_components(self, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
+        ...
+
+    def get_components(self, *component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tuple[_Any, ...]]]:
+        """Get an iterator for Entity and multiple Component sets."""
         try:
             return self._get_components_cache[component_types]
         except KeyError:
@@ -396,10 +404,6 @@ class World:
         or None if it does not. This allows a way to access optional Components
         that may or may not exist, without having to first query if the Entity
         has the Component type.
-
-        :param entity: The Entity ID to retrieve the Component for.
-        :param component_type: The Component instance you wish to retrieve.
-        :return: the single Component instance requested, or None if it doesn't exist.
         """
         if component_type in self._entities[entity]:
             return self._entities[entity][component_type]
@@ -412,18 +416,13 @@ class World:
         or None if they do not. This allows a way to access optional Components
         that may or may not exist, without first having to query if the Entity
         has the Component types.
-
-        :param entity: The Entity ID to retrieve the Component for.
-        :param component_types: The Components types you wish to retrieve.
-        :return: A List of the requested Component instances, or None if
-                 they don't both exist.
         """
         if all(comp_type in self._entities[entity] for comp_type in component_types):
             return [self._entities[entity][comp_type] for comp_type in component_types]
         return None
 
     def _clear_dead_entities(self):
-        """Finalize deletion of any Entities that are marked dead.
+        """Finalize deletion of any Entities that are marked as dead.
 
         In the interest of performance, this method duplicates code from the
         `delete_entity` method. If that method is changed, those changes should
@@ -457,13 +456,10 @@ class World:
     def process(self, *args, **kwargs):
         """Call the process method on all Processors, in order of their priority.
 
-        Call the *process* method on all assigned Processors, respecting their
-        optional priority setting. In addition, any Entities that were marked
-        for deletion since the last call to *World.process*, will be deleted
-        at the start of this method call.
-
-        :param args: Optional arguments that will be passed through to the
-                     *process* method of all Processors.
+        Call the :py:meth:`esper.Processor.process` method on all assigned Processors,
+        respecting their optional priority setting. In addition, any Entities
+        that were marked for deletion since the last call will be deleted
+        at the start of this call.
         """
         self._clear_dead_entities()
         self._process(*args, **kwargs)

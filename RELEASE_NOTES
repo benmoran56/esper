@@ -1,3 +1,42 @@
+esper 2.5
+=========
+Maintenance release
+
+Changes
+-------
+- Removing all Components from an Entity will no longer automatically delete the Entity.
+- Typing fixes and additions.
+- Entity DB check and creation is done once when Entity is created, not when adding Components.
+
+
+esper 2.4
+=========
+Maintenance release
+
+Changes
+-------
+- Minor typing changes, and docstring improvement.
+
+
+esper 2.3
+=========
+Maintenance release
+
+Changes
+-------
+- Equality comparison changes, and other minor cleanup.
+
+
+esper 2.2
+=========
+Maintenance release
+
+Changes
+-------
+- Fix incomplete docstrings for event functions.
+- Typing and docstring cleanups and rewording.
+
+
 esper 2.1
 =========
 Maintenance release

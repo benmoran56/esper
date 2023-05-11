@@ -1,8 +1,6 @@
-.. image:: https://travis-ci.org/benmoran56/esper.svg?branch=master
-    :target: https://travis-ci.org/benmoran56/esper
-
-.. image:: https://readthedocs.org/projects/esper/badge/?version=latest
-    :target: https://esper.readthedocs.io
+[![pypi](https://badge.fury.io/py/esper.svg)](https://pypi.python.org/pypi/esper)
+[![rtd](https://readthedocs.org/projects/esper/badge/?version=latest)](https://esper.readthedocs.io)
+[![PyTest](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml)
 
 Esper is a lightweight Entity System module for Python, with a focus on performance
 ===================================================================================
@@ -15,33 +13,50 @@ performant as possible, while handling common use cases.
 The following Wikipedia article provides a summary of the ECS pattern:
 https://en.wikipedia.org/wiki/Entity_component_system
 
+
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
-Due to the small size of the project, this README currently serves as general documentation.
+Due to the small size of the project, this README currently serves as general usage
+documentation.
 
 **What's new:** As of Esper 2.0, there is support for basic event dispatching and handling.
 This is fairly minimal, in keeping with the scope of the project, but it should be robust enough
 to handle most common needs.
 
+See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
 
-1) Compatibility
-----------------
-Esper is a Python 3 library only. Specifically, all currently supported versions of Python 3. 
-It also supports Pypy3. Being written in pure Python, it should work on *any* compliant
-interpreter. Continuous Integration (automated testing) is done for both CPython and PyPy3.
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Design](#design)
+- [Quick Start](#quick-start)
+- [General Usage](#general-usage)
+  * [Adding and Removing Processors](#adding-and-removing-processors)
+  * [Adding and Removing Components](#adding-and-removing-components)
+  * [Querying Specific Components](#querying-specific-components)
+  * [Boolean and Conditional Checks](#boolean-and-conditional-checks)
+  * [More Examples](#more-examples)
+- [Event Dispatching](#event-dispatching)
+- [Contributing](#contributing)
 
 
-2) Installation
----------------
+Compatibility
+=============
+Esper attempts to target all currently supported Python releases (not EOL).
+Because Esper is written in pure Python, *any* compliant interpreter should work, such as
+Pypy3. Continuous Integration (automated testing) is currently done for both CPython and PyPy3.
+
+
+Installation
+============
 No installation is necessary. Esper is a Python package with no dependencies or extensions.
 Simply copy the *esper* folder into your project folder, and *import esper*.
 
 If you prefer, Esper is also available on PyPI for easy installation via pip::
 
-    pip install --user esper
+    pip install --user --upgrade esper
 
 
-3) Structure
-------------
+Design
+======
 
 * World
 
@@ -109,8 +124,8 @@ this Entity ID. Another common use is if you wish to add or remove a Component o
 as a result of some condition being met. 
 
 
-4) Basic Usage
---------------
+Quick Start
+===========
 
 The first step after importing Esper is to create a World instance. You can have a single World
 instance for your entire game, or you can have a separate instance for each of your game scenes.
@@ -159,8 +174,8 @@ This is appropriate for libraries such as **pyglet**, which automatically pass a
 into scheduled methods.  
 
 
-5) Additional methods
----------------------
+General Usage
+=============
 
 Adding and Removing Processors
 ------------------------------
@@ -281,13 +296,13 @@ one. For example, a MovementProcessor that skips over Entities that have a `Stun
             for ent, (body, vel) in self.world.get_components(PhysicsBody, Velocity):
 
                 if self.world.has_component(ent, Stun):
-				    stun = self.world.component_for_entity(ent, Stun)
-				    stun.duration -= dt
-					if stun.duration <= 0:
-					    self.world.remove_component(ent, Stun)
-				    return	# Return without processing movement
+                    stun = self.world.component_for_entity(ent, Stun)
+                    stun.duration -= dt
+                    if stun.duration <= 0:
+                        self.world.remove_component(ent, Stun)
+                    continue    # Continue to the next Entity
 
-				movement_code_here()
+                movement_code_here()
                 ...
 
 
@@ -312,8 +327,8 @@ methods even more concise ::
         stun.duration -= dt
 
 
-6) More Examples
-----------------
+More Examples
+-------------
 
 See the **/examples** folder to get an idea of how a basic structure of a game might look.
 
@@ -357,4 +372,6 @@ Contributions to Esper are always welcome, but there are some specific project g
 - Avoid bloat as much as possible. New features will be considered if they are commonly useful. Generally speaking, we don't want to add functionality that is better handled in another module or library. 
 - Performance is preferrable to readability.
 
-If you have any questions before contributing, feel free to `open an issue <https://github.com/benmoran56/esper/issues>`_.
+If you have any questions before contributing, feel free to [open an issue].
+
+[open an issue]: https://github.com/benmoran56/esper/issues
