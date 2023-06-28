@@ -4,7 +4,6 @@ from types import MethodType as _MethodType
 
 from typing import Any as _Any
 from typing import Callable as _Callable
-from typing import cast as _cast
 from typing import Dict as _Dict
 from typing import List as _List
 from typing import Set as _Set
@@ -274,7 +273,7 @@ class World:
 
         Raises a KeyError if the given Entity and Component do not exist.
         """
-        return _cast(_C, self._entities[entity][component_type])
+        return self._entities[entity][component_type]  # type: ignore[no-any-return]
 
     def components_for_entity(self, entity: int) -> _Tuple[_C, ...]:
         """Retrieve all Components for a specific Entity, as a Tuple.
@@ -333,7 +332,7 @@ class World:
             del self._components[component_type]
 
         self.clear_cache()
-        return _cast(_C, self._entities[entity].pop(component_type))
+        return self._entities[entity].pop(component_type)  # type: ignore[no-any-return]
 
     def _get_component(self, component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
         entity_db = self._entities
@@ -390,7 +389,7 @@ class World:
         has the Component type.
         """
         if component_type in self._entities[entity]:
-            return _cast(_C, self._entities[entity][component_type])
+            return self._entities[entity][component_type]  # type: ignore[no-any-return]
         return None
 
     def try_components(self, entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
