@@ -457,12 +457,14 @@ def clear_dead_entities() -> None:
 
 def process(*args: _Any, **kwargs: _Any) -> None:
     """Track Processor execution time for benchmarking."""
+    clear_dead_entities()
     for processor in _processors:
         processor.process(*args, **kwargs)
 
 
 def timed_process(*args: _Any, **kwargs: _Any) -> None:
     """Track Processor execution time for benchmarking."""
+    clear_dead_entities()
     for processor in _processors:
         start_time = _time.process_time()
         processor.process(*args, **kwargs)
