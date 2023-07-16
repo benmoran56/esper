@@ -173,6 +173,8 @@ def clear_database() -> None:
     _components.clear()
     _entity_count = _count(start=1)
     clear_cache()
+    _processors.clear()
+    process_times.clear()
     _context_map.clear()
 
 
@@ -203,7 +205,6 @@ def remove_processor(processor_type: _Type[Processor]) -> None:
     """
     for processor in _processors:
         if type(processor) is processor_type:
-            del processor.world
             _processors.remove(processor)
 
 def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
