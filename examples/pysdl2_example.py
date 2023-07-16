@@ -27,7 +27,7 @@ class Renderable:
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor(esper.Processor):
+class MovementProcessor:
     def __init__(self, minx, maxx, miny, maxy):
         super().__init__()
         self.minx = minx
@@ -37,7 +37,7 @@ class MovementProcessor(esper.Processor):
 
     def process(self):
         # This will iterate over every Entity that has BOTH of these components:
-        for ent, (vel, rend) in self.world.get_components(Velocity, Renderable):
+        for ent, (vel, rend) in esper.get_components(Velocity, Renderable):
             # Update the Renderable Component's position by it's Velocity:
             rend.x += vel.x
             rend.y += vel.y
@@ -49,7 +49,7 @@ class MovementProcessor(esper.Processor):
             rend.y = min(self.maxy - rend.h, rend.y)
 
 
-class RenderProcessor(esper.Processor):
+class RenderProcessor:
     def __init__(self, renderer, clear_color=(0, 0, 0)):
         super().__init__()
         self.renderer = renderer
@@ -61,7 +61,7 @@ class RenderProcessor(esper.Processor):
         # Create a destination Rect for the texture:
         destination = SDL_Rect(0, 0, 0, 0)
         # This will iterate over every Entity that has this Component, and blit it:
-        for ent, rend in self.world.get_component(Renderable):
+        for ent, rend in esper.get_component(Renderable):
             destination.x = int(rend.x)
             destination.y = int(rend.y)
             destination.w = rend.w
@@ -92,21 +92,18 @@ def run():
     window.show()
 
     # Initialize Esper world, and create a "player" Entity with a few Components.
-    world = esper.World()
-    player = world.create_entity()
-    world.add_component(player, Velocity(x=0, y=0))
-    world.add_component(player, Renderable(texture=texture_from_image(renderer, "redsquare.png"),
+    player = esper.create_entity()
+    esper.add_component(player, Velocity(x=0, y=0))
+    esper.add_component(player, Renderable(texture=texture_from_image(renderer, "redsquare.png"),
                                            width=64, height=64, posx=100, posy=100))
     # Another motionless Entity:
-    enemy = world.create_entity()
-    world.add_component(enemy, Renderable(texture=texture_from_image(renderer, "bluesquare.png"),
+    enemy = esper.create_entity()
+    esper.add_component(enemy, Renderable(texture=texture_from_image(renderer, "bluesquare.png"),
                                           width=64, height=64, posx=400, posy=250))
 
     # Create some Processor instances, and asign them to be processed.
     render_processor = RenderProcessor(renderer=renderer)
     movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0, maxy=RESOLUTION[1])
-    world.add_processor(render_processor)
-    world.add_processor(movement_processor)
 
     # A simple main loop
     running = True
@@ -121,27 +118,28 @@ def run():
                 if event.key.keysym.sym == SDLK_UP:
                     # Here is a way to directly access a specific Entity's Velocity
                     # Component's attribute (y) without making a temporary variable.
-                    world.component_for_entity(player, Velocity).y = -3
+                    esper.component_for_entity(player, Velocity).y = -3
                 elif event.key.keysym.sym == SDLK_DOWN:
                     # For clarity, here is an alternate way in which a temporary variable
                     # is created and modified. The previous way above is recommended instead.
-                    player_velocity_component = world.component_for_entity(player, Velocity)
+                    player_velocity_component = esper.component_for_entity(player, Velocity)
                     player_velocity_component.y = 3
                 elif event.key.keysym.sym == SDLK_LEFT:
-                    world.component_for_entity(player, Velocity).x = -3
+                    esper.component_for_entity(player, Velocity).x = -3
                 elif event.key.keysym.sym == SDLK_RIGHT:
-                    world.component_for_entity(player, Velocity).x = 3
+                    esper.component_for_entity(player, Velocity).x = 3
                 elif event.key.keysym.sym == SDLK_ESCAPE:
                     running = False
                     break
             elif event.type == SDL_KEYUP:
                 if event.key.keysym.sym in (SDLK_UP, SDLK_DOWN):
-                    world.component_for_entity(player, Velocity).y = 0
+                    esper.component_for_entity(player, Velocity).y = 0
                 if event.key.keysym.sym in (SDLK_LEFT, SDLK_RIGHT):
-                    world.component_for_entity(player, Velocity).x = 0
+                    esper.component_for_entity(player, Velocity).x = 0
 
-        # A single call to world.process() will update all Processors:
-        world.process()
+        # A single call to esper.process() will update all Processors:
+        render_processor.process()
+        movement_processor.process()
 
         # A crude FPS limiter for about 60fps
         current_time = SDL_GetTicks()

@@ -29,7 +29,7 @@ class Renderable:
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor(esper.Processor):
+class MovementProcessor:
     def __init__(self, minx, maxx, miny, maxy):
         super().__init__()
         self.minx = minx
@@ -39,7 +39,7 @@ class MovementProcessor(esper.Processor):
 
     def process(self):
         # This will iterate over every Entity that has BOTH of these components:
-        for ent, (vel, rend) in self.world.get_components(Velocity, Renderable):
+        for ent, (vel, rend) in esper.get_components(Velocity, Renderable):
             # Update the Renderable Component's position by it's Velocity:
             rend.x += vel.x
             rend.y += vel.y
@@ -51,7 +51,7 @@ class MovementProcessor(esper.Processor):
             rend.y = min(self.maxy - rend.h, rend.y)
 
 
-class RenderProcessor(esper.Processor):
+class RenderProcessor:
     def __init__(self, window, clear_color=(0, 0, 0)):
         super().__init__()
         self.window = window
@@ -61,7 +61,7 @@ class RenderProcessor(esper.Processor):
         # Clear the window:
         self.window.fill(self.clear_color)
         # This will iterate over every Entity that has this Component, and blit it:
-        for ent, rend in self.world.get_component(Renderable):
+        for ent, rend in esper.get_component(Renderable):
             self.window.blit(rend.image, (rend.x, rend.y))
         # Flip the framebuffers
         pygame.display.flip()
@@ -79,19 +79,16 @@ def run():
     pygame.key.set_repeat(1, 1)
 
     # Initialize Esper world, and create a "player" Entity with a few Components.
-    world = esper.World()
-    player = world.create_entity()
-    world.add_component(player, Velocity(x=0, y=0))
-    world.add_component(player, Renderable(image=pygame.image.load("redsquare.png"), posx=100, posy=100))
+    player = esper.create_entity()
+    esper.add_component(player, Velocity(x=0, y=0))
+    esper.add_component(player, Renderable(image=pygame.image.load("redsquare.png"), posx=100, posy=100))
     # Another motionless Entity:
-    enemy = world.create_entity()
-    world.add_component(enemy, Renderable(image=pygame.image.load("bluesquare.png"), posx=400, posy=250))
+    enemy = esper.create_entity()
+    esper.add_component(enemy, Renderable(image=pygame.image.load("bluesquare.png"), posx=400, posy=250))
 
     # Create some Processor instances, and asign them to be processed.
     render_processor = RenderProcessor(window=window)
     movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0, maxy=RESOLUTION[1])
-    world.add_processor(render_processor)
-    world.add_processor(movement_processor)
 
     running = True
     while running:
@@ -103,27 +100,28 @@ def run():
                     # Here is a way to directly access a specific Entity's
                     # Velocity Component's attribute (y) without making a
                     # temporary variable.
-                    world.component_for_entity(player, Velocity).x = -3
+                    esper.component_for_entity(player, Velocity).x = -3
                 elif event.key == pygame.K_RIGHT:
                     # For clarity, here is an alternate way in which a
                     # temporary variable is created and modified. The previous
                     # way above is recommended instead.
-                    player_velocity_component = world.component_for_entity(player, Velocity)
+                    player_velocity_component = esper.component_for_entity(player, Velocity)
                     player_velocity_component.x = 3
                 elif event.key == pygame.K_UP:
-                    world.component_for_entity(player, Velocity).y = -3
+                    esper.component_for_entity(player, Velocity).y = -3
                 elif event.key == pygame.K_DOWN:
-                    world.component_for_entity(player, Velocity).y = 3
+                    esper.component_for_entity(player, Velocity).y = 3
                 elif event.key == pygame.K_ESCAPE:
                     running = False
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
-                    world.component_for_entity(player, Velocity).x = 0
+                    esper.component_for_entity(player, Velocity).x = 0
                 if event.key in (pygame.K_UP, pygame.K_DOWN):
-                    world.component_for_entity(player, Velocity).y = 0
+                    esper.component_for_entity(player, Velocity).y = 0
 
-        # A single call to world.process() will update all Processors:
-        world.process()
+        # A single call to e.process() will update all Processors:
+        render_processor.process()
+        movement_processor.process()
 
         clock.tick(FPS)
 
