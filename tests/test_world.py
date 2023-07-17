@@ -453,6 +453,28 @@ def test_set_instance_methoad_as_handler():
     esper.event_registry.clear()
 
 
+def test_event_handler_switch_world():
+    esper.init_world("left")
+    esper.init_world("right")
+    called = 0
+    def handler():
+        nonlocal called
+        called += 1
+    esper.switch_world("left")
+    esper.set_handler("foo", handler)
+    assert called == 0
+    esper.dispatch_event("foo")
+    assert called == 1
+    esper.switch_world("right")
+    assert called == 1
+    esper.dispatch_event("foo")
+    assert called == 1
+    esper.switch_world("left")
+    assert called == 1
+    esper.dispatch_event("foo")
+    assert called == 2
+
+
 ##################################################
 #   Some helper functions and Component templates:
 ##################################################

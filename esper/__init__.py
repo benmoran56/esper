@@ -27,8 +27,6 @@ version = '3.0'
 #  Event system
 ###################
 
-event_registry: _Dict[str, _Any] = {}
-
 
 def dispatch_event(name: str, *args: _Any) -> None:
     """Dispatch an event by name, with optional arguments.
@@ -145,8 +143,10 @@ _get_component_cache: _Dict[_Type[_Any], _List[_Any]] = {}
 _get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 _processors: _List[Processor] = []
 process_times: _Dict[str, int] = {}
+event_registry: _Dict[str, _Any] = {}
 
-# {context_id: (entity_count, components, entities, dead_entities, comp_cache, comps_cache, processors, process_times)}
+
+# {context_id: (entity_count, components, entities, dead_entities, comp_cache, comps_cache, processors, process_times, event_registry)}
 _context_map: _Dict[str, _Tuple[
     "_count[int]",
     _Dict[_Type[_Any], _Set[_Any]],
@@ -155,7 +155,8 @@ _context_map: _Dict[str, _Tuple[
     _Dict[_Type[_Any], _List[_Any]],
     _Dict[_Tuple[_Type[_Any], ...], _List[_Any]],
     _List[Processor],
-    _Dict[str, int]
+    _Dict[str, int],
+    _Dict[str, _Any]
 ]] = {}
 
 
@@ -473,7 +474,7 @@ def timed_process(*args: _Any, **kwargs: _Any) -> None:
 
 
 def init_world(name: str) -> None:
-    _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {})
+    _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
 
 
 def switch_world(name: str) -> None:
@@ -485,4 +486,5 @@ def switch_world(name: str) -> None:
     global _get_components_cache
     global _processors
     global process_times
-    _entity_count, _components, _entities, _dead_entities, _get_component_cache, _get_components_cache, _processors, process_times = _context_map[name]
+    global event_registry
+    _entity_count, _components, _entities, _dead_entities, _get_component_cache, _get_components_cache, _processors, process_times, event_registry = _context_map[name]
