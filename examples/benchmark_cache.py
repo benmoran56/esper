@@ -7,7 +7,7 @@ import optparse
 
 from dataclasses import dataclass as component
 
-from esper import Processor, World
+import esper
 
 try:
     from matplotlib import pyplot
@@ -41,12 +41,6 @@ def timing(f):
         current_run.append((time2 - time1) * 1000.0)
         return ret
     return wrap
-
-
-##########################
-# Create a World instance:
-##########################
-world = World()
 
 
 #################################
@@ -94,12 +88,9 @@ class Brain:
 ##########################
 #  Define some Processors:
 ##########################
-class MovementProcessor(Processor):
-    def __init__(self):
-        super().__init__()
-
+class MovementProcessor:
     def process(self):
-        for ent, (vel, pos) in self.world.get_components(Velocity, Position):
+        for ent, (vel, pos) in esper.get_components(Velocity, Position):
             pos.x += vel.x
             pos.y += vel.y
             print("Current Position: {}".format((int(pos.x), int(pos.y))))
@@ -108,10 +99,10 @@ class MovementProcessor(Processor):
 #############################
 # Set up some dummy entities:
 #############################
-def create_entities(world, number):
+def create_entities(number):
     for _ in range(number // 2):
-        world.create_entity(Position(), Velocity(), Health(), Command())
-        world.create_entity(Position(), Health(), Damageable())
+        esper.create_entity(Position(), Velocity(), Health(), Command())
+        esper.create_entity(Position(), Health(), Damageable())
 
 
 #################################################
@@ -124,25 +115,25 @@ print("For the second half, Entities are created/deleted each frame.\n")
 
 
 @timing
-def query_entities(world):
-    for _, (_, _) in world.get_components(Position, Velocity):
+def query_entities():
+    for _, (_, _) in esper.get_components(Position, Velocity):
         pass
-    for _, (_, _, _) in world.get_components(Health, Damageable, Position):
+    for _, (_, _, _) in esper.get_components(Health, Damageable, Position):
         pass
 
 
 for current_pass in range(10):
-    world.clear_database()
-    create_entities(world, MAX_ENTITIES)
+    esper.clear_database()
+    create_entities(MAX_ENTITIES)
 
     print(f"Pass {current_pass + 1}...")
 
     for amount in range(1, 500):
-        query_entities(world)
+        query_entities()
 
         if amount > 250:
-            world.delete_entity(amount, immediate=True)
-            create_entities(world, 1)
+            esper.delete_entity(amount, immediate=True)
+            create_entities(1)
 
     results.append(current_run)
     current_run = []

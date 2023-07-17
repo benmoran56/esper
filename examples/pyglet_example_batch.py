@@ -54,7 +54,7 @@ class Renderable:
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor(esper.Processor):
+class MovementProcessor:
     def __init__(self, minx, miny, maxx, maxy):
         super().__init__()
         self.minx = minx
@@ -64,7 +64,7 @@ class MovementProcessor(esper.Processor):
 
     def process(self):
         # This will iterate over every Entity that has BOTH of these components:
-        for ent, (vel, rend) in self.world.get_components(Velocity, Renderable):
+        for ent, (vel, rend) in esper.get_components(Velocity, Renderable):
             # Update the Renderable Component's position by it's Velocity:
             rend.x += vel.x
             rend.y += vel.y
@@ -76,7 +76,7 @@ class MovementProcessor(esper.Processor):
             rend.y = min(self.maxy - rend.h, rend.y)
 
 
-class TextureRenderProcessor(esper.Processor):
+class TextureRenderProcessor():
     def __init__(self, batch):
         super().__init__()
         self.batch = batch
@@ -86,7 +86,7 @@ class TextureRenderProcessor(esper.Processor):
         # add the texture associated with the Renderable Component instance
         # and its vertice_list to the render batch. The batch will then be
         # drawn by the 'on_draw' event handler of teh main window:
-        for entity, renderable in self.world.get_component(Renderable):
+        for entity, renderable in esper.get_component(Renderable):
             self.draw_texture(renderable)
 
     def draw_texture(self, renderable):
@@ -176,56 +176,53 @@ def run(args=None):
     renderbatch = pyglet.graphics.Batch()
 
     # Initialize Esper world, and create a "player" Entity with a few Components.
-    world = esper.World()
-    player = world.create_entity()
-    world.add_component(player, Velocity(x=0, y=0))
+    player = esper.create_entity()
+    esper.add_component(player, Velocity(x=0, y=0))
     redsquare = Renderable(texture=texture_from_image("redsquare.png"),
                            width=64,
                            height=64,
                            posx=100,
                            posy=100)
-    world.add_component(player, redsquare)
+    esper.add_component(player, redsquare)
 
     # Another motionless Entity:
-    enemy = world.create_entity()
+    enemy = esper.create_entity()
     bluesquare = Renderable(texture=texture_from_image("bluesquare.png"),
                             width=64,
                             height=64,
                             posx=400,
                             posy=250)
-    world.add_component(enemy, bluesquare)
+    esper.add_component(enemy, bluesquare)
 
     # Create some Processor instances, and asign them to be processed.
     render_processor = TextureRenderProcessor(batch=renderbatch)
     movement_processor = MovementProcessor(minx=0, maxx=RESOLUTION[0], miny=0,
                                            maxy=RESOLUTION[1])
-    world.add_processor(render_processor)
-    world.add_processor(movement_processor)
 
     @window.event
     def on_key_press(symbol, modifiers):
         if symbol == key.UP:
             # Here is a way to directly access a specific Entity's Velocity
             # Component's attribute (y) without making a temporary variable.
-            world.component_for_entity(player, Velocity).y = 3
+            esper.component_for_entity(player, Velocity).y = 3
         elif symbol == key.DOWN:
             # For clarity, here is an alternate way in which a temporary variable
             # is created and modified. The previous way above is recommended instead.
-            player_velocity_component = world.component_for_entity(player, Velocity)
+            player_velocity_component = esper.component_for_entity(player, Velocity)
             player_velocity_component.y = -3
         elif symbol == key.LEFT:
-            world.component_for_entity(player, Velocity).x = -3
+            esper.component_for_entity(player, Velocity).x = -3
         elif symbol == key.RIGHT:
-            world.component_for_entity(player, Velocity).x = 3
+            esper.component_for_entity(player, Velocity).x = 3
         elif symbol == key.ESCAPE:
             pyglet.app.exit()
 
     @window.event
     def on_key_release(symbol, modifiers):
         if symbol in (key.UP, key.DOWN):
-            world.component_for_entity(player, Velocity).y = 0
+            esper.component_for_entity(player, Velocity).y = 0
         if symbol in (key.LEFT, key.RIGHT):
-            world.component_for_entity(player, Velocity).x = 0
+            esper.component_for_entity(player, Velocity).x = 0
 
     @window.event
     def on_draw():
@@ -235,8 +232,9 @@ def run(args=None):
         renderbatch.draw()
 
     def update(dt):
-        # A single call to world.process() will update all Processors:
-        world.process()
+        # A single call to esper.process() will update all Processors:
+        render_processor.process()
+        movement_processor.process()
 
     pyglet.clock.schedule_interval(update, 1.0 / FPS)
     pyglet.app.run()

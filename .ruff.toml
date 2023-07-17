@@ -1,0 +1,3 @@
+select = ["F", "E", "W", "C90", "B", "A", "C4", "G", "T20", "PT", "SLF", "TCH", "RET", "N", "ARG"]
+ignore = ["E501"]
+

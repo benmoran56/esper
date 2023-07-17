@@ -8,7 +8,7 @@ import optparse
 
 from dataclasses import dataclass as component
 
-from esper import World
+import esper
 
 ######################
 # Commandline options:
@@ -46,12 +46,6 @@ def timing(f):
         result_times.append((time2 - time1)*1000.0)
         return ret
     return wrap
-
-
-##############################
-#  Instantiate the game world:
-##############################
-world = World()
 
 
 #################################
@@ -101,8 +95,8 @@ class Brain:
 #############################
 def create_entities(number):
     for _ in range(number // 2):
-        world.create_entity(Position(), Velocity(), Health(), Command())
-        world.create_entity(Position(), Health(), Damageable())
+        esper.create_entity(Position(), Velocity(), Health(), Command())
+        esper.create_entity(Position(), Health(), Damageable())
 
 
 #############################
@@ -110,19 +104,19 @@ def create_entities(number):
 #############################
 @timing
 def single_comp_query():
-    for _, _ in world.get_component(Position):
+    for _, _ in esper.get_component(Position):
         pass
 
 
 @timing
 def two_comp_query():
-    for _, (_, _) in world.get_components(Position, Velocity):
+    for _, (_, _) in esper.get_components(Position, Velocity):
         pass
 
 
 @timing
 def three_comp_query():
-    for _, (_, _, _) in world.get_components(Position, Damageable, Health):
+    for _, (_, _, _) in esper.get_components(Position, Damageable, Health):
         pass
 
 
@@ -141,7 +135,7 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     print("Query one component, {} Entities: {:f} ms".format(amount, result_min))
     results[1][amount] = result_min
     result_times = []
-    world.clear_database()
+    esper.clear_database()
     gc.collect()
 
 for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
@@ -153,7 +147,7 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     print("Query two components, {} Entities: {:f} ms".format(amount, result_min))
     results[2][amount] = result_min
     result_times = []
-    world.clear_database()
+    esper.clear_database()
     gc.collect()
 
 for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
@@ -165,7 +159,7 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     print("Query three components, {} Entities: {:f} ms".format(amount, result_min))
     results[3][amount] = result_min
     result_times = []
-    world.clear_database()
+    esper.clear_database()
     gc.collect()
 
 

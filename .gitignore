@@ -59,3 +59,6 @@ docs/_build
 .idea/shelf/Uncommitted_changes_before_Update_at_16_01_18_11_17__Default_.xml
 .idea/shelf/Uncommitted_changes_before_Update_at_16_01_18_11_17__Default_/shelved.patch
 .vscode/settings.json
+
+# Virtual environment
+.env
