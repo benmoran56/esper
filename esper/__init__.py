@@ -421,7 +421,7 @@ def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
     return None
 
 
-def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
+def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_List[_C]]:
     """Try to get a multiple component types for an Entity.
 
     This method will return the requested Components if they exist,
