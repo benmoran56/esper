@@ -421,7 +421,19 @@ def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
     return None
 
 
-def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_List[_List[_C]]]:
+@_overload
+def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2]) -> _Tuple[_C, _C2]:
+    ...
+
+@_overload
+def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _Tuple[_C, _C2, _C3]:
+    ...
+
+@_overload
+def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _Tuple[_C, _C2, _C3, _C4]:
+    ...
+
+def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple[_C, ...]]:
     """Try to get a multiple component types for an Entity.
 
     This method will return the requested Components if they exist,
@@ -430,7 +442,7 @@ def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_List[
     has the Component types.
     """
     if all(comp_type in _entities[entity] for comp_type in component_types):
-        return [_entities[entity][comp_type] for comp_type in component_types]
+        return [_entities[entity][comp_type] for comp_type in component_types]  # type: ignore[return-value]
     return None
 
 
