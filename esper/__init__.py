@@ -59,7 +59,7 @@ def set_handler(name: str, func: _Callable[..., None]) -> None:
     After registering a function (or method), it will receive all
     events that are dispatched by the specified name.
 
-    :note:: Only a weak reference is kept to the passed function,
+    .. note:: A weak reference is kept to the passed function,
     """
     if name not in event_registry:
         event_registry[name] = set()
@@ -102,7 +102,7 @@ class Processor:
     Processor instances must contain a `process` method, but you are otherwise
     free to define the class any way you wish. Processors should be instantiated,
     and then added to a :py:class:`esper.World` instance by calling
-    :py:meth:`esper.World.add_processor`. For example::
+    :py:func:`esper.World.add_processor`. For example::
 
         my_world = World()
 
@@ -112,7 +112,7 @@ class Processor:
     After adding your Processors to a :py:class:`esper.World`, Processor.world
     will be set to the World it is in. This allows easy access to the World and
     it's methods from your Processor methods. All Processors in a World will have
-    their `process` methods called by a single call to :py:meth:`esper.World.process`,
+    their `process` methods called by a single call to :py:func:`esper.World.process`,
     so you will generally want to iterate over entities with one (or more) calls to
     the appropriate world methods::
 
@@ -127,14 +127,12 @@ class Processor:
         raise NotImplementedError
 
 
-"""A World object keeps track of all Entities, Components, and Processors.
 
-A World contains a database of all Entity/Component assignments. The World
-is also responsible for executing all Processors assigned to it for each
-frame of your game.
-"""
+###################
+#   ECS functions
+###################
 
-
+_current_context: str = "default"
 _entity_count: "_count[int]" = _count(start=1)
 _components: _Dict[_Type[_Any], _Set[_Any]] = {}
 _entities: _Dict[int, _Dict[_Type[_Any], _Any]] = {}
@@ -145,8 +143,7 @@ _processors: _List[Processor] = []
 process_times: _Dict[str, int] = {}
 event_registry: _Dict[str, _Any] = {}
 
-
-# {context_id: (entity_count, components, entities, dead_entities, comp_cache, comps_cache, processors, process_times, event_registry)}
+# {context_name: (entity_count, components, entities, dead_entities, comp_cache, comps_cache, processors, process_times, event_registry)}
 _context_map: _Dict[str, _Tuple[
     "_count[int]",
     _Dict[_Type[_Any], _Set[_Any]],
@@ -157,17 +154,24 @@ _context_map: _Dict[str, _Tuple[
     _List[Processor],
     _Dict[str, int],
     _Dict[str, _Any]
-]] = {}
+]] = {"default": (_entity_count, {}, {}, set(), {}, {}, [], {}, {})}
 
 
 def clear_cache() -> None:
-    """Manually clear the internal cache."""
+    """Manually clear the Component lookup cache.
+
+    Clearing the cache is not necessary to do manually,
+    but may be useful for benchmarking or debugging.
+    """
     _get_component_cache.clear()
     _get_components_cache.clear()
 
 
 def clear_database() -> None:
-    """Remove all Entities and Components from the World."""
+    """Clear the Entity Component database.
+
+    Removes all Entities and Components from the current World.
+    """
     global _entity_count
     _dead_entities.clear()
     _entities.clear()
@@ -180,12 +184,13 @@ def clear_database() -> None:
 
 
 def add_processor(processor_instance: Processor, priority: int = 0) -> None:
-    """Add a Processor instance to the World.
+    """Add a Processor instance to the current World.
 
-    All processors should subclass :py:class:`esper.Processor`.
-    An optional priority argument can be provided. A higher
-    priority will be executed first when :py:meth:`esper.World.process`
-    is called.
+    Add a Processor instance to the world (subclass of
+    :py:class:`esper.Processor`), with optional priority.
+
+    When the :py:func:`esper.World.process` function is called,
+    Processors with higher priority will be called first.
     """
     processor_instance.priority = priority
     _processors.append(processor_instance)
@@ -208,10 +213,11 @@ def remove_processor(processor_type: _Type[Processor]) -> None:
         if type(processor) is processor_type:
             _processors.remove(processor)
 
+
 def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
     """Get a Processor instance, by type.
 
-    This method returns a Processor instance by type. This could be
+    This function returns a Processor instance by type. This could be
     useful in certain situations, such as wanting to call a method on a
     Processor, from within another Processor.
     """
@@ -223,12 +229,12 @@ def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
 
 
 def create_entity(*components: _C) -> int:
-    """Create a new Entity, with optional Components.
+    """Create a new Entity, with optional initial Components.
 
-    This method returns an Entity ID, which is a plain integer.
+    This funcion returns an Entity ID, which is a plain integer.
     You can optionally pass one or more Component instances to be
     assigned to the Entity on creation. Components can be also be
-    added later with the :py:meth:`esper.add_component` method.
+    added later with the :py:func:`esper.add_component` funcion.
     """
     entity = next(_entity_count)
 
@@ -251,11 +257,11 @@ def create_entity(*components: _C) -> int:
 
 
 def delete_entity(entity: int, immediate: bool = False) -> None:
-    """Delete an Entity from the World.
+    """Delete an Entity from the current World.
 
     Delete an Entity and all of it's assigned Component instances from
     the world. By default, Entity deletion is delayed until the next call
-    to :py:meth:`esper.process`. You can, however, request immediate
+    to :py:func:`esper.process`. You can, however, request immediate
     deletion by passing the `immediate=True` parameter. Note that immediate
     deletion may cause issues, such as when done during Entity iteration
     (calls to esper.get_component/s).
@@ -300,10 +306,10 @@ def component_for_entity(entity: int, component_type: _Type[_C]) -> _C:
 def components_for_entity(entity: int) -> _Tuple[_C, ...]:
     """Retrieve all Components for a specific Entity, as a Tuple.
 
-    Retrieve all Components for a specific Entity. The method is probably
+    Retrieve all Components for a specific Entity. This function is probably
     not appropriate to use in your Processors, but might be useful for
-    saving state, or passing specific Components between World instances.
-    Unlike most other methods, this returns all the Components as a
+    saving state, or passing specific Components between World contexts.
+    Unlike most other functions, this returns all the Components as a
     Tuple in one batch, instead of returning a Generator for iteration.
 
     Raises a KeyError if the given entity does not exist in the database.
@@ -378,6 +384,7 @@ def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _List[
     except KeyError:
         pass
 
+
 def get_component(component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
     """Get an iterator for Entity, Component pairs."""
     try:
@@ -387,17 +394,22 @@ def get_component(component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
             component_type, list(_get_component(component_type))
         )
 
+
 @_overload
 def get_components(__c1: _Type[_C], __c2: _Type[_C2]) -> _List[_Tuple[int, _Tuple[_C, _C2]]]:
     ...
+
 
 @_overload
 def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3]]]:
     ...
 
+
 @_overload
-def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _List[_Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
+def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _List[
+    _Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
     ...
+
 
 def get_components(*component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tuple[_Any, ...]]]:
     """Get an iterator for Entity and multiple Component sets."""
@@ -408,10 +420,11 @@ def get_components(*component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tupl
             component_types, list(_get_components(*component_types))
         )
 
+
 def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
     """Try to get a single component type for an Entity.
 
-    This method will return the requested Component if it exists,
+    This function will return the requested Component if it exists,
     or None if it does not. This allows a way to access optional Components
     that may or may not exist, without having to first query if the Entity
     has the Component type.
@@ -425,18 +438,21 @@ def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
 def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2]) -> _Tuple[_C, _C2]:
     ...
 
+
 @_overload
 def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _Tuple[_C, _C2, _C3]:
     ...
+
 
 @_overload
 def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _Tuple[_C, _C2, _C3, _C4]:
     ...
 
+
 def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple[_C, ...]]:
     """Try to get a multiple component types for an Entity.
 
-    This method will return the requested Components if they exist,
+    This function will return the requested Components if they exist,
     or None if they do not. This allows a way to access optional Components
     that may or may not exist, without first having to query if the Entity
     has the Component types.
@@ -449,8 +465,8 @@ def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple
 def clear_dead_entities() -> None:
     """Finalize deletion of any Entities that are marked as dead.
 
-    In the interest of performance, this method duplicates code from the
-    `delete_entity` method. If that method is changed, those changes should
+    In the interest of performance, this function duplicates code from the
+    `delete_entity` function. If that function is changed, those changes should
     be duplicated here as well.
     This function should be called in main loop after systems.
     """
@@ -469,14 +485,25 @@ def clear_dead_entities() -> None:
 
 
 def process(*args: _Any, **kwargs: _Any) -> None:
-    """Track Processor execution time for benchmarking."""
+    """Call the process method on all Processors, in order of their priority.
+
+    Call the :py:meth:`esper.Processor.process` method on all assigned
+    Processors, respective of their priority. In addition, any Entities
+    that were marked for deletion since the last call will be deleted
+    at the start of this call.
+    """
     clear_dead_entities()
     for processor in _processors:
         processor.process(*args, **kwargs)
 
 
 def timed_process(*args: _Any, **kwargs: _Any) -> None:
-    """Track Processor execution time for benchmarking."""
+    """Track Processor execution time for benchmarking.
+
+    This function is identical to :py:func:`esper.process`,
+    but it will additionally record the elapsed time of each
+    processor call in the `esper.process_times` dictionary.
+    """
     clear_dead_entities()
     for processor in _processors:
         start_time = _time.process_time()
@@ -485,11 +512,37 @@ def timed_process(*args: _Any, **kwargs: _Any) -> None:
         process_times[processor.__class__.__name__] = process_time
 
 
-def init_world(name: str) -> None:
-    _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
+def list_worlds():
+    """A list all World context names."""
+    return list(_context_map.keys())
+
+
+def delete_world(name: str) -> None:
+    """Delete a World context.
+
+    This will completely delete the World, including any entities
+    that are contained within it.
+
+    Raises a NameError if you attempt to delete the currently
+    active World context.
+    """
+    if _current_context == name:
+        raise NameError("Cannot delete active World context.")
+
+    del _context_map[name]
 
 
 def switch_world(name: str) -> None:
+    """Switch World contexts.
+
+    This function is used to switch between World contexts.
+    If the named context does not exist, a new one will be created.
+    """
+    if name not in _context_map:
+        # Create a new
+        _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
+
+    global _current_context
     global _entity_count
     global _components
     global _entities
@@ -499,4 +552,7 @@ def switch_world(name: str) -> None:
     global _processors
     global process_times
     global event_registry
-    _entity_count, _components, _entities, _dead_entities, _get_component_cache, _get_components_cache, _processors, process_times, event_registry = _context_map[name]
+
+    (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
+     _get_components_cache, _processors, process_times, event_registry) = _context_map[name]
+    _current_context = name
