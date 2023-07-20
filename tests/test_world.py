@@ -5,8 +5,11 @@ import esper
 
 # ECS test
 @pytest.fixture(autouse=True)
-def _clear_database():
-    esper.clear_database()
+def _reset_to_zero():
+    # Wipe out all world contexts
+    # and re-create the default.
+    esper._context_map.clear()
+    esper.switch_world("default")
 
 
 def test_create_entity():
