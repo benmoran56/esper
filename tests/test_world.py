@@ -272,8 +272,6 @@ def test_clear_dead_entities():
 
 
 def test_switch_world():
-    esper.init_world("left")
-    esper.init_world("right")
     esper.switch_world("left")
     assert len(esper.get_component(ComponentA)) == 0
     create_entities(200)
@@ -454,8 +452,6 @@ def test_set_instance_methoad_as_handler():
 
 
 def test_event_handler_switch_world():
-    esper.init_world("left")
-    esper.init_world("right")
     called = 0
     def handler():
         nonlocal called
