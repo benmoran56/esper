@@ -511,7 +511,7 @@ def timed_process(*args: _Any, **kwargs: _Any) -> None:
         process_times[processor.__class__.__name__] = process_time
 
 
-def list_worlds():
+def list_worlds() -> _List[str]:
     """A list all World context names."""
     return list(_context_map.keys())
 
