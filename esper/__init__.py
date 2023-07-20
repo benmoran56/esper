@@ -171,6 +171,7 @@ def clear_database() -> None:
     """Clear the Entity Component database.
 
     Removes all Entities and Components from the current World.
+    Processors are not removed.
     """
     global _entity_count
     _entity_count = _count(start=1)
@@ -178,8 +179,6 @@ def clear_database() -> None:
     _entities.clear()
     _dead_entities.clear()
     clear_cache()
-    _processors.clear()
-    process_times.clear()
 
 
 def add_processor(processor_instance: Processor, priority: int = 0) -> None:
