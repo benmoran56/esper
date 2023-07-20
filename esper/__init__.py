@@ -464,11 +464,14 @@ def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple
 def clear_dead_entities() -> None:
     """Finalize deletion of any Entities that are marked as dead.
 
-    In the interest of performance, this function duplicates code from the
-    `delete_entity` function. If that function is changed, those changes should
-    be duplicated here as well.
-    This function should be called in main loop after systems.
+    This function is provided for those who are not making use of
+    :py:func:`esper.add_processor` and :py:func:`esper.process`. If you are
+    calling your processors manually, this function should be called in
+    your main loop after calling all processors.
     """
+    # In the interest of performance, this function duplicates code from the
+    # `delete_entity` function. If that function is changed, those changes should
+    # be duplicated here as well.
     for entity in _dead_entities:
 
         for component_type in _entities[entity]:
@@ -532,10 +535,19 @@ def delete_world(name: str) -> None:
 
 
 def switch_world(name: str) -> None:
-    """Switch World contexts.
+    """Switch to a new World context by name.
 
-    This function is used to switch between World contexts.
-    If the named context does not exist, a new one will be created.
+    Esper can have one or more "Worlds". Each World is a dedicated
+    context, and does not share Entities, Components, etc. For
+    some game designs, it simplifies things to use a dedicated
+    World for each scene. For other designs, a single World may
+    be sufficient. This function will allow you to create and
+    switch between as many World contexts as required. If the
+    requested name does not exist, a new context is created
+    automatically with that name.
+
+    .. note:: At startup, a "default" context exists, and is
+              already active.
     """
     if name not in _context_map:
         # Create a new
