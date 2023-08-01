@@ -13,16 +13,14 @@ performant as possible, while handling common use cases.
 The following Wikipedia article provides a summary of the ECS pattern:
 https://en.wikipedia.org/wiki/Entity_component_system
 
-
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
 Due to the small size of the project, this README currently serves as general usage
 documentation.
 
-**What's new:** As of Esper 2.0, there is support for basic event dispatching and handling.
-This is fairly minimal, in keeping with the scope of the project, but it should be robust enough
-to handle most common needs.
-
-See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
+> :warning: **Esper 3.0 introduces breaking changes**. Version 3.0 removes the
+> World object, and migrates its methods to module level functions. Multiple 
+> contexts can be created and switched between. The v2.x README can be found
+> here: https://github.com/benmoran56/esper/blob/v2_maintenance/README.md
 
 - [Compatibility](#compatibility)
 - [Installation](#installation)
@@ -40,17 +38,17 @@ See also: Another Python ECS library https://github.com/ikvk/ecs_pattern
 
 Compatibility
 =============
-Esper attempts to target all currently supported Python releases (not EOL).
-Because Esper is written in pure Python, *any* compliant interpreter should work, such as
-Pypy3. Continuous Integration (automated testing) is currently done for both CPython and PyPy3.
+Esper attempts to target all currently supported Python releases (not EOL). Esper is written in
+100% pure Python, so *any* compliant interpreter should work. Automated testing is currently
+done for both CPython and PyPy3.
 
 
 Installation
 ============
-No installation is necessary. Esper is a Python package with no dependencies or extensions.
+No installation is necessary. Esper is a Python package with no dependencies.
 Simply copy the *esper* folder into your project folder, and *import esper*.
 
-If you prefer, Esper is also available on PyPI for easy installation via pip::
+Esper is also available on PyPI for easy installation via pip::
 
     pip install --user --upgrade esper
 
