@@ -13,10 +13,12 @@ from typing import TypeVar as _TypeVar
 from typing import Iterable as _Iterable
 from typing import Optional as _Optional
 from typing import overload as _overload
+from typing import Union as _Union
 
 from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
+from enum import IntFlag as _IntFlag
 
 version = '2.5'
 
@@ -123,6 +125,7 @@ class Processor:
 
     priority = 0
     world: "World"
+    phases: _Union[_IntFlag, int] = ~0
 
     def process(self, *args: _Any, **kwargs: _Any) -> None:
         raise NotImplementedError
@@ -159,7 +162,7 @@ class World:
         self._next_entity_id = 0
         self.clear_cache()
 
-    def add_processor(self, processor_instance: Processor, priority: int = 0) -> None:
+    def add_processor(self, processor_instance: Processor, priority: int = 0, phases: _Optional[_IntFlag] = None) -> None:
         """Add a Processor instance to the World.
 
         All processors should subclass :py:class:`esper.Processor`.
@@ -169,6 +172,12 @@ class World:
         """
         processor_instance.priority = priority
         processor_instance.world = self
+
+        if phases is None:
+            processor_instance.phases = ~0
+        else:
+            processor_instance.phases = phases
+
         self._processors.append(processor_instance)
         self._processors.sort(key=lambda proc: proc.priority, reverse=True)
 
@@ -424,9 +433,10 @@ class World:
         self._dead_entities.clear()
         self.clear_cache()
 
-    def _process(self, *args: _Any, **kwargs: _Any) -> None:
+    def _process(self, phases: _Union[_IntFlag, int], *args: _Any, **kwargs: _Any) -> None:
         for processor in self._processors:
-            processor.process(*args, **kwargs)
+            if processor.phases & phases:
+                processor.process(*args, **kwargs)
 
     def process(self, *args: _Any, **kwargs: _Any) -> None:
         """Call the process method on all Processors, in order of their priority.
@@ -437,8 +447,11 @@ class World:
         at the start of this call.
         """
         self._clear_dead_entities()
-        self._process(*args, **kwargs)
+        self._process(~0, *args, **kwargs)
 
+    def process_phase(self, phases: _IntFlag, *args: _Any, **kwargs: _Any) -> None:
+        self._clear_dead_entities()
+        self._process(phases, *args, **kwargs)
 
 class TimedWorld(World):
     def __init__(self) -> None:
