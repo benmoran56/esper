@@ -1,3 +1,12 @@
+esper 3.0
+=========
+Major release
+
+Changes
+-------
+- esper has been refactored to use a more functional API for performance and flexibility.
+
+
 esper 2.5
 =========
 Maintenance release
