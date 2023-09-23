@@ -20,7 +20,7 @@ from weakref import WeakMethod as _WeakMethod
 from itertools import count as _count
 
 
-version = '3.0a1'
+version = '3.0'
 
 
 ###################
