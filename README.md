@@ -45,10 +45,13 @@ done for both CPython and PyPy3.
 
 Installation
 ============
-No installation is necessary. Esper is a Python package with no dependencies.
-Simply copy the *esper* folder into your project folder, and *import esper*.
+Esper is a pure Python package with no dependencies, so installation is not strictly
+necessary. You can simply copy the *esper* folder into your project, and *import esper*.
+If you do want to install it into your site-packages, you can do so by using `setup.py`::
 
-Esper is also available on PyPI for easy installation via pip::
+    python setup.py install --user
+
+Or from PyPi via pip::
 
     pip install --user --upgrade esper
 
@@ -56,13 +59,14 @@ Esper is also available on PyPI for easy installation via pip::
 Design
 ======
 
-* World
+* World Context
 
-A World is the main point of interaction in Esper. After creating a World object, you will use
-that object to create Entities and assigning Components to them. A World is also assigned all of
-your Processor instances, and handles smoothly running everything with a single call per frame.
-Of course, Entities, Components and Processors can be created and assigned, or deleted while
-your application is running.
+Esper uses the concept of "World" contexts. When you import esper, a default context is active.
+You create Entities, assign Components, register Processesors, etc., by calling functions
+on the `esper` module. Entities, Components and Processors can be created, assigned, or deleted
+while your game is running. A simple call to `esper.process()` is all that's needed for each
+iteration of your game loop. Advanced users can switch contexts, which can be useful for
+isolating different game scenes that have different Processor requirements.
 
 
 * Entities 
@@ -101,8 +105,8 @@ be repeated, and you can still instantiate the Component with positional or keyw
 
 Processors, also commonly known as "Systems", are where all processing logic is defined and executed.
 All Processors must inherit from the *esper.Processor* class, and have a method called *process*.
-Other than that, there are no restrictions. All Processors will have access to the World instance,
-which is how you query Components to operate on. A simple Processor might look like::
+Other than that, there are no restrictions. You can define any additional methods you might need. 
+A simple Processor might look like::
 
     class MovementProcessor(esper.Processor):
 
@@ -125,48 +129,46 @@ as a result of some condition being met.
 Quick Start
 ===========
 
-The first step after importing Esper is to create a World instance. You can have a single World
-instance for your entire game, or you can have a separate instance for each of your game scenes.
-Whatever makes sense for your design. Create a World instance like this::
+To get started, simply import esper::
 
-    world = esper.World()
+    import esper
+
+From there, define some Components, and create Entities that use them::
+
+    player = esper.create_entity()
+    esper.add_component(player, Velocity(x=0.9, y=1.2))
+    esper.add_component(player, Position(x=5, y=5))
+
+Optionally, Component instances can be assigned directly to the Entity on creation::
+
+    player = esper.create_entity(Velocity(x=0.9, y=1.2), Position(x=5, y=5))
 
 
-Create some Processor instances, and assign them to the World. You can specify an
-optional processing priority (higher numbers are processed first). All Processors are
-priority "0" by default::
+Design some Processors that operate on these Component types, and then register them with
+Esper for processing. You can specify an optional priority (higher numbers are processed first).
+All Processors are priority "0" by default::
 
     movement_processor = MovementProcessor()
     collision_processor = CollisionProcessor()
     rendering_processor = RenderingProcessor()
-    world.add_processor(movement_processor, priority=2)
-    world.add_processor(collision_processor, priority=3)
-    world.add_processor(rendering_processor)
+    esper.add_processor(collision_processor, priority=2)
+    esper.add_processor(movement_processor, priority=3)
+    esper.add_processor(rendering_processor)
     # or just add them in one line: 
-    world.add_processor(SomeProcessor())
+    esper.add_processor(SomeProcessor())
 
 
-Create an Entity, and assign some Component instances to it::
+Executing all Processors is done with a single call to esper.process(). This will call the
+`process` method on all assigned Processors, in order of their priority. This is usually called
+once per frame update of your game (every tick of the clock).::
 
-    player = world.create_entity()
-    world.add_component(player, Velocity(x=0.9, y=1.2))
-    world.add_component(player, Position(x=5, y=5))
-
-Optionally, Component instances can be assigned directly to the Entity on creation::
-
-    player = world.create_entity(Velocity(x=0.9, y=1.2), Position(x=5, y=5))
+    esper.process()
 
 
-Executing all Processors is done with a single call to world.process(). This will call the
-process method on all assigned Processors, in order of their priority. This is usually called
-once per frame update of your game.::
-
-    world.process()
-
-
-**Note:** You can pass any args you need to *world.process()*, but you must also make sure to receive
-them properly in the *process()* methods of your Processors. For example, if you pass a delta time
-argument as *esper.process(dt)*, your Processor's *process()* methods should all receive it as:
+**Note:** You can pass any arguments (or keyword arguments) you need to *esper.process()*, but you
+must also make sure to receive them properly in the *process()* methods of your Processors. For
+example, if you pass a delta time argument as *esper.process(dt)*, your Processor's *process()*
+methods should all receive it as:
 *def process(self, dt):*
 This is appropriate for libraries such as **pyglet**, which automatically pass a delta time value
 into scheduled functions.  
@@ -175,10 +177,27 @@ into scheduled functions.
 General Usage
 =============
 
+World Contexts
+--------------
+Esper has the capability of supporting multiple "World" contexts. On import, a "default" World is
+active. All creation of Entities, assignment of Processors, and all operations exist within the
+confines of a World. For advanced use cases Esper allows you to switch between multiple Worlds,
+which are completely isolated from each other. This can be useful when different scenes in your
+game have different Entities and Processor requirements. World context operations are done with
+the following functions::
+
+* esper.list_worlds()
+* esper.switch_world(name)
+* esper.delete_world(name)
+
+When switching Worlds, be careful of the `name`. If a World doesn't exist, it will be created. 
+You can delete old Worlds which are no longer needed, but you cannot delete the currently active
+World.  
+
 Adding and Removing Processors
 ------------------------------
-You have already seen examples of adding Processors in an earlier section. There is also a *remove_processor*
-function available:
+You have already seen examples of adding Processors in an earlier section. There is also a
+*remove_processor* function available:
 
 * esper.add_processor(processor_instance)
 * esper.remove_processor(ProcessorClass)
@@ -252,12 +271,12 @@ function that is explained in the next section. For example::
 The *components_for_entity* function is a special function that returns ALL the Components that are
 assigned to a specific Entity, as a tuple. This is a heavy operation, and not something you would
 want to do each frame or inside your `Processor.process` method. It can be useful, however, if
-you wanted to transfer all of a specific Entity's Components between two separate World instances
-(such as when changing Scenes, or Levels). For example::
+you wanted to transfer all of a specific Entity's Components between two separate contexts
+(such as when changing Scenes, or levels). For example::
     
-    player_components = old_world.components_for_entity(player_entity_id)
-    ...
-    player_entity_id = new_world.create_entity(player_components)
+    player_components = esper.components_for_entity(player_entity_id)
+    esper.switch_world('context_name')
+    player_entity_id = esper.create_entity(player_components)
 
 Boolean and Conditional Checks
 ------------------------------
