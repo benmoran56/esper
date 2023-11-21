@@ -1,3 +1,7 @@
+"""esper is an Entity Component System library.
+
+More information is available at https://github.com/benmoran56/esper
+"""
 import time as _time
 
 from types import MethodType as _MethodType
@@ -21,6 +25,7 @@ from itertools import count as _count
 
 
 version = '3.0'
+__version__ = version
 
 
 ###################
