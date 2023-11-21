@@ -1,4 +1,4 @@
-"""esper is an Entity Component System library.
+"""esper is a lightweight Entity System (ECS) for Python, with a focus on performance
 
 More information is available at https://github.com/benmoran56/esper
 """
@@ -24,7 +24,7 @@ from weakref import WeakMethod as _WeakMethod
 from itertools import count as _count
 
 
-version = '3.0'
+version = '3.1'
 __version__ = version
 
 

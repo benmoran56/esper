@@ -27,12 +27,7 @@ def clean():
 
 def dist():
     """Create sdist and wheels, then upload to PyPi."""
-    sdist_cmd = "python setup.py sdist --formats=zip" 
-    wheel_cmd = "python setup.py bdist_wheel" 
-    twine_cmd = "twine upload dist/esper*"
-    call(shlex.split(sdist_cmd))
-    call(shlex.split(wheel_cmd))
-    call(shlex.split(twine_cmd))
+    call(shlex.split("flit publish"))
 
 
 if __name__ == '__main__':
