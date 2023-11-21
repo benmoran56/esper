@@ -15,8 +15,8 @@ def _reset_to_zero():
 def test_create_entity():
     entity1 = esper.create_entity()
     entity2 = esper.create_entity()
-    assert type(entity1) == int
-    assert type(entity2) == int
+    assert isinstance(entity1, int)
+    assert isinstance(entity2, int)
     assert entity1 < entity2
 
 
@@ -75,7 +75,7 @@ def test_component_for_entity():
 def test_components_for_entity():
     entity = esper.create_entity(ComponentA(), ComponentD(), ComponentE())
     all_components: tuple[..., ...] = esper.components_for_entity(entity)
-    assert type(all_components) == tuple
+    assert isinstance(all_components, tuple)
     assert len(all_components) == 3
     with pytest.raises(KeyError):
         esper.components_for_entity(999)
@@ -106,8 +106,8 @@ def test_get_component():
     assert len(esper.get_component(ComponentA)) > 0, "No Components Returned"
 
     for ent, comp in esper.get_component(ComponentA):
-        assert type(ent) == int
-        assert type(comp) == ComponentA
+        assert isinstance(ent, int)
+        assert isinstance(comp, ComponentA)
 
 
 def test_get_two_components():
@@ -117,14 +117,14 @@ def test_get_two_components():
     assert len(esper.get_components(ComponentD, ComponentE)) > 0, "No Components Returned"
 
     for ent, comps in esper.get_components(ComponentD, ComponentE):
-        assert type(ent) == int
-        assert type(comps) == list
+        assert isinstance(ent, int)
+        assert isinstance(comps, list)
         assert len(comps) == 2
 
     for ent, (d, e) in esper.get_components(ComponentD, ComponentE):
-        assert type(ent) == int
-        assert type(d) == ComponentD
-        assert type(e) == ComponentE
+        assert isinstance(ent, int)
+        assert isinstance(d, ComponentD)
+        assert isinstance(e, ComponentE)
 
 
 def test_get_three_components():
@@ -132,15 +132,15 @@ def test_get_three_components():
     assert isinstance(esper.get_components(ComponentC, ComponentD, ComponentE), list)
 
     for ent, comps in esper.get_components(ComponentC, ComponentD, ComponentE):
-        assert type(ent) == int
-        assert type(comps) == list
+        assert isinstance(ent, int)
+        assert isinstance(comps, list)
         assert len(comps) == 3
 
     for ent, (c, d, e) in esper.get_components(ComponentC, ComponentD, ComponentE):
-        assert type(ent) == int
-        assert type(c) == ComponentC
-        assert type(d) == ComponentD
-        assert type(e) == ComponentE
+        assert isinstance(ent, int)
+        assert isinstance(c, ComponentC)
+        assert isinstance(d, ComponentD)
+        assert isinstance(e, ComponentE)
 
 
 def test_try_component():
