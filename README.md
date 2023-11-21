@@ -6,11 +6,14 @@ Esper is a lightweight Entity System module for Python, with a focus on performa
 ===================================================================================
 
 Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
-The design is based on the Entity System concepts outlined by Adam Martin in his blog at
-http://t-machine.org/, and others. The primary focus is on keeping it as lightweight and
-performant as possible, while handling common use cases.
+The design is based on the Entity System concepts originally popularized by
+Adam Martin and others. The primary focus for esper is to maximize perfomance,
+while handling most common use cases. 
 
-The following Wikipedia article provides a summary of the ECS pattern:
+For more information on the ECS pattern, you might find the following
+resources interesting:
+https://github.com/SanderMertens/ecs-faq/blob/master/README.md
+https://github.com/jslee02/awesome-entity-component-system/blob/master/README.md
 https://en.wikipedia.org/wiki/Entity_component_system
 
 API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
@@ -38,22 +41,22 @@ documentation.
 
 Compatibility
 =============
-Esper attempts to target all currently supported Python releases (not EOL). Esper is written in
-100% pure Python, so *any* compliant interpreter should work. Automated testing is currently
-done for both CPython and PyPy3.
+Esper attempts to target all currently supported Python releases (any Python version that is
+not EOL). Esper is written in 100% pure Python, so *any* compliant interpreter should work.
+Automated testing is currently done for both CPython and PyPy3.
 
 
 Installation
 ============
-Esper is a pure Python package with no dependencies, so installation is not strictly
-necessary. You can simply copy the *esper* folder into your project, and *import esper*.
-If you do want to install it into your site-packages, you can do so by using `setup.py`::
-
-    python setup.py install --user
-
-Or from PyPi via pip::
+Esper is a pure Python package with no dependencies, so installation is flexible.
+You can simply copy the *esper* folder right into your project, and *import esper*.
+You can also install into your site-packages from PyPi via `pip`::
 
     pip install --user --upgrade esper
+
+Or from the source directory::
+
+    pip install . --user
 
 
 Design
@@ -81,14 +84,15 @@ Creating an Entity is done with the `esper.create_entity()` function.
 
 Components are defined as simple Python classes. In keeping with a pure Entity System
 design philosophy, they should not contain any logic. They might have initialization
-code, but no processing logic whatsoever. A simple Component can be defined as::
+code or perhaps Python properties, but no processing logic whatsoever. A simple
+Component can be defined as::
 
     class Position:
         def __init__(self, x=0.0, y=0.0):
             self.x = x
             self.y = y
 
-In addition, the excellent `dataclass` decorator is available in Python 3.7+.
+To save on typing, the standard library dataclass decorator is quite useful. 
 https://docs.python.org/3/library/dataclasses.html#module-dataclasses
 This decorator simplifies defining your Component classes. The attribute names don't need to
 be repeated, and you can still instantiate the Component with positional or keyword arguments::
