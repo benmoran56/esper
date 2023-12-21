@@ -24,7 +24,7 @@ from weakref import WeakMethod as _WeakMethod
 from itertools import count as _count
 
 
-version = '3.1'
+version = '3.2'
 __version__ = version
 
 
@@ -106,23 +106,19 @@ class Processor:
 
     Processor instances must contain a `process` method, but you are otherwise
     free to define the class any way you wish. Processors should be instantiated,
-    and then added to a :py:class:`esper.World` instance by calling
-    :py:func:`esper.World.add_processor`. For example::
-
-        my_world = World()
+    and then added to the current World context by calling :py:func:`esper.add_processor`.
+    For example::
 
         my_processor_instance = MyProcessor()
-        my_world.add_processor(my_processor_instance)
+        esper.add_processor(my_processor_instance)
 
-    After adding your Processors to a :py:class:`esper.World`, Processor.world
-    will be set to the World it is in. This allows easy access to the World and
-    it's methods from your Processor methods. All Processors in a World will have
-    their `process` methods called by a single call to :py:func:`esper.World.process`,
-    so you will generally want to iterate over entities with one (or more) calls to
-    the appropriate world methods::
+     All the Processors that have been added to the World context will have their
+    :py:meth:`esper.Processor.process` methods called by a single call to
+    :py:func:`esper.process`. Inside the `process` method is generally where you
+    should iterate over Entities with one (or more) calls to the appropriate methods::
 
         def process(self):
-            for ent, (rend, vel) in self.world.get_components(Renderable, Velocity):
+            for ent, (rend, vel) in esper.get_components(Renderable, Velocity):
                 your_code_here()
     """
 
@@ -506,9 +502,9 @@ def process(*args: _Any, **kwargs: _Any) -> None:
 def timed_process(*args: _Any, **kwargs: _Any) -> None:
     """Track Processor execution time for benchmarking.
 
-    This function is identical to :py:func:`esper.process`,
-    but it will additionally record the elapsed time of each
-    processor call in the `esper.process_times` dictionary.
+    This function is identical to :py:func:`esper.process`, but
+    it additionally records the elapsed time of each processor
+    call (in milliseconds) in the`esper.process_times` dictionary.
     """
     clear_dead_entities()
     for processor in _processors:
@@ -554,7 +550,7 @@ def switch_world(name: str) -> None:
               already active.
     """
     if name not in _context_map:
-        # Create a new
+        # Create a new context if the name does not already exist:
         _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
 
     global _current_context
@@ -568,6 +564,16 @@ def switch_world(name: str) -> None:
     global process_times
     global event_registry
 
+    # switch the references to the objects in the named context_map:
     (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
      _get_components_cache, _processors, process_times, event_registry) = _context_map[name]
     _current_context = name
+
+
+@property
+def current_world() -> str:
+    """The currently active World context.
+
+    To switch World contexts, see :py:func:`esper.switch_world`.
+    """
+    return _current_context

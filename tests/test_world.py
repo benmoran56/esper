@@ -275,14 +275,24 @@ def test_clear_dead_entities():
 
 
 def test_switch_world():
+    # The `create_entities` helper will add <number>/2 of
+    # 'ComponentA' to the World context. Make a new
+    # "left" context, and confirm this is True:
     esper.switch_world("left")
     assert len(esper.get_component(ComponentA)) == 0
     create_entities(200)
     assert len(esper.get_component(ComponentA)) == 100
+
+    # Switching to a new "right" World context, no
+    # 'ComponentA' Components should yet exist.
     esper.switch_world("right")
     assert len(esper.get_component(ComponentA)) == 0
     create_entities(300)
     assert len(esper.get_component(ComponentA)) == 150
+
+    # Switching back to the original "left" context,
+    # the original 100 Components should still exist.
+    # From there, 200 more should be added:
     esper.switch_world("left")
     assert len(esper.get_component(ComponentA)) == 100
     create_entities(400)
@@ -293,6 +303,16 @@ def test_switch_world():
 #   Some helper functions and Component templates:
 ##################################################
 def create_entities(number):
+    """This function will create X number of entities.
+
+    The entities are created with a mix of Components,
+    so the World context will see an addition of
+    ComponentA * number * 1
+    ComponentB * number * 1
+    ComponentC * number * 2
+    ComponentD * number * 1
+    ComponentE * number * 1
+    """
     for _ in range(number // 2):
         esper.create_entity(ComponentA(), ComponentB(), ComponentC())
         esper.create_entity(ComponentC(), ComponentD(), ComponentE())
@@ -459,17 +479,29 @@ def test_event_handler_switch_world():
     def handler():
         nonlocal called
         called += 1
+
+    # Switch to a new "left" World context, and register
+    # an event handler. Confirm that it is being called
+    # by checking that the 'called' variable is incremented.
     esper.switch_world("left")
     esper.set_handler("foo", handler)
     assert called == 0
     esper.dispatch_event("foo")
     assert called == 1
+
+    # Here we switch to a new "right" World context.
+    # The handler is registered to the "left" context only,
+    # so dispatching the event should have no effect. The
+    # handler is not attached, and so the 'called' value
+    # should not be incremented further.
     esper.switch_world("right")
-    assert called == 1
     esper.dispatch_event("foo")
     assert called == 1
+
+    # Switching back to the "left" context and dispatching
+    # the event, the handler should still be registered and
+    # the 'called' variable should be incremented by 1.
     esper.switch_world("left")
-    assert called == 1
     esper.dispatch_event("foo")
     assert called == 2
 

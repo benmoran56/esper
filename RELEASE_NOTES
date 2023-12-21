@@ -1,3 +1,13 @@
+esper 3.2
+=========
+Maintenance release
+
+Changes
+-------
+- Add `esper.current_world` property to easily check the current World context.
+- Made some minor docstring corrections, and added some programmer notes.
+
+
 esper 3.1
 =========
 Maintenance release

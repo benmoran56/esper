@@ -64,8 +64,8 @@ Design
 
 * World Context
 
-Esper uses the concept of "World" contexts. When you import esper, a default context is active.
-You create Entities, assign Components, register Processesors, etc., by calling functions
+Esper uses the concept of "World" contexts. When you first `import esper`, a default context is
+active. You create Entities, assign Components, register Processesors, etc., by calling functions
 on the `esper` module. Entities, Components and Processors can be created, assigned, or deleted
 while your game is running. A simple call to `esper.process()` is all that's needed for each
 iteration of your game loop. Advanced users can switch contexts, which can be useful for
@@ -184,19 +184,20 @@ General Usage
 World Contexts
 --------------
 Esper has the capability of supporting multiple "World" contexts. On import, a "default" World is
-active. All creation of Entities, assignment of Processors, and all operations exist within the
-confines of a World. For advanced use cases Esper allows you to switch between multiple Worlds,
-which are completely isolated from each other. This can be useful when different scenes in your
-game have different Entities and Processor requirements. World context operations are done with
-the following functions::
-
+active. All creation of Entities, assignment of Processors, and all other operations occur within
+the confines of the active World. In other words, the World contexts are completely isolated from
+each other. For basic games and designs, you may not need to bother with this functionality. A
+single default World context can often be enough. For advanced use cases, such as when different
+scenes in your game have different Entities and Processor requirements, this functionality can be
+quite useful. World context operations are done with the following functions::
+* 
 * esper.list_worlds()
 * esper.switch_world(name)
 * esper.delete_world(name)
 
-When switching Worlds, be careful of the `name`. If a World doesn't exist, it will be created. 
-You can delete old Worlds which are no longer needed, but you cannot delete the currently active
-World.  
+When switching Worlds, be mindful of the `name`. If a World doesn't exist, it will be created when
+you first switch to it. You can delete old Worlds if they are no longer needed, but you can not
+delete the currently active World.  
 
 Adding and Removing Processors
 ------------------------------
@@ -390,8 +391,8 @@ Contributions to Esper are always welcome, but there are some specific project g
 
 - Pure Python code only: no binary extensions, Cython, etc.
 - Try to target all non-EOL Python versions. Exceptions can be made if there is a compelling reason.
-- Avoid bloat as much as possible. New features will be considered if they are commonly useful. Generally speaking, we don't want to add functionality that is better handled in another module or library. 
-- Performance is preferrable to readability.
+- Avoid bloat as much as possible. New features will be considered if they are commonly useful. Generally speaking, we don't want to add functionality that is better served by another module or library. 
+- Performance is preferrable to readability. The public API should remain clean, but ugly internal code is acceptable if it provides a performance benefit. Every cycle counts! 
 
 If you have any questions before contributing, feel free to [open an issue].
 
