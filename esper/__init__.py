@@ -23,9 +23,7 @@ from weakref import WeakMethod as _WeakMethod
 
 from itertools import count as _count
 
-
-version = '3.2'
-__version__ = version
+__version__ = version = '3.3'
 
 
 ###################
@@ -50,6 +48,7 @@ def dispatch_event(name: str, *args: _Any) -> None:
 
 def _make_callback(name: str) -> _Callable[[_Any], None]:
     """Create an internal callback to remove dead handlers."""
+
     def callback(weak_method: _Any) -> None:
         event_registry[name].remove(weak_method)
         if not event_registry[name]:
@@ -126,7 +125,6 @@ class Processor:
 
     def process(self, *args: _Any, **kwargs: _Any) -> None:
         raise NotImplementedError
-
 
 
 ###################
@@ -510,26 +508,25 @@ def timed_process(*args: _Any, **kwargs: _Any) -> None:
     for processor in _processors:
         start_time = _time.process_time()
         processor.process(*args, **kwargs)
-        process_time = int(round((_time.process_time() - start_time) * 1000, 2))
-        process_times[processor.__class__.__name__] = process_time
+        process_times[processor.__class__.__name__] = int((_time.process_time() - start_time) * 1000)
 
 
 def list_worlds() -> _List[str]:
     """A list all World context names."""
-    return list(_context_map.keys())
+    return list(_context_map)
 
 
 def delete_world(name: str) -> None:
     """Delete a World context.
 
-    This will completely delete the World, including any entities
+    This will completely delete the World, including all entities
     that are contained within it.
 
-    Raises a NameError if you attempt to delete the currently
+    Raises `PermissionError` if you attempt to delete the currently
     active World context.
     """
     if _current_context == name:
-        raise NameError("Cannot delete active World context.")
+        raise PermissionError("The active World context cannot be deleted.")
 
     del _context_map[name]
 
@@ -538,16 +535,16 @@ def switch_world(name: str) -> None:
     """Switch to a new World context by name.
 
     Esper can have one or more "Worlds". Each World is a dedicated
-    context, and does not share Entities, Components, etc. For
-    some game designs, it simplifies things to use a dedicated
-    World for each scene. For other designs, a single World may
-    be sufficient. This function will allow you to create and
-    switch between as many World contexts as required. If the
-    requested name does not exist, a new context is created
-    automatically with that name.
+    context, and does not share Entities, Components, events, etc.
+    Some game designs can benefit from using a dedicated World
+    for each scene. For other designs, a single World may
+    be sufficient.
 
-    .. note:: At startup, a "default" context exists, and is
-              already active.
+    This function will allow you to create and switch between as
+    many World contexts as required. If the requested name does not
+    exist, a new context is created automatically with that name.
+
+    .. note:: At startup, a "default" World context is active.
     """
     if name not in _context_map:
         # Create a new context if the name does not already exist:
