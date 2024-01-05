@@ -567,7 +567,7 @@ def switch_world(name: str) -> None:
     _current_context = name
 
 
-@property
+@property   # type: ignore
 def current_world() -> str:
     """The currently active World context.
 
