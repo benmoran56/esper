@@ -23,7 +23,7 @@ from weakref import WeakMethod as _WeakMethod
 
 from itertools import count as _count
 
-__version__ = version = '3.3'
+__version__ = version = '3.2'
 
 
 ###################
