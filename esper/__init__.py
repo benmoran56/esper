@@ -139,8 +139,15 @@ _dead_entities: _Set[int] = set()
 _get_component_cache: _Dict[_Type[_Any], _List[_Any]] = {}
 _get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 _processors: _List[Processor] = []
-process_times: _Dict[str, int] = {}
 event_registry: _Dict[str, _Any] = {}
+process_times: _Dict[str, int] = {}
+"""A dictionary containing Processor timings.
+
+After each call to :py:func:`esper.timed_process`, the class name
+and elapsed call time (in millisections) for each Processor will
+be recorded in this dictionary. The times are replaced with each
+call.
+"""
 current_world: str = "default"
 """The name of the currently active World context.
 

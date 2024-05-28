@@ -10,15 +10,34 @@ Components
 ----------
 **esper** does not define any specific Component base class
 to inherit from. Instead, a normal Python class can be used.
-Also, while it's not required, the the `@dataclass` decorator
-from the `dataclasses` module can be useful to help write
-compact Component classes.
+Also, while it's not required, the the ``@dataclass`` decorator
+from the ``dataclasses`` module can be useful to help write
+compact Component classes. You can even use ``namedtuple``s
+for limited cases where a Component does not need to be modified.
+Some examples of valid Components::
+
+    class Velocity:
+        def __init__(self, x=0.0, y=0.0, accel=0.1, decel=0.75, maximum=3):
+            self.vector = Vec2(x, y)
+            self.accel = accel
+            self.decel = decel
+            self.maximum = maximum
+
+
+    @dataclass
+    class Camera:
+        current_x_offset:   float = 0
+        current_y_offset:   float = 0
+
+
+    Interaction = namedtuple('Interaction', 'interaction_type target_name')
 
 
 The World context
 -----------------
 
 .. autofunction:: esper.switch_world
+.. autoattribute:: esper.current_world
 .. autofunction:: esper.delete_world
 .. autofunction:: esper.list_worlds
 .. autofunction:: esper.create_entity
