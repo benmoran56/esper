@@ -65,7 +65,7 @@ Design
 * World Context
 
 Esper uses the concept of "World" contexts. When you first `import esper`, a default context is
-active. You create Entities, assign Components, register Processesors, etc., by calling functions
+active. You create Entities, assign Components, register Processors, etc., by calling functions
 on the `esper` module. Entities, Components and Processors can be created, assigned, or deleted
 while your game is running. A simple call to `esper.process()` is all that's needed for each
 iteration of your game loop. Advanced users can switch contexts, which can be useful for
