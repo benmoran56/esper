@@ -63,8 +63,9 @@ The World context
 
 Attributes
 ----------
-.. autoattribute:: esper.current_world
-.. autoattribute:: esper.process_times
+.. currentmodule:: esper
+.. autoattribute:: current_world
+.. autoattribute:: process_times
 
 Events
 ------
