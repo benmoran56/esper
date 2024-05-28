@@ -9,11 +9,11 @@ Processors
 Components
 ----------
 **esper** does not define any specific Component base class
-to inherit from. Instead, a normal Python class can be used.
-Also, while it's not required, the the ``@dataclass`` decorator
-from the ``dataclasses`` module can be useful to help write
-compact Component classes. You can even use ``namedtuple``s
-for limited cases where a Component does not need to be modified.
+to inherit from. Any valid Python class can be used. For more
+compact definitions, the ``@dataclass`` decorator from the
+``dataclasses`` is quite useful. You can even use a
+``namedtuple`` instead of a class, for limited cases where a
+Component does not need to be modified.
 Some examples of valid Components::
 
     class Velocity:
@@ -37,7 +37,6 @@ The World context
 -----------------
 
 .. autofunction:: esper.switch_world
-.. autoattribute:: esper.current_world
 .. autofunction:: esper.delete_world
 .. autofunction:: esper.list_worlds
 .. autofunction:: esper.create_entity
@@ -61,6 +60,11 @@ The World context
 .. autofunction:: esper.clear_database
 .. autofunction:: esper.clear_cache
 .. autofunction:: esper.clear_dead_entities
+
+Attributes
+----------
+.. autoattribute:: esper.current_world
+.. autoattribute:: esper.process_times
 
 Events
 ------
