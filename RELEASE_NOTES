@@ -1,3 +1,14 @@
+esper 3.3
+=========
+Maintenance release
+
+Changes
+-------
+- Fix unreadable `esper.current_world` property. (#100)
+- Minor typing configuration updates.
+- Remove outdated pyglet example. (Another one already exists).
+
+
 esper 3.2
 =========
 Maintenance release

@@ -1,3 +1,2 @@
-select = ["F", "E", "W", "C90", "B", "A", "C4", "G", "T20", "PT", "SLF", "TCH", "RET", "N", "ARG"]
-ignore = ["E501"]
-
+lint.select = ["F", "E", "W", "C90", "B", "A", "C4", "G", "T20", "PT", "SLF", "TCH", "RET", "N", "ARG"]
+lint.ignore = ["E501"]

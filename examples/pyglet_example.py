@@ -36,7 +36,7 @@ class MovementProcessor:
     def process(self, dt):
         # This will iterate over every Entity that has BOTH of these components:
         for ent, (vel, rend) in esper.get_components(Velocity, Renderable):
-            # Update the Renderable Component's position by it's Velocity:
+            # Update the Renderable Component's position by its Velocity:
             # An example of keeping the sprite inside screen boundaries. Basically,
             # adjust the position back inside screen boundaries if it is outside:
             new_x = max(self.minx, rend.sprite.x + vel.x)

@@ -23,7 +23,7 @@ from weakref import WeakMethod as _WeakMethod
 
 from itertools import count as _count
 
-__version__ = version = '3.2'
+__version__ = version = '3.3'
 
 
 ###################
@@ -131,7 +131,7 @@ class Processor:
 #   ECS functions
 ###################
 
-_current_context: str = "default"
+_current_world: str = "default"
 _entity_count: "_count[int]" = _count(start=1)
 _components: _Dict[_Type[_Any], _Set[_Any]] = {}
 _entities: _Dict[int, _Dict[_Type[_Any], _Any]] = {}
@@ -141,8 +141,16 @@ _get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 _processors: _List[Processor] = []
 process_times: _Dict[str, int] = {}
 event_registry: _Dict[str, _Any] = {}
+current_world: str = "default"
+"""The name of the currently active World context.
 
-# {context_name: (entity_count, components, entities, dead_entities, comp_cache, comps_cache, processors, process_times, event_registry)}
+This attribute can be checked to confirm the name of the
+currently active World context. Modifying this has no effect;
+to switch Worlds, use the :py:func:`~switch_world` function.
+"""
+
+# {context_name: (entity_count, components, entities, dead_entities,
+#                 comp_cache, comps_cache, processors, process_times, event_registry)}
 _context_map: _Dict[str, _Tuple[
     "_count[int]",
     _Dict[_Type[_Any], _Set[_Any]],
@@ -387,9 +395,7 @@ def get_component(component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
     try:
         return _get_component_cache[component_type]
     except KeyError:
-        return _get_component_cache.setdefault(
-            component_type, list(_get_component(component_type))
-        )
+        return _get_component_cache.setdefault(component_type, list(_get_component(component_type)))
 
 
 @_overload
@@ -404,7 +410,7 @@ def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3]) -> _List
 
 @_overload
 def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _Type[_C4]) -> _List[
-    _Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
+                   _Tuple[int, _Tuple[_C, _C2, _C3, _C4]]]:
     ...
 
 
@@ -413,9 +419,7 @@ def get_components(*component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tupl
     try:
         return _get_components_cache[component_types]
     except KeyError:
-        return _get_components_cache.setdefault(
-            component_types, list(_get_components(*component_types))
-        )
+        return _get_components_cache.setdefault(component_types, list(_get_components(*component_types)))
 
 
 def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
@@ -525,7 +529,7 @@ def delete_world(name: str) -> None:
     Raises `PermissionError` if you attempt to delete the currently
     active World context.
     """
-    if _current_context == name:
+    if _current_world == name:
         raise PermissionError("The active World context cannot be deleted.")
 
     del _context_map[name]
@@ -550,7 +554,7 @@ def switch_world(name: str) -> None:
         # Create a new context if the name does not already exist:
         _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
 
-    global _current_context
+    global _current_world
     global _entity_count
     global _components
     global _entities
@@ -560,17 +564,9 @@ def switch_world(name: str) -> None:
     global _processors
     global process_times
     global event_registry
+    global current_world
 
     # switch the references to the objects in the named context_map:
     (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
      _get_components_cache, _processors, process_times, event_registry) = _context_map[name]
-    _current_context = name
-
-
-@property   # type: ignore
-def current_world() -> str:
-    """The currently active World context.
-
-    To switch World contexts, see :py:func:`esper.switch_world`.
-    """
-    return _current_context
+    _current_world = current_world = name
