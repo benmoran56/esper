@@ -61,12 +61,6 @@ The World context
 .. autofunction:: esper.clear_cache
 .. autofunction:: esper.clear_dead_entities
 
-Attributes
-----------
-.. currentmodule:: esper
-.. autoattribute:: current_world
-.. autoattribute:: process_times
-
 Events
 ------
 For convenience, **esper** includes functionality for

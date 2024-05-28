@@ -141,20 +141,8 @@ _get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 _processors: _List[Processor] = []
 event_registry: _Dict[str, _Any] = {}
 process_times: _Dict[str, int] = {}
-"""A dictionary containing Processor timings.
-
-After each call to :py:func:`esper.timed_process`, the class name
-and elapsed call time (in millisections) for each Processor will
-be recorded in this dictionary. The times are replaced with each
-call.
-"""
 current_world: str = "default"
-"""The name of the currently active World context.
 
-This attribute can be checked to confirm the name of the
-currently active World context. Modifying this has no effect;
-to switch Worlds, use the :py:func:`~switch_world` function.
-"""
 
 # {context_name: (entity_count, components, entities, dead_entities,
 #                 comp_cache, comps_cache, processors, process_times, event_registry)}
@@ -513,7 +501,8 @@ def timed_process(*args: _Any, **kwargs: _Any) -> None:
 
     This function is identical to :py:func:`esper.process`, but
     it additionally records the elapsed time of each processor
-    call (in milliseconds) in the`esper.process_times` dictionary.
+    (in milliseconds) in the :py:attr:`~process_times` dictionary
+    after each call.
     """
     clear_dead_entities()
     for processor in _processors:
@@ -548,12 +537,16 @@ def switch_world(name: str) -> None:
     Esper can have one or more "Worlds". Each World is a dedicated
     context, and does not share Entities, Components, events, etc.
     Some game designs can benefit from using a dedicated World
-    for each scene. For other designs, a single World may
-    be sufficient.
+    for each scene. For other designs, a single World may be sufficient.
 
     This function will allow you to create and switch between as
     many World contexts as required. If the requested name does not
     exist, a new context is created automatically with that name.
+
+    The name of the currently active World context can be checked
+    at any time by examining the :py:attr:`esper.current_world`.
+    This attribute gets updated whenever you switch Worlds, and
+    modifying it has no effect.
 
     .. note:: At startup, a "default" World context is active.
     """
