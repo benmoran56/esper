@@ -11,10 +11,10 @@ Components
 **esper** does not define any specific Component base class
 to inherit from. Any valid Python class can be used. For more
 compact definitions, the ``@dataclass`` decorator from the
-``dataclasses`` is quite useful. You can even use a
-``namedtuple`` instead of a class, for limited cases where a
-Component does not need to be modified.
-Some examples of valid Components::
+``dataclasses`` module is quite useful. You can also use a
+``namedtuple`` instead of a class, but this is limited to
+cases where the Component's data does not need to be modified.
+Three examples of valid Components::
 
     class Velocity:
         def __init__(self, x=0.0, y=0.0, accel=0.1, decel=0.75, maximum=3):

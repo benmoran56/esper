@@ -2,12 +2,12 @@
 [![rtd](https://readthedocs.org/projects/esper/badge/?version=latest)](https://esper.readthedocs.io)
 [![PyTest](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/benmoran56/esper/actions/workflows/unit-tests.yml)
 
-Esper is a lightweight Entity System module for Python, with a focus on performance
+esper is a lightweight Entity System module for Python, with a focus on performance
 ===================================================================================
 
-Esper is an MIT licensed Entity System, or, Entity Component System (ECS).
+**esper** is an MIT licensed Entity System, or, Entity Component System (ECS).
 The design is based on the Entity System concepts originally popularized by
-Adam Martin and others. The primary focus for esper is to maximize perfomance,
+Adam Martin and others. The primary focus for **esper** is to maximize perfomance,
 while handling most common use cases. 
 
 For more information on the ECS pattern, you might find the following
@@ -20,7 +20,7 @@ API documentation is hosted at ReadTheDocs: https://esper.readthedocs.io
 Due to the small size of the project, this README currently serves as general usage
 documentation.
 
-> :warning: **Esper 3.0 introduces breaking changes**. Version 3.0 removes the
+> :warning: **esper 3.0 introduces breaking changes**. Version 3.0 removes the
 > World object, and migrates its methods to module level functions. Multiple 
 > contexts can be created and switched between. The v2.x README can be found
 > here: https://github.com/benmoran56/esper/blob/v2_maintenance/README.md
@@ -41,15 +41,15 @@ documentation.
 
 Compatibility
 =============
-Esper attempts to target all currently supported Python releases (any Python version that is
-not EOL). Esper is written in 100% pure Python, so *any* compliant interpreter should work.
+**esper** attempts to target all currently supported Python releases (any Python version that is
+not EOL). **esper** is written in 100% pure Python, so *any* compliant interpreter should work.
 Automated testing is currently done for both CPython and PyPy3.
 
 
 Installation
 ============
-Esper is a pure Python package with no dependencies, so installation is flexible.
-You can simply copy the *esper* folder right into your project, and *import esper*.
+**esper** is a pure Python package with no dependencies, so installation is flexible.
+You can simply copy the `esper` folder right into your project, and `import esper`.
 You can also install into your site-packages from PyPi via `pip`::
 
     pip install --user --upgrade esper
@@ -64,7 +64,7 @@ Design
 
 * World Context
 
-Esper uses the concept of "World" contexts. When you first `import esper`, a default context is
+**esper** uses the concept of "World" contexts. When you first `import esper`, a default context is
 active. You create Entities, assign Components, register Processors, etc., by calling functions
 on the `esper` module. Entities, Components and Processors can be created, assigned, or deleted
 while your game is running. A simple call to `esper.process()` is all that's needed for each
@@ -74,18 +74,19 @@ isolating different game scenes that have different Processor requirements.
 
 * Entities 
 
-Entities are simple integer IDs (1, 2, 3, 4, etc.).
-Entities are "created", but they are generally not used directly. Instead, they are
-simply used as IDs in the internal Component database to track collections of Components.
-Creating an Entity is done with the `esper.create_entity()` function.
-
+Entities are defined internally as plain integer IDs (1, 2, 3, 4, etc.). Generally speaking
+you should not need to care about the individual entity IDs, since entities are queried based
+on their specific combination of Components - not by their ID. An Entity can be thought of as
+a specific combination of Components. Creating an Entity is done with the `esper.create_entity()`
+function. You can pass Component instances on creation or add/remove them later.
 
 * Components
 
-Components are defined as simple Python classes. In keeping with a pure Entity System
-design philosophy, they should not contain any logic. They might have initialization
-code or perhaps Python properties, but no processing logic whatsoever. A simple
-Component can be defined as::
+Components are defined as simple Python classes. In keeping with a pure Entity System design
+philosophy, Components should not contain any processing logic. They may contain initialization
+logic, and you can take advantage of Python language features, like properties, to simplify data
+lookup. The key point is that game logic does not belong in these classes, and Components should
+have no knowledge of other Components or Entities. A simple Component can be defined as::
 
     class Position:
         def __init__(self, x=0.0, y=0.0):
@@ -104,11 +105,26 @@ be repeated, and you can still instantiate the Component with positional or keyw
         x: float = 0.0
         y: float = 0.0
 
+Python language features, like properties, can be useful to simplify data access. For example,
+a Body component that is often repositioned may benefit from a local AABB (axis aligned bounding
+box) property::
+
+    @dataclass
+    class Body:
+        width:  int
+        height: int
+        pos_x:  float = 0
+        pos_y:  float = 0
+
+        @property
+        def aabb(self) -> tuple[float, float, float, float]:
+            return self.pos_x, self.pos_y, self.pos_x + self.width, self.pos_y + self.height
+
 
 * Processors
 
 Processors, also commonly known as "Systems", are where all processing logic is defined and executed.
-All Processors must inherit from the *esper.Processor* class, and have a method called *process*.
+All Processors must inherit from the `esper.Processor` class, and have a method called `process`.
 Other than that, there are no restrictions. You can define any additional methods you might need. 
 A simple Processor might look like::
 
@@ -119,21 +135,31 @@ A simple Processor might look like::
                 pos.x += vel.x
                 pos.y += vel.y
 
-In the above code, you can see the standard usage of the *esper.get_components()* function. This
+In the above code, you can see the standard usage of the `esper.get_components()` function. This
 function allows efficient iteration over all Entities that contain the specified Component types.
 This function can be used for querying two or more components at once. Note that tuple unpacking
-is necessary for the return component pairs: *(vel, pos)*.  In addition the Components, you also
-get a reference to the Entity ID (the *ent* object) for the current pair of Velocity/Position
-Components. This entity ID can be useful in a variety of cases. For example, if your Processor
-will need to delete certain Entites, you can call the *esper.delete_entity()* function on
-this Entity ID. Another common use is if you wish to add or remove a Component on this Entity
-as a result of some condition being met. 
+is necessary for the return component pairs: `(vel, pos)`.  In addition to Components, you also
+get a reference to the Entity ID for the current pair of Velocity/Position Components. This entity
+ID can be useful in a variety of cases. For example, if your Processor will need to delete certain
+Entites, you can call the `esper.delete_entity()` function on this Entity ID. Another common use
+is if you wish to add or remove a Component on this Entity as a result of some condition being met. 
+For example, an Entity that should be deleted once it's `Lifecycle` Component reaches 0::
+
+    class LifecycleProcessor(esper.Processor):
+        def __init__(self, ...):
+            ...
+    
+        def process(self, dt):
+            for ent, (life, rend) in esper.get_components(Lifecycle, Renderable):
+                life.lifespan -= dt
+                if life.lifespan <= 0:
+                    esper.delete_entity(ent)
 
 
 Quick Start
 ===========
 
-To get started, simply import esper::
+To get started, simply import **esper**::
 
     import esper
 
@@ -149,7 +175,7 @@ Optionally, Component instances can be assigned directly to the Entity on creati
 
 
 Design some Processors that operate on these Component types, and then register them with
-Esper for processing. You can specify an optional priority (higher numbers are processed first).
+**esper** for processing. You can specify an optional priority (higher numbers are processed first).
 All Processors are priority "0" by default::
 
     movement_processor = MovementProcessor()
@@ -162,18 +188,17 @@ All Processors are priority "0" by default::
     esper.add_processor(SomeProcessor())
 
 
-Executing all Processors is done with a single call to esper.process(). This will call the
+Executing all Processors is done with a single call to `esper.process()`. This will call the
 `process` method on all assigned Processors, in order of their priority. This is usually called
 once per frame update of your game (every tick of the clock).::
 
     esper.process()
 
 
-**Note:** You can pass any arguments (or keyword arguments) you need to *esper.process()*, but you
-must also make sure to receive them properly in the *process()* methods of your Processors. For
-example, if you pass a delta time argument as *esper.process(dt)*, your Processor's *process()*
-methods should all receive it as:
-*def process(self, dt):*
+**Note:** You can pass any arguments (or keyword arguments) you need to `esper.process()`, but you
+must also make sure to receive them properly in the `process()` methods of your Processors. For
+example, if you pass a delta time argument as `esper.process(dt)`, your Processor's `process()`
+methods should all receive it as: `def process(self, dt):`
 This is appropriate for libraries such as **pyglet**, which automatically pass a delta time value
 into scheduled functions.  
 
@@ -183,14 +208,13 @@ General Usage
 
 World Contexts
 --------------
-Esper has the capability of supporting multiple "World" contexts. On import, a "default" World is
+**esper** has the capability of supporting multiple "World" contexts. On import, a "default" World is
 active. All creation of Entities, assignment of Processors, and all other operations occur within
 the confines of the active World. In other words, the World contexts are completely isolated from
 each other. For basic games and designs, you may not need to bother with this functionality. A
 single default World context can often be enough. For advanced use cases, such as when different
 scenes in your game have different Entities and Processor requirements, this functionality can be
 quite useful. World context operations are done with the following functions::
-* 
 * esper.list_worlds()
 * esper.switch_world(name)
 * esper.delete_world(name)
@@ -202,7 +226,7 @@ delete the currently active World.
 Adding and Removing Processors
 ------------------------------
 You have already seen examples of adding Processors in an earlier section. There is also a
-*remove_processor* function available:
+`remove_processor` function available:
 
 * esper.add_processor(processor_instance)
 * esper.remove_processor(ProcessorClass)
@@ -218,10 +242,10 @@ remove Components inside your Processors. The following functions are available 
 * esper.add_component(entity_id, component_instance)
 * esper.remove_component(entity_id, ComponentClass)
 
-As an example of this, you could have a "Blink" component with a *duration* attribute. This can be used
+As an example of this, you could have a "Blink" component with a `duration` attribute. This can be used
 to make certain things blink for s specific period of time, then disappear. For example, the code below
 shows a simplified case of adding this Component to an Entity when it takes damage in one processor. A 
-dedicated *BlinkProcessor* handles the effect, and then removes the Component after the duration expires::
+dedicated `BlinkProcessor` handles the effect, and then removes the Component after the duration expires::
 
     class BlinkComponent:
         def __init__(self, duration):
@@ -264,16 +288,16 @@ to it, the following functions are available:
 * esper.component_for_entity
 * esper.components_for_entity
 
-The *component_for_entity* function is useful in a limited number of cases where you know a specific
+The `component_for_entity` function is useful in a limited number of cases where you know a specific
 Entity ID, and wish to get a specific Component for it. An error is raised if the Component does not
-exist for the Entity ID, so it may be more useful when combined with the *has_component*
+exist for the Entity ID, so it may be more useful when combined with the `has_component`
 function that is explained in the next section. For example::
 
     if esper.has_component(ent, SFX):
         sfx = esper.component_for_entity(ent, SFX)
         sfx.play()
 
-The *components_for_entity* function is a special function that returns ALL the Components that are
+The `components_for_entity` function is a special function that returns ALL the Components that are
 assigned to a specific Entity, as a tuple. This is a heavy operation, and not something you would
 want to do each frame or inside your `Processor.process` method. It can be useful, however, if
 you wanted to transfer all of a specific Entity's Components between two separate contexts
@@ -334,7 +358,7 @@ Let's look at the core part of the code::
         stun = esper.component_for_entity(ent, Stun)
         stun.duration -= dt
 
-This code works fine, but the *try_component* function can accomplish the same thing with one
+This code works fine, but the `try_component` function can accomplish the same thing with one
 less function call. The following example will get a specific Component if it exists, or
 return None if it does not::
 
@@ -352,12 +376,12 @@ functions even more concise ::
 More Examples
 -------------
 
-See the **/examples** folder to get an idea of how the basic structure of a game might look.
+See the `/examples` folder to get an idea of how the basic structure of a game might look.
 
 Event Dispatching
 =================
 
-Esper includes basic support for event dispatching and handling. This functionality is
+**esper** includes basic support for event dispatching and handling. This functionality is
 provided by three functions to set (register), remove, and dispatch events. Minimal error
 checking is done, so it's left up to the user to ensure correct naming and number of
 arguments are used when dispatching and receiving events.
@@ -387,7 +411,7 @@ Registered events and handlers are part of the current `World` context.
 Contributing
 ============
 
-Contributions to Esper are always welcome, but there are some specific project goals to keep in mind:
+Contributions to **esper** are always welcome, but there are some specific project goals to keep in mind:
 
 - Pure Python code only: no binary extensions, Cython, etc.
 - Try to target all non-EOL Python versions. Exceptions can be made if there is a compelling reason.
