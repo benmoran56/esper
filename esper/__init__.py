@@ -324,7 +324,8 @@ def has_component(entity: int, component_type: _Type[_C]) -> bool:
 
 def has_components(entity: int, *component_types: _Type[_C]) -> bool:
     """Check if an Entity has all the specified Component types."""
-    return all(comp_type in _entities[entity] for comp_type in component_types)
+    components_dict = _entities[entity]
+    return all(comp_type in components_dict for comp_type in component_types)
 
 
 def add_component(entity: int, component_instance: _C, type_alias: _Optional[_Type[_C]] = None) -> None:
