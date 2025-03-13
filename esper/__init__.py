@@ -231,10 +231,10 @@ def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
 def create_entity(*components: _C) -> int:
     """Create a new Entity, with optional initial Components.
 
-    This funcion returns an Entity ID, which is a plain integer.
+    This function returns an Entity ID, which is a plain integer.
     You can optionally pass one or more Component instances to be
     assigned to the Entity on creation. Components can be also be
-    added later with the :py:func:`esper.add_component` funcion.
+    added later with the :py:func:`esper.add_component` function.
     """
     entity = next(_entity_count)
 
@@ -447,7 +447,7 @@ def try_components(entity: int, __c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_
 
 
 def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple[_C, ...]]:
-    """Try to get a multiple component types for an Entity.
+    """Try to get multiple component types for an Entity.
 
     This function will return the requested Components if they exist,
     or None if they do not. This allows a way to access optional Components
