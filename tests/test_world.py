@@ -505,6 +505,16 @@ def test_event_handler_switch_world():
     esper.dispatch_event("foo")
     assert called == 2
 
+def test_remove_handler():
+    def handler():
+        pass
+
+    assert esper.event_registry == {}
+    esper.set_handler("foo", handler)
+    assert "foo" in esper.event_registry
+    esper.remove_handler("foo", handler)
+    assert esper.event_registry == {}
+
 
 ##################################################
 #   Some helper functions and Component templates:
