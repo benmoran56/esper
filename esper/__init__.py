@@ -81,10 +81,11 @@ def remove_handler(name: str, func: _Callable[..., None]) -> None:
     receive the named event, or if the named event does
     not exist, this function call will pass silently.
     """
-    if func not in event_registry.get(name, []):
+    func_ref = _ref(func)
+    if func_ref not in event_registry.get(name, []):
         return
 
-    event_registry[name].remove(func)
+    event_registry[name].remove(func_ref)
     if not event_registry[name]:
         del event_registry[name]
 
