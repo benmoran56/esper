@@ -243,7 +243,7 @@ remove Components inside your Processors. The following functions are available 
 * esper.remove_component(entity_id, ComponentClass)
 
 As an example of this, you could have a "Blink" component with a `duration` attribute. This can be used
-to make certain things blink for s specific period of time, then disappear. For example, the code below
+to make certain things blink for a specific period of time, then disappear. For example, the code below
 shows a simplified case of adding this Component to an Entity when it takes damage in one processor. A 
 dedicated `BlinkProcessor` handles the effect, and then removes the Component after the duration expires::
 
