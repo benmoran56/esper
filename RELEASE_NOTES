@@ -1,3 +1,12 @@
+esper 3.4
+=========
+Maintenance release
+
+Changes
+-------
+- `esper.remove_handler` should use a reference instead of direct object comparison. (#107)
+
+
 esper 3.3
 =========
 Maintenance release
