@@ -19,7 +19,7 @@ parser.add_option("-e", "--entities", dest="entities", action="store", default=5
 (options, arguments) = parser.parse_args()
 
 MAX_ENTITIES = options.entities
-if MAX_ENTITIES <= 50:
+if MAX_ENTITIES <= 500:
     print("The number of entities must be greater than 500.")
     sys.exit(1)
 
