@@ -76,7 +76,7 @@ class RenderProcessor:
             destination.y = int(rend.y)
             destination.w = rend.w
             destination.h = rend.h
-            SDL_RenderCopy(self.renderer.renderer, rend.texture, None, destination)
+            SDL_RenderCopy(self.renderer.sdlrenderer, rend.texture, None, destination)
         self.renderer.present()
 
 
@@ -86,7 +86,7 @@ class RenderProcessor:
 def texture_from_image(renderer, image_name):
     """Create an SDL2 Texture from an image file"""
     soft_surface = ext.load_image(image_name)
-    texture = SDL_CreateTextureFromSurface(renderer.renderer, soft_surface)
+    texture = SDL_CreateTextureFromSurface(renderer.sdlrenderer, soft_surface)
     SDL_FreeSurface(soft_surface)
     return texture
 
