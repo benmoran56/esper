@@ -34,6 +34,12 @@ if options.walltime:
 else:
     time_query = time.process_time
 
+if options.plot:
+    try:
+        from matplotlib import pyplot as plt
+    except ImportError:
+        sys.exit("The matplotlib module is required for plotting results.")
+
 
 ##########################
 # Simple timing decorator:
@@ -169,14 +175,7 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
 
 if not options.plot:
     print("\nRun 'benchmark.py --help' for details on plotting this benchmark.")
-
-if options.plot:
-    try:
-        from matplotlib import pyplot as plt
-    except ImportError:
-        print("\nThe matplotlib module is required for plotting results.")
-        sys.exit(1)
-
+else:
     lines = []
     for num, result in results.items():
         x, y = zip(*sorted(result.items()))
