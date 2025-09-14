@@ -5,14 +5,16 @@
 #     "pygame",
 # ]
 # ///
+from pathlib import Path
 import pygame
-
 import esper
 
 
 FPS = 60
 RESOLUTION = 720, 480
 
+# Parent dir of this script, to find the PNGs regardless of cwd
+path = Path(__file__).parent
 
 ##################################
 #  Define some Components:
@@ -88,10 +90,10 @@ def run():
     # Initialize Esper world, and create a "player" Entity with a few Components.
     player = esper.create_entity()
     esper.add_component(player, Velocity(x=0, y=0))
-    esper.add_component(player, Renderable(image=pygame.image.load("redsquare.png"), posx=100, posy=100))
+    esper.add_component(player, Renderable(image=pygame.image.load(path / "redsquare.png"), posx=100, posy=100))
     # Another motionless Entity:
     enemy = esper.create_entity()
-    esper.add_component(enemy, Renderable(image=pygame.image.load("bluesquare.png"), posx=400, posy=250))
+    esper.add_component(enemy, Renderable(image=pygame.image.load(path / "bluesquare.png"), posx=400, posy=250))
 
     # Create some Processor instances, and asign them to be processed.
     render_processor = RenderProcessor(window=window)

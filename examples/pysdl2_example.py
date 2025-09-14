@@ -5,6 +5,7 @@
 #     "pysdl2",
 # ]
 # ///
+from pathlib import Path
 from sdl2 import *
 import sdl2.ext as ext
 import esper
@@ -12,6 +13,8 @@ import esper
 
 RESOLUTION = 720, 480
 
+# Parent dir of this script, to find the PNGs regardless of cwd
+path = Path(__file__).parent
 
 ##################################
 #  Define some Components:
@@ -101,11 +104,11 @@ def run():
     # Initialize Esper world, and create a "player" Entity with a few Components.
     player = esper.create_entity()
     esper.add_component(player, Velocity(x=0, y=0))
-    esper.add_component(player, Renderable(texture=texture_from_image(renderer, "redsquare.png"),
+    esper.add_component(player, Renderable(texture=texture_from_image(renderer, str(path / "redsquare.png")),
                                            width=64, height=64, posx=100, posy=100))
     # Another motionless Entity:
     enemy = esper.create_entity()
-    esper.add_component(enemy, Renderable(texture=texture_from_image(renderer, "bluesquare.png"),
+    esper.add_component(enemy, Renderable(texture=texture_from_image(renderer, str(path / "bluesquare.png")),
                                           width=64, height=64, posx=400, posy=250))
 
     # Create some Processor instances, and asign them to be processed.
