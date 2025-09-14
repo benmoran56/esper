@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#     "esper",
+#     "pygame",
+# ]
+# ///
 import pygame
 
 import esper

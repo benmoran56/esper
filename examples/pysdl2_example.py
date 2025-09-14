@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#     "esper",
+#     "pysdl2",
+# ]
+# ///
 from sdl2 import *
 import sdl2.ext as ext
 import esper

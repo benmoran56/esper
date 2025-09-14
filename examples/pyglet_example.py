@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#     "esper",
+#     "pyglet",
+# ]
+# ///
 import pyglet
 import esper
 
