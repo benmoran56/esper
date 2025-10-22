@@ -23,7 +23,7 @@ from weakref import WeakMethod as _WeakMethod
 
 from itertools import count as _count
 
-__version__ = version = '3.4'
+__version__ = version = '3.5'
 
 
 ###################
@@ -140,13 +140,12 @@ _dead_entities: _Set[int] = set()
 _get_component_cache: _Dict[_Type[_Any], _List[_Any]] = {}
 _get_components_cache: _Dict[_Tuple[_Type[_Any], ...], _List[_Any]] = {}
 _processors: _List[Processor] = []
+_processors_dict: _Dict[_Type[Processor], Processor] = {}
+_cache_dirty: bool = False
 event_registry: _Dict[str, _Any] = {}
 process_times: _Dict[str, int] = {}
 current_world: str = "default"
 
-
-# {context_name: (entity_count, components, entities, dead_entities,
-#                 comp_cache, comps_cache, processors, process_times, event_registry)}
 _context_map: _Dict[str, _Tuple[
     "_count[int]",
     _Dict[_Type[_Any], _Set[_Any]],
@@ -155,9 +154,11 @@ _context_map: _Dict[str, _Tuple[
     _Dict[_Type[_Any], _List[_Any]],
     _Dict[_Tuple[_Type[_Any], ...], _List[_Any]],
     _List[Processor],
+    _Dict[_Type[Processor], Processor],
+    bool,
     _Dict[str, int],
     _Dict[str, _Any]
-]] = {"default": (_entity_count, {}, {}, set(), {}, {}, [], {}, {})}
+]] = {"default": (_entity_count, {}, {}, set(), {}, {}, [], {}, False, {}, {})}
 
 
 def clear_cache() -> None:
@@ -166,8 +167,16 @@ def clear_cache() -> None:
     Clearing the cache is not necessary to do manually,
     but may be useful for benchmarking or debugging.
     """
+    global _cache_dirty
+    _cache_dirty = True
+
+
+def _clear_cache_now() -> None:
+    """Actually clear the cache (internal use)."""
+    global _cache_dirty
     _get_component_cache.clear()
     _get_components_cache.clear()
+    _cache_dirty = False
 
 
 def clear_database() -> None:
@@ -181,7 +190,7 @@ def clear_database() -> None:
     _components.clear()
     _entities.clear()
     _dead_entities.clear()
-    clear_cache()
+    _clear_cache_now()
 
 
 def add_processor(processor_instance: Processor, priority: int = 0) -> None:
@@ -196,6 +205,7 @@ def add_processor(processor_instance: Processor, priority: int = 0) -> None:
     processor_instance.priority = priority
     _processors.append(processor_instance)
     _processors.sort(key=lambda proc: proc.priority, reverse=True)
+    _processors_dict[type(processor_instance)] = processor_instance
 
 
 def remove_processor(processor_type: _Type[Processor]) -> None:
@@ -210,9 +220,9 @@ def remove_processor(processor_type: _Type[Processor]) -> None:
         self.world.remove_processor(my_processor_instance)
 
     """
-    for processor in _processors:
-        if type(processor) is processor_type:
-            _processors.remove(processor)
+    processor = _processors_dict.pop(processor_type, None)
+    if processor:
+        _processors.remove(processor)
 
 
 def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
@@ -222,11 +232,7 @@ def get_processor(processor_type: _Type[Processor]) -> _Optional[Processor]:
     useful in certain situations, such as wanting to call a method on a
     Processor, from within another Processor.
     """
-    for processor in _processors:
-        if type(processor) is processor_type:
-            return processor
-    else:
-        return None
+    return _processors_dict.get(processor_type)
 
 
 def create_entity(*components: _C) -> int:
@@ -238,21 +244,19 @@ def create_entity(*components: _C) -> int:
     added later with the :py:func:`esper.add_component` function.
     """
     entity = next(_entity_count)
-
-    if entity not in _entities:
-        _entities[entity] = {}
-
+    entity_dict = {}
+    
     for component_instance in components:
-
         component_type = type(component_instance)
 
         if component_type not in _components:
             _components[component_type] = set()
 
         _components[component_type].add(entity)
+        entity_dict[component_type] = component_instance
 
-        _entities[entity][component_type] = component_instance
-        clear_cache()
+    _entities[entity] = entity_dict
+    clear_cache()
 
     return entity
 
@@ -270,15 +274,16 @@ def delete_entity(entity: int, immediate: bool = False) -> None:
     Raises a KeyError if the given entity does not exist in the database.
     """
     if immediate:
-        for component_type in _entities[entity]:
-            _components[component_type].discard(entity)
+        entity_comps = _entities[entity]
+        for component_type in entity_comps:
+            comp_set = _components[component_type]
+            comp_set.discard(entity)
 
-            if not _components[component_type]:
+            if not comp_set:
                 del _components[component_type]
 
         del _entities[entity]
         clear_cache()
-
     else:
         _dead_entities.add(entity)
 
@@ -325,8 +330,8 @@ def has_component(entity: int, component_type: _Type[_C]) -> bool:
 
 def has_components(entity: int, *component_types: _Type[_C]) -> bool:
     """Check if an Entity has all the specified Component types."""
-    components_dict = _entities[entity]
-    return all(comp_type in components_dict for comp_type in component_types)
+    entity_comps = _entities[entity]
+    return all(comp_type in entity_comps for comp_type in component_types)
 
 
 def add_component(entity: int, component_instance: _C, type_alias: _Optional[_Type[_C]] = None) -> None:
@@ -345,7 +350,6 @@ def add_component(entity: int, component_instance: _C, type_alias: _Optional[_Ty
         _components[component_type] = set()
 
     _components[component_type].add(entity)
-
     _entities[entity][component_type] = component_instance
     clear_cache()
 
@@ -360,39 +364,82 @@ def remove_component(entity: int, component_type: _Type[_C]) -> _C:
     Raises a KeyError if either the given entity or Component type does
     not exist in the database.
     """
-    _components[component_type].discard(entity)
+    comp_set = _components[component_type]
+    comp_set.discard(entity)
 
-    if not _components[component_type]:
+    if not comp_set:
         del _components[component_type]
 
     clear_cache()
-    return _entities[entity].pop(component_type)  # type: ignore[no-any-return]
+    return _entities[entity].pop(component_type)
 
 
 def _get_component(component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
     entity_db = _entities
-
-    for entity in _components.get(component_type, []):
+    comp_set = _components.get(component_type)
+    
+    if comp_set is None:
+        return
+    
+    for entity in comp_set:
         yield entity, entity_db[entity][component_type]
 
 
-def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _List[_C]]]:
+def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _Tuple[_C, ...]]]:
+    if not component_types:
+        return
+    
     entity_db = _entities
     comp_db = _components
 
-    try:
-        for entity in set.intersection(*[comp_db[ct] for ct in component_types]):
-            yield entity, [entity_db[entity][ct] for ct in component_types]
-    except KeyError:
-        pass
+    min_set = None
+    min_size = float('inf')
+    other_types = []
+    
+    for ct in component_types:
+        comp_set = comp_db.get(ct)
+        if comp_set is None:
+            return
+        set_size = len(comp_set)
+        if set_size < min_size:
+            if min_set is not None:
+                other_types.append(component_types[len(other_types)])
+            min_size = set_size
+            min_set = comp_set
+        else:
+            other_types.append(ct)
+    
+    if min_set is None:
+        return
+
+    if not other_types:
+        for entity in min_set:
+            entity_comps = entity_db[entity]
+            yield entity, tuple(entity_comps[ct] for ct in component_types)
+    else:
+        for entity in min_set:
+            entity_comps = entity_db[entity]
+            has_all = True
+            for ct in other_types:
+                if ct not in entity_comps:
+                    has_all = False
+                    break
+            if has_all:
+                yield entity, tuple(entity_comps[ct] for ct in component_types)
 
 
 def get_component(component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
     """Get an iterator for Entity, Component pairs."""
-    try:
-        return _get_component_cache[component_type]
-    except KeyError:
-        return _get_component_cache.setdefault(component_type, list(_get_component(component_type)))
+    if _cache_dirty:
+        _clear_cache_now()
+    
+    cached = _get_component_cache.get(component_type)
+    if cached is not None:
+        return cached
+    
+    result = list(_get_component(component_type))
+    _get_component_cache[component_type] = result
+    return result
 
 
 @_overload
@@ -411,12 +458,18 @@ def get_components(__c1: _Type[_C], __c2: _Type[_C2], __c3: _Type[_C3], __c4: _T
     ...
 
 
-def get_components(*component_types: _Type[_Any]) -> _Iterable[_Tuple[int, _Tuple[_Any, ...]]]:
+def get_components(*component_types: _Type[_Any]) -> _List[_Tuple[int, _Tuple[_Any, ...]]]:
     """Get an iterator for Entity and multiple Component sets."""
-    try:
-        return _get_components_cache[component_types]
-    except KeyError:
-        return _get_components_cache.setdefault(component_types, list(_get_components(*component_types)))
+    if _cache_dirty:
+        _clear_cache_now()
+    
+    cached = _get_components_cache.get(component_types)
+    if cached is not None:
+        return cached
+    
+    result = list(_get_components(*component_types))
+    _get_components_cache[component_types] = result
+    return result
 
 
 def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
@@ -427,8 +480,9 @@ def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
     that may or may not exist, without having to first query if the Entity
     has the Component type.
     """
-    if component_type in _entities[entity]:
-        return _entities[entity][component_type]  # type: ignore[no-any-return]
+    entity_comps = _entities.get(entity)
+    if entity_comps and component_type in entity_comps:
+        return entity_comps[component_type]
     return None
 
 
@@ -455,8 +509,9 @@ def try_components(entity: int, *component_types: _Type[_C]) -> _Optional[_Tuple
     that may or may not exist, without first having to query if the Entity
     has the Component types.
     """
-    if all(comp_type in _entities[entity] for comp_type in component_types):
-        return [_entities[entity][comp_type] for comp_type in component_types]  # type: ignore[return-value]
+    entity_comps = _entities.get(entity)
+    if entity_comps and all(comp_type in entity_comps for comp_type in component_types):
+        return tuple(entity_comps[comp_type] for comp_type in component_types)
     return None
 
 
@@ -471,12 +526,17 @@ def clear_dead_entities() -> None:
     # In the interest of performance, this function duplicates code from the
     # `delete_entity` function. If that function is changed, those changes should
     # be duplicated here as well.
+    if not _dead_entities:
+        return
+    
     for entity in _dead_entities:
+        entity_comps = _entities[entity]
+        
+        for component_type in entity_comps:
+            comp_set = _components[component_type]
+            comp_set.discard(entity)
 
-        for component_type in _entities[entity]:
-            _components[component_type].discard(entity)
-
-            if not _components[component_type]:
+            if not comp_set:
                 del _components[component_type]
 
         del _entities[entity]
@@ -553,8 +613,7 @@ def switch_world(name: str) -> None:
     .. note:: At startup, a "default" World context is active.
     """
     if name not in _context_map:
-        # Create a new context if the name does not already exist:
-        _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, {})
+        _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, False, {}, {})
 
     global _current_world
     global _entity_count
@@ -564,11 +623,13 @@ def switch_world(name: str) -> None:
     global _get_component_cache
     global _get_components_cache
     global _processors
+    global _processors_dict
+    global _cache_dirty
     global process_times
     global event_registry
     global current_world
 
-    # switch the references to the objects in the named context_map:
     (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
-     _get_components_cache, _processors, process_times, event_registry) = _context_map[name]
+     _get_components_cache, _processors, _processors_dict, _cache_dirty, 
+     process_times, event_registry) = _context_map[name]
     _current_world = current_world = name
