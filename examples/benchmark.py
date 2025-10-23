@@ -25,14 +25,19 @@ parser.add_option("-e", "--entities", dest="entities", action="store", default=5
 
 MAX_ENTITIES = options.entities
 if MAX_ENTITIES <= 500:
-    print("The number of entities must be greater than 500.")
-    sys.exit(1)
+    sys.exit("The number of entities must be greater than 500.")
 
 if options.walltime:
     print("Benchmarking wall clock time...\n")
     time_query = time.time
 else:
     time_query = time.process_time
+
+if options.plot:
+    try:
+        from matplotlib import pyplot as plt
+    except ImportError:
+        sys.exit("The matplotlib module is required for plotting results.")
 
 
 ##########################
@@ -169,14 +174,7 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
 
 if not options.plot:
     print("\nRun 'benchmark.py --help' for details on plotting this benchmark.")
-
-if options.plot:
-    try:
-        from matplotlib import pyplot as plt
-    except ImportError:
-        print("\nThe matplotlib module is required for plotting results.")
-        sys.exit(1)
-
+else:
     lines = []
     for num, result in results.items():
         x, y = zip(*sorted(result.items()))

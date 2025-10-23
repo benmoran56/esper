@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#     "esper",
+#     "pyglet",
+# ]
+# ///
 import pyglet
 import esper
 
@@ -29,8 +36,8 @@ class MovementProcessor:
     def __init__(self, minx, maxx, miny, maxy):
         super().__init__()
         self.minx = minx
-        self.miny = miny
         self.maxx = maxx
+        self.miny = miny
         self.maxy = maxy
 
     def process(self, dt):
