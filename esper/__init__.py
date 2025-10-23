@@ -484,7 +484,7 @@ def try_component(entity: int, component_type: _Type[_C]) -> _Optional[_C]:
     """
     entity_comps = _entities.get(entity)
     if entity_comps and component_type in entity_comps:
-        return entity_comps[component_type]
+        return entity_comps[component_type]  # type: ignore[no-any-return]
     return None
 
 
