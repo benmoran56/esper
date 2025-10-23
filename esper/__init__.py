@@ -21,6 +21,8 @@ from typing import overload as _overload
 from weakref import ref as _ref
 from weakref import WeakMethod as _WeakMethod
 
+from math import inf as _inf
+
 from itertools import count as _count
 
 __version__ = version = '3.5'
@@ -393,7 +395,7 @@ def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _Tuple
     comp_db = _components
 
     min_set = None
-    min_size = float('inf')
+    min_size = _inf
     other_types = []
     
     for ct in component_types:
