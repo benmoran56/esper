@@ -118,7 +118,7 @@ def test_get_two_components():
 
     for ent, comps in esper.get_components(ComponentD, ComponentE):
         assert isinstance(ent, int)
-        assert isinstance(comps, list)
+        assert isinstance(comps, tuple)
         assert len(comps) == 2
 
     for ent, (d, e) in esper.get_components(ComponentD, ComponentE):
@@ -133,7 +133,7 @@ def test_get_three_components():
 
     for ent, comps in esper.get_components(ComponentC, ComponentD, ComponentE):
         assert isinstance(ent, int)
-        assert isinstance(comps, list)
+        assert isinstance(comps, tuple)
         assert len(comps) == 3
 
     for ent, (c, d, e) in esper.get_components(ComponentC, ComponentD, ComponentE):
@@ -157,7 +157,7 @@ def test_try_components():
     entity1 = esper.create_entity(ComponentA(), ComponentB())
 
     one_item = esper.try_components(entity1, ComponentA, ComponentB)
-    assert isinstance(one_item, list)
+    assert isinstance(one_item, tuple)
     assert len(one_item) == 2
     assert isinstance(one_item[0], ComponentA)
     assert isinstance(one_item[1], ComponentB)
@@ -515,6 +515,174 @@ def test_remove_handler():
     esper.remove_handler("foo", handler)
     assert esper.event_registry == {}
 
+
+##################################################
+#             Advanced Feature Tests             #
+##################################################
+
+
+def test_delayed_delete_entity():
+    """
+    Verify that delayed entity deletion works as expected.
+
+    This test checks the default deletion behavior (`immediate=False`).
+    It ensures that:
+    1. An entity marked for deletion is immediately considered non-existent
+       by the public `entity_exists()` function.
+    2. The entity's data, however, remains in the internal database
+       structures until the cleanup process is run.
+    3. After `clear_dead_entities()` is called, the entity is completely
+       purged from the database.
+    """
+    entity = esper.create_entity(ComponentA())
+    esper.delete_entity(entity, immediate=False)
+    
+    assert esper.entity_exists(entity) is False
+    assert entity in esper._entities
+
+    esper.clear_dead_entities()
+    
+    assert entity not in esper._entities
+    with pytest.raises(KeyError):
+        esper.components_for_entity(entity)
+
+
+def test_cache_invalidation_on_add_component():
+    """
+    Verify that adding a component correctly invalidates the query cache.
+
+    This test ensures that:
+    1. A query is run to populate the cache (making it "hot").
+    2. A new component is added to an existing entity, which should trigger
+       the lazy cache invalidation mechanism by setting the dirty flag.
+    3. A subsequent query correctly rebuilds the cache and returns the
+       expected results.
+    """
+    entity = esper.create_entity(ComponentA())
+    
+    result1 = esper.get_component(ComponentA)
+    assert len(result1) == 1
+    
+    esper.add_component(entity, ComponentB())
+    
+    esper.clear_cache()
+    result2 = esper.get_component(ComponentA)
+    assert len(result2) == 1
+
+
+def test_cache_invalidation_on_remove_component():
+    """
+    Verify that removing a component correctly invalidates the query cache.
+
+    This test ensures that:
+    1. A query for a specific component combination is run to populate the cache.
+    2. One of the components is removed from the entity, which should
+       trigger the lazy cache invalidation by setting the dirty flag.
+    3. A subsequent query for the same component combination correctly
+       returns an empty result and clears the dirty flag.
+    """
+    entity = esper.create_entity(ComponentA(), ComponentB())
+    
+    result1 = esper.get_components(ComponentA, ComponentB)
+    assert len(result1) == 1
+    
+    esper.remove_component(entity, ComponentB)
+    
+    result2 = esper.get_components(ComponentA, ComponentB)
+    assert len(result2) == 0
+
+
+def test_processor_priority():
+    """
+    Verify that processors are executed in the correct order based on priority.
+
+    This test adds two processors, A and B, with different priority values
+    (A has a higher priority of 10, B has a lower priority of 5). It then
+    confirms that when `esper.process()` is called, the processor with the
+    higher numerical priority (Processor A) is executed before the one with
+    the lower priority.
+    """
+
+    class PriorityProcessorA(esper.Processor):
+        priority = 10
+
+        def process(self, order_list):
+            order_list.append('A')
+
+    class PriorityProcessorB(esper.Processor):
+        priority = 5
+
+        def process(self, order_list):
+            order_list.append('B')
+
+    proc_b = PriorityProcessorB()
+    proc_a = PriorityProcessorA()
+
+    esper.add_processor(proc_b, priority=proc_b.priority)
+    esper.add_processor(proc_a, priority=proc_a.priority)
+
+    order = []
+    esper.process(order)
+
+    assert order == ['A', 'B']
+
+
+def test_weak_reference_handler_removal():
+    """
+    Verify that event handlers are automatically unregistered when garbage collected.
+
+    The event system uses weak references to handlers to prevent memory leaks.
+    This test confirms that:
+    1. A method from a temporary object instance is registered as an event handler.
+    2. After the only strong reference to the instance is deleted, the garbage
+       collector reclaims the object.
+    3. The weak reference in the event registry becomes dead, and the handler
+       is automatically removed via its callback.
+    4. Dispatching the event no longer calls the handler, and the event name
+       is removed from the registry.
+    """
+    called = 0
+    
+    class TempHandler:
+        def handle(self):
+            nonlocal called
+            called += 1
+    
+    temp_instance = TempHandler()
+    esper.set_handler("temp_event", temp_instance.handle)
+    
+    assert "temp_event" in esper.event_registry
+    
+    del temp_instance
+    
+    import gc
+    gc.collect()
+    
+    esper.dispatch_event("temp_event")
+    assert called == 0
+    
+    assert "temp_event" not in esper.event_registry
+
+
+def test_delete_world():
+    """
+    Verify the functionality of creating and deleting world contexts.
+
+    This test checks that:
+    1. A new world context can be created implicitly via `switch_world`.
+    2. The `list_worlds` function correctly reports the existence of the new world.
+    3. The `delete_world` function successfully removes the specified world.
+    4. Attempting to delete a non-existent world correctly raises a KeyError.
+    """
+    esper.switch_world("temp_world")
+    esper.switch_world("default")
+    
+    assert "temp_world" in esper.list_worlds()
+    esper.delete_world("temp_world")
+    assert "temp_world" not in esper.list_worlds()
+    
+    with pytest.raises(KeyError):
+         esper.delete_world("non_existent")
 
 ##################################################
 #   Some helper functions and Component templates:

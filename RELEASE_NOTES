@@ -1,3 +1,16 @@
+esper 3.5
+=========
+Performance-focused release with major internal optimizations.
+
+Changes
+-------
+- Optimized `get_components` to iterate over the smallest set of entities, drastically speeding up queries with rare components.
+- Implemented lazy cache invalidation to reduce overhead from frequent entity modifications.
+- Sped up `get_processor` and `remove_processor` to be constant time (O(1)) operations.
+- Minor performance improvements to entity creation and deletion routines.
+- Expanded Benchmarks.
+
+
 esper 3.4
 =========
 Maintenance release
