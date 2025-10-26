@@ -373,7 +373,7 @@ def remove_component(entity: int, component_type: _Type[_C]) -> _C:
         del _components[component_type]
 
     clear_cache()
-    return _entities[entity].pop(component_type)
+    return _entities[entity].pop(component_type)  # type: ignore[no-any-return]
 
 
 def _get_component(component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
