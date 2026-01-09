@@ -2,6 +2,8 @@
 
 More information is available at https://github.com/benmoran56/esper
 """
+from __future__ import annotations
+
 import time as _time
 
 from types import MethodType as _MethodType
@@ -25,7 +27,7 @@ from math import inf as _inf
 
 from itertools import count as _count
 
-__version__ = version = '3.5'
+__version__ = version = '3.6'
 
 
 ###################
@@ -247,7 +249,7 @@ def create_entity(*components: _C) -> int:
     """
     entity = next(_entity_count)
     entity_dict = {}
-    
+
     for component_instance in components:
         component_type = type(component_instance)
 
@@ -376,13 +378,31 @@ def remove_component(entity: int, component_type: _Type[_C]) -> _C:
     return _entities[entity].pop(component_type)  # type: ignore[no-any-return]
 
 
+def try_remove_component(entity: int, component_type: _Type[_C]) -> _Type[_C] | None:
+    """Try to remove a Component instance from an Entity, by type.
+
+    This operation is similar to :py:func:`esper.remove_component`, but
+    will NOT raise an exception if the Component does not exist.
+    """
+    if comp_set := _components.get(component_type):
+        comp_set.discard(entity)
+
+        if not comp_set:
+            del _components[component_type]
+
+        clear_cache()
+        return _entities[entity].pop(component_type)  # type: ignore[no-any-return]
+
+    return None
+
+
 def _get_component(component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
     entity_db = _entities
     comp_set = _components.get(component_type)
-    
+
     if comp_set is None:
         return
-    
+
     for entity in comp_set:
         yield entity, entity_db[entity][component_type]
 
@@ -390,14 +410,14 @@ def _get_component(component_type: _Type[_C]) -> _Iterable[_Tuple[int, _C]]:
 def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _Tuple[_C, ...]]]:
     if not component_types:
         return
-    
+
     entity_db = _entities
     comp_db = _components
 
     min_set = None
     min_size = _inf
     other_types = []
-    
+
     for ct in component_types:
         comp_set = comp_db.get(ct)
         if comp_set is None:
@@ -410,7 +430,7 @@ def _get_components(*component_types: _Type[_C]) -> _Iterable[_Tuple[int, _Tuple
             min_set = comp_set
         else:
             other_types.append(ct)
-    
+
     if min_set is None:
         return
 
@@ -434,11 +454,11 @@ def get_component(component_type: _Type[_C]) -> _List[_Tuple[int, _C]]:
     """Get an iterator for Entity, Component pairs."""
     if _cache_dirty:
         _clear_cache_now()
-    
+
     cached = _get_component_cache.get(component_type)
     if cached is not None:
         return cached
-    
+
     result = list(_get_component(component_type))
     _get_component_cache[component_type] = result
     return result
@@ -464,11 +484,11 @@ def get_components(*component_types: _Type[_Any]) -> _List[_Tuple[int, _Tuple[_A
     """Get an iterator for Entity and multiple Component sets."""
     if _cache_dirty:
         _clear_cache_now()
-    
+
     cached = _get_components_cache.get(component_types)
     if cached is not None:
         return cached
-    
+
     result = list(_get_components(*component_types))
     _get_components_cache[component_types] = result
     return result
@@ -530,10 +550,10 @@ def clear_dead_entities() -> None:
     # be duplicated here as well.
     if not _dead_entities:
         return
-    
+
     for entity in _dead_entities:
         entity_comps = _entities[entity]
-        
+
         for component_type in entity_comps:
             comp_set = _components[component_type]
             comp_set.discard(entity)
@@ -632,6 +652,6 @@ def switch_world(name: str) -> None:
     global current_world
 
     (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
-     _get_components_cache, _processors, _processors_dict, _cache_dirty, 
+     _get_components_cache, _processors, _processors_dict, _cache_dirty,
      process_times, event_registry) = _context_map[name]
     _current_world = current_world = name

@@ -255,6 +255,21 @@ class TestRemoveComponent:
         assert not esper.has_component(entity, ComponentB)
         assert esper.component_for_entity(entity, ComponentC) is component_c
 
+    def test_try_remove_component(self):
+        component_a = ComponentA()
+        component_b = ComponentB()
+        component_c = ComponentC()
+        entity = esper.create_entity(component_a, component_b, component_c)
+
+        # The component should be deleted the first time:
+        _deleted_component = esper.try_remove_component(entity, ComponentB)
+        assert _deleted_component is component_b
+        assert not esper.has_component(entity, ComponentB)
+
+        # Future calls should return None, and not raise any Exception:
+        _deleted_component = esper.try_remove_component(entity, ComponentB)
+        assert _deleted_component is None
+
 
 def test_clear_dead_entities():
     component = ComponentA()
