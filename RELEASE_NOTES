@@ -1,3 +1,13 @@
+esper 3.6
+=========
+Maintenance release
+
+Changes
+-------
+- Add a new `try_remove_component` function as a convenience instead of (has_component + remove_component).
+- Typing and type hinting changes.
+
+
 esper 3.5
 =========
 Performance-focused release with major internal optimizations.
