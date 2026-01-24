@@ -5,7 +5,7 @@ Maintenance release
 Changes
 -------
 - Add a new `try_remove_component` function as a convenience instead of (has_component + remove_component).
-- Typing and type hinting changes.
+- Start migrating type hints to the modern syntax.
 
 
 esper 3.5
