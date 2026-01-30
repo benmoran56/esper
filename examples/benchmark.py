@@ -238,13 +238,13 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
 
 for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     create_entities(amount)
-    all_entities = list(esper._entities.keys())
+    all_entities = list(esper.get_entities())
     k = min(10, len(all_entities))
     entities_to_kill_per_frame = random.sample(all_entities, k=k)
 
     for _ in range(50):
         dynamic_world_frame(entities_to_kill_per_frame, 10)
-        all_entities = list(esper._entities.keys())
+        all_entities = list(esper.get_entities())
         k = min(10, len(all_entities))
         if k > 0:
             entities_to_kill_per_frame = random.sample(all_entities, k=k)

@@ -1,3 +1,12 @@
+esper 3.7
+=========
+Maintenance release
+
+Changes
+-------
+- Add a new `get_entities` method that returns a generator over all entity IDs.
+
+
 esper 3.6
 =========
 Maintenance release

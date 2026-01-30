@@ -2,6 +2,8 @@ import pytest
 
 import esper
 
+from types import GeneratorType
+
 
 # ECS test
 @pytest.fixture(autouse=True)
@@ -63,6 +65,14 @@ def test_delete_entity():
     with pytest.raises(KeyError):
         esper.delete_entity(999, immediate=True)
     esper.delete_entity(empty_entity, immediate=True)
+
+
+def test_get_entities():
+    create_entities(100)
+    generator = esper.get_entities()
+    assert isinstance(generator, GeneratorType)
+    assert isinstance(next(generator), int)
+    assert len(list(generator)) == 99   # one already exhausted
 
 
 def test_component_for_entity():
@@ -551,12 +561,12 @@ def test_delayed_delete_entity():
     """
     entity = esper.create_entity(ComponentA())
     esper.delete_entity(entity, immediate=False)
-    
+
     assert esper.entity_exists(entity) is False
     assert entity in esper._entities
 
     esper.clear_dead_entities()
-    
+
     assert entity not in esper._entities
     with pytest.raises(KeyError):
         esper.components_for_entity(entity)
@@ -574,12 +584,12 @@ def test_cache_invalidation_on_add_component():
        expected results.
     """
     entity = esper.create_entity(ComponentA())
-    
+
     result1 = esper.get_component(ComponentA)
     assert len(result1) == 1
-    
+
     esper.add_component(entity, ComponentB())
-    
+
     esper.clear_cache()
     result2 = esper.get_component(ComponentA)
     assert len(result2) == 1
@@ -597,12 +607,12 @@ def test_cache_invalidation_on_remove_component():
        returns an empty result and clears the dirty flag.
     """
     entity = esper.create_entity(ComponentA(), ComponentB())
-    
+
     result1 = esper.get_components(ComponentA, ComponentB)
     assert len(result1) == 1
-    
+
     esper.remove_component(entity, ComponentB)
-    
+
     result2 = esper.get_components(ComponentA, ComponentB)
     assert len(result2) == 0
 
@@ -657,25 +667,25 @@ def test_weak_reference_handler_removal():
        is removed from the registry.
     """
     called = 0
-    
+
     class TempHandler:
         def handle(self):
             nonlocal called
             called += 1
-    
+
     temp_instance = TempHandler()
     esper.set_handler("temp_event", temp_instance.handle)
-    
+
     assert "temp_event" in esper.event_registry
-    
+
     del temp_instance
-    
+
     import gc
     gc.collect()
-    
+
     esper.dispatch_event("temp_event")
     assert called == 0
-    
+
     assert "temp_event" not in esper.event_registry
 
 
@@ -691,11 +701,11 @@ def test_delete_world():
     """
     esper.switch_world("temp_world")
     esper.switch_world("default")
-    
+
     assert "temp_world" in esper.list_worlds()
     esper.delete_world("temp_world")
     assert "temp_world" not in esper.list_worlds()
-    
+
     with pytest.raises(KeyError):
          esper.delete_world("non_existent")
 

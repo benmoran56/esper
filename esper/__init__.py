@@ -10,6 +10,7 @@ from types import MethodType as _MethodType
 
 from typing import Any as _Any
 from typing import Callable as _Callable
+from typing import Generator as _Generator
 from typing import TypeVar as _TypeVar
 from typing import Iterable as _Iterable
 from typing import overload as _overload
@@ -21,7 +22,7 @@ from math import inf
 
 from itertools import count as _count
 
-__version__ = version = '3.6'
+__version__ = version = '3.7'
 
 
 ###################
@@ -363,6 +364,11 @@ def entity_exists(entity: int) -> bool:
     by delete_entity) will not count as existent ones.
     """
     return entity in _entities and entity not in _dead_entities
+
+
+def get_entities() -> _Generator[int]:
+    """Iterate over all living Entity IDs."""
+    yield from _entities
 
 
 def component_for_entity(entity: int, component_type: type[_C]) -> _C:
