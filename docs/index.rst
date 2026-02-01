@@ -49,6 +49,7 @@ The World context
 .. autofunction:: esper.components_for_entity
 .. autofunction:: esper.add_component
 .. autofunction:: esper.remove_component
+.. autofunction:: esper.try_remove_component
 .. autofunction:: esper.get_component
 .. autofunction:: esper.get_components
 .. autofunction:: esper.has_component

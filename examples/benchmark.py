@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import gc
+import random
 import sys
 import time
 import optparse
@@ -94,6 +95,11 @@ class Brain:
     smarts: int = 9000
 
 
+@component
+class IsPlayer:
+    pass
+
+
 #############################
 # Set up some dummy entities:
 #############################
@@ -101,6 +107,14 @@ def create_entities(number):
     for _ in range(number // 2):
         esper.create_entity(Position(), Velocity(), Health(), Command())
         esper.create_entity(Position(), Health(), Damageable())
+
+
+def create_mixed_entities(number):
+    for _ in range(number - 5):
+        esper.create_entity(Position(), Velocity())
+
+    for _ in range(5):
+        esper.create_entity(Position(), Velocity(), IsPlayer())
 
 
 #############################
@@ -124,10 +138,56 @@ def three_comp_query():
         pass
 
 
+@timing
+def rare_comp_query():
+    """
+    Benchmark a query involving a common and a rare component.
+
+    This scenario is designed to highlight the performance gain from the
+    "iterate over the smallest set" optimization. The query for
+    (Position, Velocity, IsPlayer) should be extremely fast, as it only
+    needs to iterate over the few entities that have the rare `IsPlayer`
+    component, instead of all entities with `Position`.
+    """
+    for _, (_, _, _) in esper.get_components(Position, Velocity, IsPlayer):
+        pass
+
+
+@timing
+def dynamic_world_frame(entities_to_kill, new_entities_to_create):
+    """
+    Benchmark a single frame in a dynamic world with entity churn.
+
+    This function simulates a typical game loop frame to measure performance
+    under dynamic conditions. It tests the combined cost of:
+    1. Running common queries.
+    2. Deleting a batch of existing entities (testing `delete_entity`).
+    3. Creating a batch of new entities (testing `create_entity`).
+    4. Cleaning up dead entities (testing `clear_dead_entities`).
+
+    This is a good test for the lazy cache invalidation and optimized
+    entity cleanup mechanisms.
+    """
+    for _, (_, _) in esper.get_components(Position, Velocity):
+        pass
+    for _, (_, _, _) in esper.get_components(Position, Damageable, Health):
+        pass
+
+    for ent_id in entities_to_kill:
+        if esper.entity_exists(ent_id):
+            esper.delete_entity(ent_id, immediate=False)
+
+    create_entities(new_entities_to_create)
+
+    esper.clear_dead_entities()
+
+
 #################################################
 # Perform several queries, and print the results:
 #################################################
 results = {1: {}, 2: {}, 3: {}}
+# result_times = []
+new_results = {"Rare Comp": {}, "Dynamic World": {}}
 result_times = []
 
 for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
@@ -167,13 +227,49 @@ for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
     gc.collect()
 
 
+print("\n--- Benchmarking: Optimized Scenarios ---")
+
+for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
+    create_mixed_entities(amount)
+    for _ in range(50):
+        rare_comp_query()
+    result_min = min(result_times)
+    print("Query rare component, {} Entities: {:f} ms".format(amount, result_min))
+    new_results["Rare Comp"][amount] = result_min
+    result_times = []
+    esper.clear_database()
+    gc.collect()
+
+for amount in range(500, MAX_ENTITIES, MAX_ENTITIES//50):
+    create_entities(amount)
+    all_entities = list(esper.get_entities())
+    k = min(10, len(all_entities))
+    entities_to_kill_per_frame = random.sample(all_entities, k=k)
+
+    for _ in range(50):
+        dynamic_world_frame(entities_to_kill_per_frame, 10)
+        all_entities = list(esper.get_entities())
+        k = min(10, len(all_entities))
+        if k > 0:
+            entities_to_kill_per_frame = random.sample(all_entities, k=k)
+
+    result_min = min(result_times)
+    print("Dynamic world frame, {} Entities: {:f} ms".format(amount, result_min))
+    new_results["Dynamic World"][amount] = result_min
+    result_times = []
+    esper.clear_database()
+    gc.collect()
+
+
 #############################################
 # Save the results to disk, or plot directly:
 #############################################
 
 if not options.plot:
     print("\nRun 'benchmark.py --help' for details on plotting this benchmark.")
+
 else:
+    plt.figure(1)
     lines = []
     for num, result in results.items():
         x, y = zip(*sorted(result.items()))
@@ -182,5 +278,19 @@ else:
 
     plt.ylabel("Query Time (ms)")
     plt.xlabel("Number of Entities")
+    plt.title("Basic Component Queries")
     plt.legend(handles=lines, bbox_to_anchor=(0.5, 1))
+
+    plt.figure(2)
+    lines = []
+    for name, result in new_results.items():
+        if result:
+            x, y = zip(*sorted(result.items()))
+            lines.extend(plt.plot(x, y, label=name, marker='o'))
+
+    plt.ylabel("Query Time (ms)")
+    plt.xlabel("Number of Entities")
+    plt.title("Optimized Scenarios")
+    plt.legend(handles=lines, bbox_to_anchor=(0.5, 1))
+
     plt.show()
