@@ -1,10 +1,4 @@
-# /// script
-# requires-python = ">=3.8"
-# dependencies = [
-#     "esper",
-#     "pysdl2",
-# ]
-# ///
+#!/usr/bin/env python
 from pathlib import Path
 from sdl2 import *
 import sdl2.ext as ext
