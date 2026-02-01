@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import sys
 import time
@@ -8,12 +7,6 @@ import optparse
 from dataclasses import dataclass as component
 
 import esper
-
-try:
-    from matplotlib import pyplot
-except ImportError:
-    print("The matplotlib module is required for this benchmark.")
-    raise Exception
 
 ######################
 # Commandline options:
@@ -25,9 +18,13 @@ parser.add_option("-e", "--entities", dest="entities", action="store", default=5
 (options, arguments) = parser.parse_args()
 
 MAX_ENTITIES = options.entities
-if MAX_ENTITIES <= 50:
-    print("The number of entities must be greater than 500.")
-    sys.exit(1)
+if MAX_ENTITIES <= 500:
+    sys.exit("The number of entities must be greater than 500.")
+
+try:
+    from matplotlib import pyplot
+except ImportError:
+    sys.exit("The matplotlib module is required for plotting results.")
 
 
 ##########################

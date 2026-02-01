@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from pathlib import Path
 from sdl2 import *
 import sdl2.ext as ext
 import esper
@@ -5,6 +7,8 @@ import esper
 
 RESOLUTION = 720, 480
 
+# Parent dir of this script, to find the PNGs regardless of cwd
+path = Path(__file__).parent
 
 ##################################
 #  Define some Components:
@@ -66,7 +70,7 @@ class RenderProcessor:
             destination.y = int(rend.y)
             destination.w = rend.w
             destination.h = rend.h
-            SDL_RenderCopy(self.renderer.renderer, rend.texture, None, destination)
+            SDL_RenderCopy(self.renderer.sdlrenderer, rend.texture, None, destination)
         self.renderer.present()
 
 
@@ -76,7 +80,7 @@ class RenderProcessor:
 def texture_from_image(renderer, image_name):
     """Create an SDL2 Texture from an image file"""
     soft_surface = ext.load_image(image_name)
-    texture = SDL_CreateTextureFromSurface(renderer.renderer, soft_surface)
+    texture = SDL_CreateTextureFromSurface(renderer.sdlrenderer, soft_surface)
     SDL_FreeSurface(soft_surface)
     return texture
 
@@ -94,11 +98,11 @@ def run():
     # Initialize Esper world, and create a "player" Entity with a few Components.
     player = esper.create_entity()
     esper.add_component(player, Velocity(x=0, y=0))
-    esper.add_component(player, Renderable(texture=texture_from_image(renderer, "redsquare.png"),
+    esper.add_component(player, Renderable(texture=texture_from_image(renderer, str(path / "redsquare.png")),
                                            width=64, height=64, posx=100, posy=100))
     # Another motionless Entity:
     enemy = esper.create_entity()
-    esper.add_component(enemy, Renderable(texture=texture_from_image(renderer, "bluesquare.png"),
+    esper.add_component(enemy, Renderable(texture=texture_from_image(renderer, str(path / "bluesquare.png")),
                                           width=64, height=64, posx=400, posy=250))
 
     # Create some Processor instances, and asign them to be processed.
