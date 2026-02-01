@@ -1,10 +1,4 @@
-# /// script
-# requires-python = ">=3.8"
-# dependencies = [
-#     "esper",
-#     "pygame",
-# ]
-# ///
+#!/usr/bin/env python
 from pathlib import Path
 import pygame
 import esper
