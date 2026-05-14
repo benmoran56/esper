@@ -461,7 +461,7 @@ def try_remove_component(entity: int, component_type: type[_C]) -> _C | None:
             del _components[component_type]
 
         clear_cache()
-        return _entities[entity].pop(component_type)  # type: ignore[no-any-return]
+        return _entities[entity].pop(component_type, None)  # type: ignore[no-any-return]
 
     return None
 
