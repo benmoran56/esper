@@ -1,3 +1,13 @@
+esper 3.8
+=========
+Maintenance release
+
+Changes
+-------
+- Fix incorrect return type hints for try_components. #120
+- Fix bug where cached components could be lost when switching worlds. #121
+
+
 esper 3.7
 =========
 Maintenance release
