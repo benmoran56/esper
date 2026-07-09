@@ -11,6 +11,7 @@ def _reset_to_zero():
     # Wipe out all world contexts
     # and re-create the default.
     esper._context_map.clear()
+    esper._current_world = None  # type: ignore[assignment]
     esper.switch_world("default")
 
 
@@ -708,6 +709,55 @@ def test_delete_world():
 
     with pytest.raises(KeyError):
          esper.delete_world("non_existent")
+
+
+def test_switch_world_cache_dirty():
+    """Verify that switching worlds preserves the cache dirty flag.
+
+    This test reproduces the bug from issue #121: get_component returns
+    stale data after switching to an already-existing world that was
+    modified by add_component.
+    """
+    esper.switch_world("issue121_test")
+
+    class Component:
+        pass
+
+    e = esper.create_entity()
+
+    c = esper.get_component(Component)
+    assert len(c) == 0
+
+    esper.add_component(e, Component())
+
+    esper.switch_world("issue121_test")
+
+    c = esper.get_component(Component)
+    assert len(c) == 1
+
+    esper.switch_world("default")
+    esper.delete_world("issue121_test")
+
+
+def test_switch_world_same_entities_preserved():
+    """Verify that switching to a world and back preserves entities and components."""
+    esper.switch_world("world_a")
+    e = esper.create_entity()
+    esper.add_component(e, ComponentA())
+
+    esper.switch_world("world_b")
+    c = esper.get_component(ComponentA)
+    assert len(c) == 0
+
+    esper.switch_world("world_a")
+    c = esper.get_component(ComponentA)
+    assert len(c) == 1
+    assert c[0][1] is not None
+
+    esper.switch_world("default")
+    esper.delete_world("world_a")
+    esper.delete_world("world_b")
+
 
 ##################################################
 #   Some helper functions and Component templates:

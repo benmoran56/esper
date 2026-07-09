@@ -203,9 +203,6 @@ def switch_world(name: str) -> None:
 
     .. note:: At startup, a "default" World context is active.
     """
-    if name not in _context_map:
-        _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, False, {}, {})
-
     global _current_world
     global _entity_count
     global _components
@@ -219,6 +216,17 @@ def switch_world(name: str) -> None:
     global process_times
     global event_registry
     global current_world
+
+    if _current_world is not None:
+        _context_map[_current_world] = (
+            _entity_count, _components, _entities, _dead_entities,
+            _get_component_cache, _get_components_cache,
+            _processors, _processors_dict, _cache_dirty,
+            process_times, event_registry,
+        )
+
+    if name not in _context_map:
+        _context_map[name] = (_count(start=1), {}, {}, set(), {}, {}, [], {}, False, {}, {})
 
     (_entity_count, _components, _entities, _dead_entities, _get_component_cache,
      _get_components_cache, _processors, _processors_dict, _cache_dirty,
