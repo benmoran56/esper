@@ -579,17 +579,17 @@ def try_component(entity: int, component_type: type[_C]) -> _C | None:
 
 
 @_overload
-def try_components(entity: int, __c1: type[_C], __c2: type[_C2]) -> tuple[_C, _C2]:
+def try_components(entity: int, __c1: type[_C], __c2: type[_C2]) -> tuple[_C, _C2] | None:
     ...
 
 
 @_overload
-def try_components(entity: int, __c1: type[_C], __c2: type[_C2], __c3: type[_C3]) -> tuple[_C, _C2, _C3]:
+def try_components(entity: int, __c1: type[_C], __c2: type[_C2], __c3: type[_C3]) -> tuple[_C, _C2, _C3] | None:
     ...
 
 
 @_overload
-def try_components(entity: int, __c1: type[_C], __c2: type[_C2], __c3: type[_C3], __c4: type[_C4]) -> tuple[_C, _C2, _C3, _C4]:
+def try_components(entity: int, __c1: type[_C], __c2: type[_C2], __c3: type[_C3], __c4: type[_C4]) -> tuple[_C, _C2, _C3, _C4] | None:
     ...
 
 
