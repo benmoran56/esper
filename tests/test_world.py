@@ -154,6 +154,32 @@ def test_get_three_components():
         assert isinstance(e, ComponentE)
 
 
+def test_get_components_smallest_set_missing_component():
+    # Regression test: _get_components scans for the smallest component set
+    # first. When a type is set aside before a new smallest set is found, the
+    # previously-smallest type must be the one moved aside. Component sizes are
+    # arranged so ComponentB is set aside, then ComponentC becomes the new
+    # smallest -- ComponentA (the prior smallest) must not be dropped, otherwise
+    # an entity that matches on the remaining types but lacks ComponentA raises
+    # a KeyError while building the result tuple.
+    esper.create_entity(ComponentB(), ComponentC())    # matches B and C, not A
+    esper.create_entity(ComponentA())
+    esper.create_entity(ComponentA())
+    esper.create_entity(ComponentB())
+    esper.create_entity(ComponentB())
+    entity_all = esper.create_entity(ComponentA(), ComponentB(), ComponentC())
+
+    # sizes: A=3, B=4, C=2 -> C is discovered as the smallest set last
+    result = esper.get_components(ComponentA, ComponentB, ComponentC)
+
+    assert len(result) == 1
+    ent, (a, b, c) = result[0]
+    assert ent == entity_all
+    assert isinstance(a, ComponentA)
+    assert isinstance(b, ComponentB)
+    assert isinstance(c, ComponentC)
+
+
 def test_try_component():
     entity1 = esper.create_entity(ComponentA(), ComponentB())
 
