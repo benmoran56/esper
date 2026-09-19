@@ -154,6 +154,29 @@ def test_get_three_components():
         assert isinstance(e, ComponentE)
 
 
+def test_get_components_min_set_selection_does_not_drop_a_filter_type():
+    # Regression test: when a later component type has a smaller entity set
+    # than the current minimum, _get_components() used to record the WRONG
+    # "now demoted" type in other_types (picked by position, not by which
+    # type was actually previously the minimum). That could silently drop a
+    # filter type entirely and duplicate another one, letting entities that
+    # don't have all the requested components slip through and then raise a
+    # KeyError when their missing component was accessed.
+    for _ in range(9):
+        esper.create_entity(ComponentA())
+    for _ in range(2):
+        esper.create_entity(ComponentA(), ComponentB())
+    for _ in range(7):
+        esper.create_entity(ComponentA(), ComponentC())
+    # Has A, C, D but not B -- must never be yielded below.
+    esper.create_entity(ComponentA(), ComponentC(), ComponentD())
+    full_entity = esper.create_entity(ComponentA(), ComponentB(), ComponentC(), ComponentD())
+
+    results = esper.get_components(ComponentA, ComponentB, ComponentC, ComponentD)
+    entities = [ent for ent, _ in results]
+    assert entities == [full_entity]
+
+
 def test_try_component():
     entity1 = esper.create_entity(ComponentA(), ComponentB())
 

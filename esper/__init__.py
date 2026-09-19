@@ -494,6 +494,7 @@ def _get_components(*component_types: type[_C]) -> _Iterable[tuple[int, tuple[_C
 
     min_set = None
     min_size = inf
+    min_type = None
     other_types = []
 
     for ct in component_types:
@@ -502,10 +503,11 @@ def _get_components(*component_types: type[_C]) -> _Iterable[tuple[int, tuple[_C
             return
         set_size = len(comp_set)
         if set_size < min_size:
-            if min_set is not None:
-                other_types.append(component_types[len(other_types)])
+            if min_type is not None:
+                other_types.append(min_type)
             min_size = set_size
             min_set = comp_set
+            min_type = ct
         else:
             other_types.append(ct)
 
