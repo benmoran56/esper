@@ -495,6 +495,7 @@ def _get_components(*component_types: type[_C]) -> _Iterable[tuple[int, tuple[_C
     min_set = None
     min_type = None
     min_size = inf
+    min_type = None
     other_types = []
 
     for ct in component_types:
