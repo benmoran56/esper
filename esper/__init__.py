@@ -22,7 +22,7 @@ from math import inf
 
 from itertools import count as _count
 
-__version__ = version = '3.8'
+__version__ = version = '3.9'
 
 
 ###################

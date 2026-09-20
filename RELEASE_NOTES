@@ -1,3 +1,12 @@
+esper 3.9
+=========
+Maintenance release
+
+Changes
+-------
+- Fix _get_components() dropping a filter type when the min-size set changes twice. #124
+
+
 esper 3.8
 =========
 Maintenance release

@@ -2,6 +2,7 @@
 import pyglet
 import esper
 
+from dataclasses import dataclass
 
 FPS = 60
 RESOLUTION = 720, 480
@@ -10,12 +11,6 @@ RESOLUTION = 720, 480
 ##################################
 #  Define some Components:
 ##################################
-class Velocity:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
-
-
 class Renderable:
     def __init__(self, sprite):
         self.sprite = sprite
@@ -23,12 +18,17 @@ class Renderable:
         self.h = sprite.height
 
 
+# Dataclasses are also handy:
+@dataclass
+class Velocity:
+    x: float = 0.0
+    y: float = 0.0
+
 ################################
 #  Define some Processors:
 ################################
-class MovementProcessor:
+class MovementProcessor(esper.Processor):
     def __init__(self, minx, maxx, miny, maxy):
-        super().__init__()
         self.minx = minx
         self.maxx = maxx
         self.miny = miny
@@ -58,21 +58,16 @@ batch = pyglet.graphics.Batch()
 # Initialize Esper world, and create a "player" Entity with a few Components:
 player = esper.create_entity()
 esper.add_component(player, Velocity(x=0, y=0))
-player_image = pyglet.resource.image("redsquare.png")
-esper.add_component(player, Renderable(sprite=pyglet.sprite.Sprite(img=player_image,
-                                                                   x=100,
-                                                                   y=100,
-                                                                   batch=batch)))
+player_image = pyglet.resource.texture("redsquare.png")
+esper.add_component(player, Renderable(sprite=pyglet.sprite.Sprite(img=player_image, x=100, y=100, batch=batch)))
 # Another motionless Entity:
 enemy = esper.create_entity()
-enemy_image = pyglet.resource.image("bluesquare.png")
-esper.add_component(enemy, Renderable(sprite=pyglet.sprite.Sprite(img=enemy_image,
-                                                                  x=400,
-                                                                  y=250,
-                                                                  batch=batch)))
+enemy_image = pyglet.resource.texture("bluesquare.png")
+esper.add_component(enemy, Renderable(sprite=pyglet.sprite.Sprite(img=enemy_image, x=400, y=250, batch=batch)))
 
 # Create some Processor instances, and asign them to the World to be processed:
 movement_processor = MovementProcessor(minx=0, miny=0, maxx=RESOLUTION[0], maxy=RESOLUTION[1])
+esper.add_processor(movement_processor)
 
 
 ################################################
@@ -113,5 +108,5 @@ if __name__ == "__main__":
     # NOTE!  schedule_interval will automatically pass a "delta time" argument
     #        to esper.process, so you must make sure that your Processor classes
     #        account for this. See the example Processors above.
-    pyglet.clock.schedule_interval(movement_processor.process, interval=1.0/FPS)
+    pyglet.clock.schedule_interval(esper.process, interval=1.0/FPS)
     pyglet.app.run()
