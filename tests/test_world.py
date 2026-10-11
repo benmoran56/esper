@@ -835,3 +835,76 @@ def myhandler_onearg(arg):
 
 def myhandler_twoargs(arg1, arg2):
     print("Args:", arg1, arg2)
+
+
+def test_remove_bound_method_handler():
+    calls = []
+
+    class Listener:
+        def handle(self):
+            calls.append("called")
+
+    listener = Listener()
+    esper.set_handler("event", listener.handle)
+    esper.dispatch_event("event")
+    esper.remove_handler("event", listener.handle)
+    esper.remove_handler("event", listener.handle)
+    esper.dispatch_event("event")
+    assert calls == ["called"]
+    assert "event" not in esper.event_registry
+
+
+@pytest.mark.parametrize("bound_method", [False, True])
+def test_collect_handler_in_inactive_world(bound_method):
+    import gc
+    import weakref
+
+    calls = []
+
+    class Listener:
+        def handle(self):
+            calls.append("left")
+
+    def handler():
+        calls.append("left")
+
+    esper.switch_world("left")
+    owner = Listener() if bound_method else handler
+    esper.set_handler("event", owner.handle if bound_method else owner)
+    reference = weakref.ref(owner)
+    del handler
+    esper.switch_world("right")
+
+    def right_handler():
+        calls.append("right")
+
+    esper.set_handler("event", right_handler)
+    del owner
+    gc.collect()
+    assert reference() is None
+    esper.dispatch_event("event")
+    assert calls == ["right"]
+    esper.switch_world("left")
+    esper.dispatch_event("event")
+    assert calls == ["right"]
+    assert "event" not in esper.event_registry
+
+
+def test_handler_can_remove_itself_during_dispatch():
+    calls = []
+
+    class Listener:
+        def handle(self):
+            calls.append("once")
+            esper.remove_handler("event", self.handle)
+
+    def persistent():
+        calls.append("persistent")
+
+    listener = Listener()
+    esper.set_handler("event", listener.handle)
+    esper.set_handler("event", persistent)
+    esper.dispatch_event("event")
+    esper.dispatch_event("event")
+    assert calls.count("once") == 1
+    assert calls.count("persistent") == 2

@@ -41,17 +41,23 @@ def dispatch_event(name: str, *args: _Any) -> None:
             do not account for them, it will likely result in a
             TypeError or other undefined crash.
     """
-    for func in event_registry.get(name, []):
-        func()(*args)
+    for func_ref in tuple(event_registry.get(name, ())):
+        func = func_ref()
+        if func is not None:
+            func(*args)
 
 
 def _make_callback(name: str) -> _Callable[[_Any], None]:
     """Create an internal callback to remove dead handlers."""
+    registry = event_registry
 
     def callback(weak_method: _Any) -> None:
-        event_registry[name].remove(weak_method)
-        if not event_registry[name]:
-            del event_registry[name]
+        handlers = registry.get(name)
+        if handlers is None:
+            return
+        handlers.discard(weak_method)
+        if not handlers:
+            del registry[name]
 
     return callback
 
@@ -80,7 +86,7 @@ def remove_handler(name: str, func: _Callable[..., None]) -> None:
     receive the named event, or if the named event does
     not exist, this function call will pass silently.
     """
-    func_ref = _ref(func)
+    func_ref = _WeakMethod(func) if isinstance(func, _MethodType) else _ref(func)
     if func_ref not in event_registry.get(name, []):
         return
 
