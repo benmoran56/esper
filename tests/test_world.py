@@ -835,3 +835,19 @@ def myhandler_onearg(arg):
 
 def myhandler_twoargs(arg1, arg2):
     print("Args:", arg1, arg2)
+
+
+@pytest.mark.parametrize("components", [(), (ComponentA(),), (ComponentA(), ComponentB())])
+@pytest.mark.parametrize("finalize", [esper.process, esper.timed_process, esper.clear_dead_entities])
+def test_immediate_deletion_after_deferred(components, finalize):
+    entity = esper.create_entity(*components)
+    survivor = esper.create_entity(ComponentA())
+    esper.get_component(ComponentA)
+    esper.delete_entity(entity)
+    esper.delete_entity(entity, immediate=True)
+    finalize()
+    assert not esper.entity_exists(entity)
+    assert esper.entity_exists(survivor)
+    assert [ent for ent, _ in esper.get_component(ComponentA)] == [survivor]
+    with pytest.raises(KeyError):
+        esper.delete_entity(entity, immediate=True)

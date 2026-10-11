@@ -360,6 +360,7 @@ def delete_entity(entity: int, immediate: bool = False) -> None:
                 del _components[component_type]
 
         del _entities[entity]
+        _dead_entities.discard(entity)
         clear_cache()
     else:
         _dead_entities.add(entity)
