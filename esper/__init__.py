@@ -426,13 +426,14 @@ def add_component(entity: int, component_instance: _C, type_alias: type[_C] | No
     subclasses to organize your Components, but would like to query them
     later by some common parent type.
     """
+    entity_dict = _entities[entity]
     component_type = type_alias or type(component_instance)
 
     if component_type not in _components:
         _components[component_type] = set()
 
     _components[component_type].add(entity)
-    _entities[entity][component_type] = component_instance
+    entity_dict[component_type] = component_instance
     clear_cache()
 
 

@@ -34,9 +34,32 @@ def test_create_entity_with_components():
     assert esper.has_component(entity2, ComponentC) is True
 
 
-def test_adding_component_to_not_existing_entity_raises_error():
-    with pytest.raises(KeyError):
-        esper.add_component(123, ComponentA())
+@pytest.mark.parametrize("use_alias", [False, True])
+@pytest.mark.parametrize("existing_component", [False, True])
+def test_adding_component_to_not_existing_entity_raises_error(use_alias, existing_component):
+    component_type = ComponentF if use_alias else ComponentA
+    component = ComponentA()
+    other_component = ComponentB()
+    entity = esper.create_entity(other_component)
+    if existing_component:
+        esper.add_component(entity, component, type_alias=component_type)
+
+    expected = [(entity, component)] if existing_component else []
+    expected_pair = [(entity, (component, other_component))] if existing_component else []
+    assert esper.get_component(component_type) == expected
+    assert esper.get_components(component_type, ComponentB) == expected_pair
+
+    with pytest.raises(KeyError, match="123"):
+        esper.add_component(123, ComponentA(), type_alias=component_type)
+
+    assert not esper.entity_exists(123)
+    assert list(esper.get_entities()) == [entity]
+    assert esper.get_component(component_type) == expected
+    assert esper.get_components(component_type, ComponentB) == expected_pair
+
+    esper.clear_cache()
+    assert esper.get_component(component_type) == expected
+    assert esper.get_components(component_type, ComponentB) == expected_pair
 
 
 def test_create_entity_and_add_components():
